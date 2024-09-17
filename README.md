@@ -4,3 +4,4 @@
 - dito lettura braille
 - parcheggio smart
 - filtraggio acqua doccia per riuso
+- mezzo-guanto smart per controllo dispositivi (es PC)
