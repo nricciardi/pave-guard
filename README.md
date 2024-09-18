@@ -5,3 +5,4 @@
 - parcheggio smart
 - filtraggio acqua doccia per riuso
 - mezzo-guanto smart per controllo dispositivi (es PC)
+- sistema di lampioni smart con rilevamento auto per gestione luci e traffico
