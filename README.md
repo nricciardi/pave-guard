@@ -49,6 +49,10 @@ sistema di lampioni smart con rilevamento auto per gestione luci, traffico, rile
 - Controllo e previsione (programmazione squadra manutenzione) stato della strada
 - Analisi del traffico
 - Richiesta soccorso stradale
+- velocità veicoli
+- Scatola fisica da installare sui lampioni
+
+
 
 ## Scacchiera
 
