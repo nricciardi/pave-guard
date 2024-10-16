@@ -1,71 +1,46 @@
-# iot-master-project
+# PaveGuard
 
-- Controllo della qualità dell'area di una stanza (produzione ossigeno, apertura finestre, ...)
-- dito lettura braille
-- parcheggio smart
-- filtraggio acqua doccia per riuso
-- mezzo-guanto smart per controllo dispositivi (es PC)
-- sistema di lampioni smart con rilevamento auto per gestione luci, traffico, rilevamento buche, gestione manutenzione predittiva strade in base a pioggia e traffico
-- scacchiera con movimento automatico/led + gestione partite online
-
-...
+Sistema distribuito per il monitoraggio delle strade urbane.
 
 
-## Pet da lavoro
+## Rete di dispositivi
 
-Uno per persona a supporto del lavoro 
+PaveGuard si compone di due differenti tipologie di dispositivi fisici:
 
-- Controllo qualità aria
-- Pulsante non disturbare
-- Pulsante pausa imminente
-- Gestore compiti
-- Valutazione stato lavoratore => consiglia la pausa
-- Integrazione con calendario (notifica eventi)
-- Upload veloce file
-- Status di presenza
+- **Guard fissi** [TBD]
+- **Guard mobili** [TBD]
 
-Interconnessi tra tutti quelli dell'ufficio/team per:
+I **guard fissi** sono dispositivi montati su lampioni o pali per monitorare le *condizioni ambientali* 
+(es. meteo) e il *livello di traffico* di un breve tratto di strada.
 
-- invio richiesta di assistenza (es tra i vari uffici)
+I **guard mobili** sono dispositivi installati su auto che muovendosi nell'ambiente urbano catturano informazioni sulle 
+reali condizioni stradali grazie a 3 parametri:
 
-Sensori:
-
-- Pulsante
-- Qualità aria (ossigeno/CO2/temperatura/umidità/...)
-- Fotocamera controllo stanchezza/stress/postura
-- Schermo touchscreen
-
-Attuatori:
-
-- Schermo
-- Lampade smart
+- Velocità
+- Vibrazione (per individuare tratti stradali a pelle di coccodrillo)
+- Videocamera (per individuare tratti stradali con buche evidenti)
 
 
-## Controllo strada
-
-sistema di lampioni smart con rilevamento auto per gestione luci, traffico, rilevamento buche, gestione manutenzione predittiva strade in base a pioggia e traffico
-
-- Accensione in base al movimento dei lampioni
-- Controllo e previsione (programmazione squadra manutenzione) stato della strada
-- Analisi del traffico
-- Richiesta soccorso stradale
-- velocità veicoli
-- Scatola fisica da installare sui lampioni
+L'unione dei dati dei guard mobili, dei guard fissi e meteo dei giorni/mesi successivi su un tratto di strada forniscono i dati per fare **previsioni** su eventuali futuri interventi da effettuare per il rifacimento del tratto stradale o eventuale manutenzione predittiva.
 
 
 
-## Scacchiera
+## Cose da chiedere:
 
-Scacchiere con movimento automatico/led per gestione partite online
-
-
-
-
+- Comunicazione dei dati? Guard mobili -> guard fissi -> server?
+- I dataset?
+- altre aggiunte? es. soccorso stradale sui guard fissi
 
 
 
+## Risorse
 
+Per capire il traffico e se la strada è bagnata: https://acoustics.org/assessment-of-road-surfaces-using-sound-analysis/
 
+Esempio rudimentale sistema rilevazione buche: https://github.com/anantSinghCross/pothole-detection-system-using-convolution-neural-networks
 
+Photole detection più studiato con dati: https://github.com/tamagusko/pothole-detection 
 
+https://github.com/noorkhokhar99/Pothole-Detection-Pothole-Detection-using-python-and-deep-learning
 
+https://github.com/biodatlab/learnai-potholes-detection
