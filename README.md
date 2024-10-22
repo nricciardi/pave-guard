@@ -2,6 +2,7 @@
 
 Sistema distribuito per il monitoraggio delle strade urbane.
 
+[*TODO*](TODO.md)
 
 ## Rete di dispositivi
 
@@ -68,12 +69,6 @@ TODO: foto frequency in base alla velocità
 
 TODO: dataset e modello (yolo)
 
-
-## Cose da chiedere:
-
-- Comunicazione dei dati? Guard mobili -> guard fissi -> server?
-- I dataset?
-- altre aggiunte? es. soccorso stradale sui guard fissi
 
 
 
