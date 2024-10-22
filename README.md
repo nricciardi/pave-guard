@@ -7,22 +7,66 @@ Sistema distribuito per il monitoraggio delle strade urbane.
 
 PaveGuard si compone di due differenti tipologie di dispositivi fisici:
 
-- **Guard fissi** [TBD]
-- **Guard mobili** [TBD]
+- **Static Guard**
+- **Dynamic Guard**
 
-I **guard fissi** sono dispositivi montati su lampioni o pali per monitorare le *condizioni ambientali* 
+
+
+### Static Guard 
+
+**Static Guard** sono dispositivi montati su lampioni o pali per monitorare le *condizioni ambientali* 
 (es. meteo) e il *livello di traffico* di un breve tratto di strada.
 
-I **guard mobili** sono dispositivi installati su auto che muovendosi nell'ambiente urbano catturano informazioni sulle 
+
+### Dynamic Guard 
+
+**Dynamic Guard** positivi installati su auto che muovendosi nell'ambiente urbano catturano informazioni sulle 
 reali condizioni stradali grazie a 3 parametri:
 
-- Velocità
-- Vibrazione (per individuare tratti stradali a pelle di coccodrillo)
-- Videocamera (per individuare tratti stradali con buche evidenti)
-
+- **Velocità**
+- **Vibrazione** (per individuare tratti stradali a pelle di coccodrillo)
+- **Videocamera** (per individuare tratti stradali con buche evidenti)
 
 L'unione dei dati dei guard mobili, dei guard fissi e meteo dei giorni/mesi successivi su un tratto di strada forniscono i dati per fare **previsioni** su eventuali futuri interventi da effettuare per il rifacimento del tratto stradale o eventuale manutenzione predittiva.
 
+#### Bridge
+
+Nel prototipo il **bridge** è vincolato ad essere un dispositivo mobile (Android!) che abbia:
+
+- GPS
+- Connessione a Internet
+
+Lo smartphone invia i dati al server tramite la connessione dati
+
+TODO: ogni quanto mandare i dati al server?
+
+TODO: bluetooth o cavo per connettere lo smartphone con micro-controllore + sensori.  
+
+TODO: come fare (flutter, nativa?), cosa mettere (dashboard)?
+
+
+#### Sensori
+
+TODO: utilizzare solo il telefono con tutti sensori "interni" oppure un dispositivo a parte?
+
+##### Velocità
+
+La **velocità** viene ottenuta tramite i sensori presenti sul bridge (smartphone) quali:
+
+- GPS
+- Accelerometro
+- ...
+
+TODO: come fare?
+
+
+##### Telecamera
+
+TODO: fotocamera telefono?
+
+TODO: foto frequency in base alla velocità
+
+TODO: dataset e modello (yolo)
 
 
 ## Cose da chiedere:
