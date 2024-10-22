@@ -30,13 +30,36 @@ Per il codice:
 
 TODO
 
+## Fotocamera
+
+Quella del cellulare?
+
+## Accelerometro
+
+Per l'acquisto:
+[Modulo giroscopio accelerometro a 3 assi](https://www.amazon.it/ARCELI-giroscopio-accelerometro-Accelerometer-Convertitore/dp/B07BVXN2GP/ref=sr_1_6?__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=HSB2TIUYBKUF&dib=eyJ2IjoiMSJ9.RwQWIpYBctj3EU1OAr1KIGbetcU3a9flZoat59Mnw7A2TGTKYay11gy3pDtIVU5iefRais2Ye3kHpapjMLvPlkrcFoVyAnQIZSt0N50uLd0zA5wR6LwHBSd-9IaXvY8JOh672Y-MWxeuIkf65dol4BEgt1FNBw3tvXNRA3llmo6-JDtodDVhx6pAyI1E3ZPjMRzeTEzyB2ANAjMrKFfKS3P_qGDGDQHoi6wY-g8QGPMzJ0dVZ__gLioQjhcZaCt5xfsz7t6Jz8RLntvx52yUsY0X2c1lCeSdu-6M65MOpiI.WYizvD0Y5dAxm6mDaGkYok785JK6MR-9ng7LanQdi3Y&dib_tag=se&keywords=accelerometro&qid=1729622275&sprefix=accelerometro%2Caps%2C243&sr=8-6)
+
+Per il codice:
+[Tutorial](https://randomnerdtutorials.com/esp32-mpu-6050-accelerometer-gyroscope-arduino/)
+
+## GPS 
+
+Quello del cellulare? O esterno?
+
+Per l'acquisto esterno:
+[Modulo di controllo di volo](https://www.amazon.it/ICQUANZX-GY-NEO6MV2-Controller-ceramica-resistente/dp/B088LR3488/ref=sr_1_5?__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=26W66PVOSH95N&dib=eyJ2IjoiMSJ9.FVqH72Lcm5HmctctPIJMbl_TA34N9G7Pl5vxoLe35uapWNhT0xCFXODz9fWMLzNsA5t4SlHzQwhUpahsZGn82hW51_46LDdjf8IPkZseukxjGPO6PwPIzgPaim1i08a0XH8_VHgjwFB-FOBcwCi-DEtxoNaDYwW1YGBqf1MBVv_f24qgM8jtk45RAQzhV1Pinx6Fb4LJyT3Y6qlPpG9YSTLGdfEjEPDSGMvgJk7s7RyWeZ59MBJ0NncS_80DV_y0gfTp2jwbxX9UmRTfM-Ohz6gtEfmtQiunLca8bwzkKZE.p2nDB0CpeUz1pOpMgzFQsfG6pOl2hQChrQxUeQmCiWk&dib_tag=se&keywords=gps+arduino&qid=1729622354&sprefix=gps+arduinp%2Caps%2C247&sr=8-5)
+
+Per il codice:
+[Guide to GPS Module Arduino](https://randomnerdtutorials.com/guide-to-neo-6m-gps-module-with-arduino/)
+(P.S.: Qui parla di una libreria TinyGPS++ per il parsing dei suoi output.)
+
 
 # Bridge static guard
 
 TODO
 
 
-# Applicazione/bride dynamic guard
+# Applicazione/bridge dynamic guard
 
 TODO
 
