@@ -10,7 +10,16 @@ TODO
 
 ## Microfono
 Per valutare l'acquisto:
-[Microfono ad alta sensibilità per Arduino](https://www.amazon.it/AZDelivery-KY-037-Mikrofon-Modul-Parent/dp/B089QHGFTS?th=1)
+
+La serie [Max****](https://www.amazon.it/AZDelivery-Max9814-Amplificatore-Microfono-compatibile/dp/B086W79GPG/ref=pd_bxgy_d_sccl_1/259-3081792-9538652?pd_rd_w=uQRoi&content-id=amzn1.sym.1dc7d97b-1a1c-458c-b144-e0e060559c6e&pf_rd_p=1dc7d97b-1a1c-458c-b144-e0e060559c6e&pf_rd_r=QS5ZDNE302C3S15YZ6G4&pd_rd_wg=8hx1s&pd_rd_r=85144c58-3992-4cec-83d1-32e8c562ce95&pd_rd_i=B086W79GPG&th=1) sono sensori più precisi (dovrebbero essere registratori a tutti gli effetti), hanno il regolatore automatico del guadagno ecc
+
+[KY-037](https://www.amazon.it/AZDelivery-KY-037-Mikrofon-Modul-Parent/dp/B089QHGFTS?th=1) sono rilevatori di suoni (non proprio microfoni).
+
+Dice Chat:
+
+> KY-037 è più semplice e meno preciso rispetto al MAX9814, ma è utile per rilevare la presenza di suoni
+
+> Max**** è comunemente usato in progetti di registrazione audio, analisi del parlato o rilevamento del livello sonoro in ambienti complessi.
 
 Per il codice: 
 [Detecting high and low sound](https://www.circuitbasics.com/how-to-use-microphones-on-the-arduino/)
@@ -20,8 +29,23 @@ Per il codice:
 
 ### Sensore di pioggia
 
-Per l'acquisto:
+~~Per l'acquisto:~~
 [Sensore di pioggia e umidità](https://www.amazon.com/HiLetgo-Moisture-Humidity-Sensitivity-Nickeled/dp/B01DK29K28/ref=sr_1_3?dib=eyJ2IjoiMSJ9.W0zET8tH2yC3sMV5rPnocEFE77pi8HWfKiElvB9EU6J-Tz86BAbAo92TYWsNGQEWb0cXIbRN6sfJC9ece9UniSgQygyi1suexYdujA5Y0DUDJ9k5AfUjEnTRujcVTJYLPPi2GvKHLWbIpsk0P_XxhbhRxThuX7KcYBhYcMKwQw7HbAxtmo3A9G-KM3zPY4ZnEjF7bGsu2UFbgoC_iO22BbZFo7Y1SuPhjxC7ynOdXAQ.TNXbgymT2VCH9qdlqttv5XGsiiNnofjH3i_1KDuvMh8&dib_tag=se&keywords=rain+sensor+arduino&qid=1729622095&sr=8-3)
+
+^^^ Mi pare che sia un sensore solo per il rilevamento di acqua sulla sua superficie, quindi ci dice "piove si/no" 
+
+Sempre Chat consiglia l'unione di:
+
+- Sensore temperatura
+- Sensore di luce LDR (Light Dependent Resistor) => per sapere _quanto_ solo c'è (potrebbe essere utile (?))
+- **Pluviometro (Rain Gauge)**: Se hai bisogno di misurare la quantità di pioggia accumulata, un pluviometro è essenziale. Il sensore funziona raccogliendo l'acqua in un piccolo contenitore e misura la quantità d'acqua che passa attraverso un canale. Vantaggi: ci dice quanta pioggia c'è, non solo c'è/non c'è
+- Sensore umidità (da capire se opzionale visto il sensore sopra)
+
+Non ci sono molti pluviometri su Internet mi pare... ho trovato questo:
+
+[Pluviometro per poveri](https://www.amazon.it/MISOL-Ricambio-stazione-misurare-pluviometro/dp/B00QDMBXUA/ref=sr_1_1?__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=W94OZ3KXICA9&dib=eyJ2IjoiMSJ9.Yh3USjJaLUyeJtsadYPF2hciwfMz-t8x-xCjKoUjcNxywqD7YwNcb5l1mpTyAogvbdjyP7L0wx6odAQfv-VyzNy2FVdAxInl6_Idj7pctgsMZgITZ2Qy9eBtIZQRkf8pZW6SMz7JT4a3E4hDY0p0a93ThiiEiKgV0hkwA3w-pLnVzbNgcaheC-0zNob8FX1wj-wBR0oyhM6C35wGkVJGMSXcVYNezm4ZZV9Qo__rd_GY7FPvb2swUQHL4aNRB8hbltJheLdIC_Qg_yKOCDsqf_GNA_FR1m4GEW_q_ZwFOig.0D8HeD3MNAzNTrWJ-zoe5rfHqUgcDZq2Zf8ovECkEl0&dib_tag=se&keywords=rain+gauge+arduino&qid=1729695752&sprefix=rain+gauge+arduino%2Caps%2C111&sr=8-1)
+
+Come usarlo non lo so, c'è un cavo, bisogna indagare.
 
 Per il codice:
 [How does a rain sensor work?](https://circuitdigest.com/microcontroller-projects/interfacing-rain-sensor-with-arduino)
@@ -32,7 +56,16 @@ TODO
 
 ## Fotocamera
 
-Quella del cellulare?
+_Quella del cellulare?_
+
+> Se usiamo quella del cellulare ci tocca comprare il coso con la ventosa per tenere il telefono fisso in posizione verso la strada.
+> A questo punto forse conviene comprare una fotocamera esterna, almeno fa più scena, no?
+
+[Fascia poveri](https://www.amazon.it/Hailege-OV7670-640x480-Fotocamera-Arduino/dp/B08D7DFK18/ref=sr_1_1?__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=DTJZR6KVWHU2&dib=eyJ2IjoiMSJ9.nZbJHBCkzb4kcg7OX79i9DFDTbAzvj3L5NDptwBTzb0mdu3lqAnY-rnznEAtoALen-_7f48ejsU52OYGW5cctBEgnoUxX3EhNj48C3A3hHjoclUu1sNfwhwhQ9LURf7BEN5ve5ZSsu9NGqwdFbvLVo9HWat8OAC7udGHFdgCZy-TIXUovMc7qXGukyFfLSgUIaEJ77q1DLFFpr_M-F4mLlAhGCDNcJN1fPtfo3d6OM0m_kjia28RIk9zcC5s3krT_pwyF76h6fFc1PuqvHpG91Sg7vxFbuG9O6k9D5dt60s.orwjAJ3cTxj2cfwuFv9rNGAkxSS44ObjBnDNC9OaQ0c&dib_tag=se&keywords=modulo+fotocamera+1080x720+arduino&qid=1729697735&sprefix=modulo+fotocamera+1080x720+arduino%2Caps%2C89&sr=8-1)
+
+[Fascia media](https://www.amazon.it/Videocamera-Obiettivo-Grandangolare-Interfaccia-W202012HD/dp/B08MQ43RF8/ref=sr_1_7?__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=DTJZR6KVWHU2&dib=eyJ2IjoiMSJ9.nZbJHBCkzb4kcg7OX79i9DFDTbAzvj3L5NDptwBTzb0mdu3lqAnY-rnznEAtoALen-_7f48ejsU52OYGW5cctBEgnoUxX3EhNj48C3A3hHjoclUu1sNfwhwhQ9LURf7BEN5ve5ZSsu9NGqwdFbvLVo9HWat8OAC7udGHFdgCZy-TIXUovMc7qXGukyFfLSgUIaEJ77q1DLFFpr_M-F4mLlAhGCDNcJN1fPtfo3d6OM0m_kjia28RIk9zcC5s3krT_pwyF76h6fFc1PuqvHpG91Sg7vxFbuG9O6k9D5dt60s.orwjAJ3cTxj2cfwuFv9rNGAkxSS44ObjBnDNC9OaQ0c&dib_tag=se&keywords=modulo+fotocamera+1080x720+arduino&qid=1729697658&sprefix=modulo+fotocamera+1080x720+arduino%2Caps%2C89&sr=8-7)
+
+[Alta risoluzione + gran angolo (costa di più ma forse fa più al caso nostro)](https://www.amazon.it/Fotocamera-HBV-1609-Obiettivo-Grandangolare-Milioni/dp/B0CKCTZYPB/ref=sr_1_28?__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=DTJZR6KVWHU2&dib=eyJ2IjoiMSJ9.nZbJHBCkzb4kcg7OX79i9DFDTbAzvj3L5NDptwBTzb0mdu3lqAnY-rnznEAtoALen-_7f48ejsU52OYGW5cctBEgnoUxX3EhNj48C3A3hHjoclUu1sNfwhwhQ9LURf7BEN5ve5ZSsu9NGqwdFbvLVo9HWat8OAC7udGHFdgCZy-TIXUovMc7qXGukyFfLSgUIaEJ77q1DLFFpr_M-F4mLlAhGCDNcJN1fPtfo3d6OM0m_kjia28RIk9zcC5s3krT_pwyF76h6fFc1PuqvHpG91Sg7vxFbuG9O6k9D5dt60s.orwjAJ3cTxj2cfwuFv9rNGAkxSS44ObjBnDNC9OaQ0c&dib_tag=se&keywords=modulo+fotocamera+1080x720+arduino&qid=1729697407&sprefix=modulo+fotocamera+1080x720+arduino%2Caps%2C89&sr=8-28)
 
 ## Accelerometro
 
