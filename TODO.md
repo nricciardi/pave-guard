@@ -9,7 +9,8 @@ Riempi le sezioni vuote con ciò che hai trovato (anche solo degli spunti), quan
 TODO
 
 ## Microfono
-Per valutare l'acquisto:
+
+~~Per valutare l'acquisto:~~
 
 La serie [Max****](https://www.amazon.it/AZDelivery-Max9814-Amplificatore-Microfono-compatibile/dp/B086W79GPG/ref=pd_bxgy_d_sccl_1/259-3081792-9538652?pd_rd_w=uQRoi&content-id=amzn1.sym.1dc7d97b-1a1c-458c-b144-e0e060559c6e&pf_rd_p=1dc7d97b-1a1c-458c-b144-e0e060559c6e&pf_rd_r=QS5ZDNE302C3S15YZ6G4&pd_rd_wg=8hx1s&pd_rd_r=85144c58-3992-4cec-83d1-32e8c562ce95&pd_rd_i=B086W79GPG&th=1) sono sensori più precisi (dovrebbero essere registratori a tutti gli effetti), hanno il regolatore automatico del guadagno ecc
 
@@ -21,6 +22,10 @@ Dice Chat:
 
 > Max**** è comunemente usato in progetti di registrazione audio, analisi del parlato o rilevamento del livello sonoro in ambienti complessi.
 
+
+TODO: capire se vogliamo approssimare il livello di traffico come il tempo in cui un tratto di strada è sopra la baseline oppure con un modello che capisce quando passa una macchina o camion
+
+
 Per il codice: 
 [Detecting high and low sound](https://www.circuitbasics.com/how-to-use-microphones-on-the-arduino/)
 
@@ -29,12 +34,12 @@ Per il codice:
 
 ### Sensore di pioggia
 
-~~Per l'acquisto:~~
-[Sensore di pioggia e umidità](https://www.amazon.com/HiLetgo-Moisture-Humidity-Sensitivity-Nickeled/dp/B01DK29K28/ref=sr_1_3?dib=eyJ2IjoiMSJ9.W0zET8tH2yC3sMV5rPnocEFE77pi8HWfKiElvB9EU6J-Tz86BAbAo92TYWsNGQEWb0cXIbRN6sfJC9ece9UniSgQygyi1suexYdujA5Y0DUDJ9k5AfUjEnTRujcVTJYLPPi2GvKHLWbIpsk0P_XxhbhRxThuX7KcYBhYcMKwQw7HbAxtmo3A9G-KM3zPY4ZnEjF7bGsu2UFbgoC_iO22BbZFo7Y1SuPhjxC7ynOdXAQ.TNXbgymT2VCH9qdlqttv5XGsiiNnofjH3i_1KDuvMh8&dib_tag=se&keywords=rain+sensor+arduino&qid=1729622095&sr=8-3)
+~~Per l'acquisto:
+[Sensore di pioggia e umidità](https://www.amazon.com/HiLetgo-Moisture-Humidity-Sensitivity-Nickeled/dp/B01DK29K28/ref=sr_1_3?dib=eyJ2IjoiMSJ9.W0zET8tH2yC3sMV5rPnocEFE77pi8HWfKiElvB9EU6J-Tz86BAbAo92TYWsNGQEWb0cXIbRN6sfJC9ece9UniSgQygyi1suexYdujA5Y0DUDJ9k5AfUjEnTRujcVTJYLPPi2GvKHLWbIpsk0P_XxhbhRxThuX7KcYBhYcMKwQw7HbAxtmo3A9G-KM3zPY4ZnEjF7bGsu2UFbgoC_iO22BbZFo7Y1SuPhjxC7ynOdXAQ.TNXbgymT2VCH9qdlqttv5XGsiiNnofjH3i_1KDuvMh8&dib_tag=se&keywords=rain+sensor+arduino&qid=1729622095&sr=8-3)~~
 
-^^^ Mi pare che sia un sensore solo per il rilevamento di acqua sulla sua superficie, quindi ci dice "piove si/no" 
+^^^ Mi pare che sia un sensore solo per il rilevamento di acqua sulla sua superficie, quindi ci dice "piove si/no" *=guarda EDIT
 
-Sempre Chat consiglia l'unione di:
+Chat consiglia l'unione di:
 
 - Sensore temperatura
 - Sensore di luce LDR (Light Dependent Resistor) => per sapere _quanto_ solo c'è (potrebbe essere utile (?))
@@ -49,6 +54,9 @@ Come usarlo non lo so, c'è un cavo, bisogna indagare.
 
 Per il codice:
 [How does a rain sensor work?](https://circuitdigest.com/microcontroller-projects/interfacing-rain-sensor-with-arduino)
+
+
+EDIT: se utilizzato in orizzontale è come ho scritto sopra*, se utilizzato in verticale all'interno di un contenitore (non come nel video del tutorial *How does a rain sensor work?*) allora misura il livello di acqua... campionando ad intervalli regolari si riesce a capire quanto piove... **problema**: il contenitore deve potersi svuotare una volta raggiunta una certa soglia, ossia il pluviometro. Cuculo ha detto che alla brutta lo si può "fare in casa" (ho i miei dubbi che esca una cosa decente) tramite uno di quei servomotori per aprire il fondo... bah
 
 # Sensori dynamic guard
 
