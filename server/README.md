@@ -8,8 +8,16 @@
 
 ## Quick start
 
-```bash
+To start server, run in the directory of `compose.yml` file:
 
+```bash
+docker compose up       # ...or docker-compose 
+```
+
+To use `npm` or `nest` commands:
+
+```bash
+docker run -u $(id -u ${USER}):$(id -g ${USER}) --rm -it -v $(pwd)/paveguard-webserver:/usr/src/app nestjs-cli {command}
 ```
 
 
