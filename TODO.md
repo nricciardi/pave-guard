@@ -108,6 +108,12 @@ TODO
 
 TODO
 
+# Server
 
+TODO
+
+# Analyser
+
+TODO: Ha senso tenerlo separato dal server? Che dici?
 
 
