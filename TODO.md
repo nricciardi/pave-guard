@@ -10,6 +10,8 @@ TODO
 
 ## Microfono
 
+[Dataset souni auto](https://zenodo.org/records/5606504)
+
 ~~Per valutare l'acquisto:~~
 
 La serie [Max****](https://www.amazon.it/AZDelivery-Max9814-Amplificatore-Microfono-compatibile/dp/B086W79GPG/ref=pd_bxgy_d_sccl_1/259-3081792-9538652?pd_rd_w=uQRoi&content-id=amzn1.sym.1dc7d97b-1a1c-458c-b144-e0e060559c6e&pf_rd_p=1dc7d97b-1a1c-458c-b144-e0e060559c6e&pf_rd_r=QS5ZDNE302C3S15YZ6G4&pd_rd_wg=8hx1s&pd_rd_r=85144c58-3992-4cec-83d1-32e8c562ce95&pd_rd_i=B086W79GPG&th=1) sono sensori più precisi (dovrebbero essere registratori a tutti gli effetti), hanno il regolatore automatico del guadagno ecc
