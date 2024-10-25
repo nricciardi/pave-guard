@@ -2,8 +2,8 @@ services:
   webserver:
     container_name: paveguard-webserver
     build:
-      context: ./paveguard-webserver.dockerfile
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: paveguard-webserver.dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -11,7 +11,7 @@ services:
     depends_on:
       - mongo
     volumes:
-      - ./app:/usr/src/app
+      - ./paveguard-webserver:/usr/src/app
       - /usr/src/app/node_modules
 
   mongo:
