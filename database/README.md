@@ -1,3 +1,0 @@
-# Database
-
-InfluxDB o TimescaleDB
