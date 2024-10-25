@@ -90,6 +90,8 @@ Quello del cellulare? O esterno?
 Per l'acquisto esterno:
 [Modulo di controllo di volo](https://www.amazon.it/ICQUANZX-GY-NEO6MV2-Controller-ceramica-resistente/dp/B088LR3488/ref=sr_1_5?__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=26W66PVOSH95N&dib=eyJ2IjoiMSJ9.FVqH72Lcm5HmctctPIJMbl_TA34N9G7Pl5vxoLe35uapWNhT0xCFXODz9fWMLzNsA5t4SlHzQwhUpahsZGn82hW51_46LDdjf8IPkZseukxjGPO6PwPIzgPaim1i08a0XH8_VHgjwFB-FOBcwCi-DEtxoNaDYwW1YGBqf1MBVv_f24qgM8jtk45RAQzhV1Pinx6Fb4LJyT3Y6qlPpG9YSTLGdfEjEPDSGMvgJk7s7RyWeZ59MBJ0NncS_80DV_y0gfTp2jwbxX9UmRTfM-Ohz6gtEfmtQiunLca8bwzkKZE.p2nDB0CpeUz1pOpMgzFQsfG6pOl2hQChrQxUeQmCiWk&dib_tag=se&keywords=gps+arduino&qid=1729622354&sprefix=gps+arduinp%2Caps%2C247&sr=8-5)
 
+[GPS 2](https://www.amazon.it/dp/B08CZSL193/ref=sspa_dk_detail_6?psc=1&pd_rd_i=B08CZSL193&pd_rd_w=Sy1gX&content-id=amzn1.sym.6a040f92-1cc2-4f28-accb-8ca9b0e2f927&pf_rd_p=6a040f92-1cc2-4f28-accb-8ca9b0e2f927&pf_rd_r=9MFT25BPHPE5XERM9RVM&pd_rd_wg=MExff&pd_rd_r=1c112542-97b5-4192-a11b-cfd78de41383&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM)
+
 Per il codice:
 [Guide to GPS Module Arduino](https://randomnerdtutorials.com/guide-to-neo-6m-gps-module-with-arduino/)
 (P.S.: Qui parla di una libreria TinyGPS++ per il parsing dei suoi output.)
