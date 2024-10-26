@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../logic/main_logic.dart';
+import 'logic/main_logic.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
+/// The App class
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

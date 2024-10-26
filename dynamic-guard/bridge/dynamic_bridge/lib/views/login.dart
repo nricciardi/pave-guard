@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import '../logic/login_logic.dart';
 
+
+// The Login View
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   Duration get loginTime => const Duration(milliseconds: 2250);
   static LoginLogic selfLogic = LoginLogic();
 
+  /// For autorizing the user
   Future<String?> _authUser(LoginData data) {
     debugPrint('Name: ${data.name}, Password: ${data.password}');
     return Future.delayed(loginTime).then((_) {
@@ -26,6 +29,7 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
+  /// To sign up
   Future<String?> _signupUser(SignupData data) {
     debugPrint('Signup Name: ${data.name}, Password: ${data.password}');
     return Future.delayed(loginTime).then((_) {
@@ -41,7 +45,6 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlutterLogin(
       title: 'PROVA',
-      // logo: const AssetImage('assets/images/ecorp-lightblue.png'),
       onLogin: _authUser,
       onSignup: _signupUser,
       onSubmitAnimationCompleted: () {
@@ -49,7 +52,7 @@ class LoginScreen extends StatelessWidget {
           builder: (context) => selfLogic.loadNextPage(),
         ));
       },
-      // NOTE: That must be done because the package requires it, but the function does nothing
+      // NOTE: The following line must be done because the package requires it, but the function does nothing
       onRecoverPassword: (_) => Future.delayed(loginTime).then((_) {return null;}),
       hideForgotPasswordButton: true,
     );
