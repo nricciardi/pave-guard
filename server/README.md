@@ -1,12 +1,21 @@
 # PaveGuard WebServer
 
-## Tecnologie
-
 **NodeJS** con la libreria **NestJS** per la creazione delle API. Python (Flask, Django) è stato scartato perché Nest permette tipizzazione tramite integrazione con TypeScript e una buona integrazione con MongoDB.
 
-**MongoDB** per via della sua flessibilità (i dati in arrivo dai diversi dispositivi sono eterogenei). Inoltre supporta timeseries (anche InfluxDB, ma Mongo permette di gestire collection per dati più tradizioni come utenti).
-
 ## Quick start
+
+Create `.env` file:
+
+```
+DB_HOST=mongo
+DB_PORT=27017
+DB_USER=paveguard-webserver
+DB_PASS=PaveGuardWebserverPsw123!
+DB_NAME=paveguard
+
+GRAPHQL_PLAYGROUND_ENABLED=true
+GRAPHQL_PATH=/graphql
+```
 
 To start server, run in the directory of `compose.yml` file:
 
@@ -30,13 +39,35 @@ docker run -it --rm -v $(pwd):/usr/src/app nestjs-cli nest new pave-guard-webser
 ```
 
 
+Per usare un endpoint di un altro container l'hostname è `nome-container:port`
 
 
+# Database
+
+**MongoDB** per via della sua flessibilità (i dati in arrivo dai diversi dispositivi sono eterogenei). Inoltre supporta timeseries (anche InfluxDB, ma Mongo permette di gestire collection per dati più tradizioni come utenti).
+
+## MongoDB
+
+Credenziali admin:
+
+- `root`
+- `root`
 
 
+Credenziali webserver su database `paveguard`:
+
+- `paveguard-webserver`
+- `PaveGuardWebserverPsw123!`
 
 
+## Mongo Express
 
+Client per utilizzare il database.
+
+Credenziali:
+
+- `admin`
+- `pass`
 
 
 
