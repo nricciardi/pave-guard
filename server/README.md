@@ -35,9 +35,11 @@ Prova di funzionamento:
 
 ```gql
 query {
-  allTelemetries {
-    id,
-    timestamp,
+  temperatureTelemetries {
+    id
+  },
+  humidityTelemetries {
+    id
   }
 }
 ```
