@@ -1,18 +1,28 @@
 import { Module } from '@nestjs/common';
-import { TelemetryService } from './service/telemetry-service.service';
-import { TemperatureTelemetryService } from './temperature-telemetry/service/temperature-telemetry-service.service';
-import { TelemetryController } from './controller/telemetry-controller.controller';
-import { TemperatureTelemetry, TemperatureTelemetrySchema } from './temperature-telemetry/models/temperature-telemetry-schema.model';
+import { TelemetryService } from './service/telemetry/telemetry.service';
+import { TemperatureTelemetryService } from './service/temperature-telemetry/temperature-telemetry.service';
+import { TemperatureTelemetry, TemperatureTelemetrySchema } from './models/temperature-telemetry.model';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Telemetry, TelemetrySchema } from './model/telemetry-schema.model';
+import { Telemetry, TelemetrySchema } from './models/telemetry.model';
+import { TelemetryResolver } from './resolvers/telemetry.resolver';
+import { TemperatureTelemetryResolver } from './resolvers/temperature-telemetry.resolver';
+import { HumidityTelemetryService } from './service/humidity-telemetry/humidity-telemetry.service';
+import { HumidityTelemetry, HumidityTelemetrySchema } from './models/humidity-telemetry.model';
+import { HumidityTelemetryResolver } from './resolvers/humidity-telemetry.resolver';
 
 @Module({
     controllers: [
-        TelemetryController
     ],
     providers: [
+        // === SERVICEs ===
         TelemetryService,
-        TemperatureTelemetryService
+        TemperatureTelemetryService,
+        HumidityTelemetryService,
+
+        // === RESOLVERs ===
+        TelemetryResolver,
+        TemperatureTelemetryResolver,
+        HumidityTelemetryResolver
     ],
     imports: [
         MongooseModule.forFeature([
@@ -23,6 +33,10 @@ import { Telemetry, TelemetrySchema } from './model/telemetry-schema.model';
                     {
                         name: TemperatureTelemetry.name,
                         schema: TemperatureTelemetrySchema
+                    },
+                    {
+                        name: HumidityTelemetry.name,
+                        schema: HumidityTelemetrySchema
                     }
                 ]
             },
@@ -30,7 +44,8 @@ import { Telemetry, TelemetrySchema } from './model/telemetry-schema.model';
     ],
     exports: [
         TelemetryService,
-        TemperatureTelemetryService
+        TemperatureTelemetryService,
+        HumidityTelemetryService
     ],
 })
 export class TelemetryModule {}

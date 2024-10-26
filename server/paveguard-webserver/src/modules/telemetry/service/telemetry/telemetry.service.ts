@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Telemetry } from '../model/telemetry-schema.model';
+import { Telemetry } from '../../models/telemetry.model';
 
 @Injectable()
 export class TelemetryService {

@@ -10,5 +10,5 @@ export class CreateTelemetryDto {
 
   @Field()
   @IsDate()
-  timestamp: Date;
+  timestamp: number;
 }

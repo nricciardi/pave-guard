@@ -23,21 +23,52 @@ To start server, run in the directory of `compose.yml` file:
 docker compose up       # ...or docker-compose 
 ```
 
-To use `npm` or `nest` commands:
+Per usare `npm` or `nest`:
 
 ```bash
 docker run -u $(id -u ${USER}):$(id -g ${USER}) --rm -it -v $(pwd)/paveguard-webserver:/usr/src/app nestjs-cli {command}
 ```
 
+Apollo server (per fare le query delle API graphql): `http://127.0.0.1:3000/graphql`
+
+Prova di funzionamento:
+
+```gql
+query {
+  allTelemetries {
+    id,
+    timestamp,
+  }
+}
+```
+
+## Doc
+
+Creare un nuovo sensore:
+
+1. Creare un nuovo service
+2. Creare un nuovo schema
+3. Creare un nuovo set di DTO
+4. Aggiungere il service ai `providers` nel modulo `telemetry.module.ts`
+5. Aggiungere un discriminatore a `Mongoose` e alla proprietà di `Telemetry`
+6. Esportare il service
+7. Creare un resolver
+8. Aggiungere il resolver ai `providers`
+
 
 ## Docker
+
+Per usare `npm` or `nest`:
+
+```bash
+docker run -u $(id -u ${USER}):$(id -g ${USER}) --rm -it -v $(pwd)/paveguard-webserver:/usr/src/app nestjs-cli {command}
+```
 
 Creare un nuovo progetto (da fare una tantum):
 
 ```bash
 docker run -it --rm -v $(pwd):/usr/src/app nestjs-cli nest new pave-guard-webserver
 ```
-
 
 Per usare un endpoint di un altro container l'hostname è `nome-container:port`
 
