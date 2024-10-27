@@ -35,7 +35,6 @@ class LoginScreen extends StatelessWidget {
     return Future.delayed(loginTime).then((_) {
 
       // TODO: Database APIs
-      // TODO: Which fields to ask the user? Name, surname, email?
 
       return null;
     });
@@ -55,6 +54,11 @@ class LoginScreen extends StatelessWidget {
       // NOTE: The following line must be done because the package requires it, but the function does nothing
       onRecoverPassword: (_) => Future.delayed(loginTime).then((_) {return null;}),
       hideForgotPasswordButton: true,
+      additionalSignupFields: [
+        UserFormField(keyName: "firstName", displayName: "First Name", fieldValidator: (value) => selfLogic.nameValidator(value),),
+        UserFormField(keyName: "secondName", displayName: "Last Name", fieldValidator: (value) => selfLogic.nameValidator(value),),
+        // Additional fields?
+      ],
     );
   }
 

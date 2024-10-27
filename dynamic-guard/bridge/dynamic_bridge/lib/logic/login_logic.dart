@@ -13,4 +13,14 @@ class LoginLogic {
 
   }
 
+  /// Check if the first or last name is valid
+  /// 
+  String? nameValidator(String? value){
+
+          if(value == null || value.isEmpty){
+            return "Insert a valid name!";
+          } return null;
+
+  }
+
 }
