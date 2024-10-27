@@ -4,7 +4,7 @@
 
 ## Quick start
 
-Create `.env` file:
+Creare `.env` file in `paveguard-webserver` directory:
 
 ```
 DB_HOST=mongo
@@ -17,17 +17,16 @@ GRAPHQL_PLAYGROUND_ENABLED=true
 GRAPHQL_PATH=/graphql
 ```
 
-To start server, run in the directory of `compose.yml` file:
+Avvia tutti i servizi lanciando nella directory di `compose.yml` file:
 
 ```bash
 docker compose up       # ...or docker-compose 
 ```
 
-Per usare `npm` or `nest`:
+Problemi:
 
-```bash
-docker run -u $(id -u ${USER}):$(id -g ${USER}) --rm -it -v $(pwd)/paveguard-webserver:/usr/src/app nestjs-cli {command}
-```
+- impossibile leggere undefined => manca `.env`
+- errore di autenticazione => manca il db e/o utente mongo (guarda la sezione [database](#database) su come creare un utente)
 
 Apollo server (per fare le query delle API graphql): `http://127.0.0.1:3000/graphql`
 
@@ -63,6 +62,10 @@ Creare un nuovo sensore:
 Per usare `npm` or `nest`:
 
 ```bash
+docker build . -f nestjs-cli.dockerfile -t nestjs-cli
+```
+
+```bash
 docker run -u $(id -u ${USER}):$(id -g ${USER}) --rm -it -v $(pwd)/paveguard-webserver:/usr/src/app nestjs-cli {command}
 ```
 
@@ -85,6 +88,25 @@ Credenziali admin:
 
 - `root`
 - `root`
+
+
+Mantenendo il servizio `mongodb` running, accedere a Mongodb:
+
+```bash
+docker exec -it mongodb mongo -u root -p root --authenticationDatabase admin
+```
+
+Creare l'utente per il webserver:
+
+```js
+db.createUser({
+  user: "paveguard-webserver",
+  pwd: "PaveGuardWebserverPsw123!",
+  roles: [
+    { role: "readWrite", db: "paveguard" }
+  ]
+});
+```
 
 
 Credenziali webserver su database `paveguard`:
