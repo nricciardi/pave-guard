@@ -4,9 +4,9 @@ String modeVarName = "MODE";
 String debugName = "debug";
 String deployName = "deploy";
 
-class EnvManager {
+ class EnvManager {
 
-  String getStringVar(String name){
+  static String getStringVar(String name){
 
     String? envVar = dotenv.env[name];
 
@@ -18,13 +18,13 @@ class EnvManager {
 
   }
 
-  bool isDebugMode(){
+  static bool isDebugMode(){
 
     return getStringVar(modeVarName) == debugName;
 
   }
 
-  bool isDeployMode(){
+  static bool isDeployMode(){
 
     return getStringVar(modeVarName) == deployName;
 
