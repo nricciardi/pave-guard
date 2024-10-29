@@ -1,7 +1,17 @@
-import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { Telemetry, TelemetryQuery } from '../models/telemetry.model';
+import { Resolver, Query, Field, ID, ObjectType } from '@nestjs/graphql';
 import { TelemetryService } from '../service/telemetry/telemetry.service';
-import { TemperatureTelemetryService } from '../service/temperature-telemetry/temperature-telemetry.service';
+
+@ObjectType()
+export class TelemetryQuery {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  deviceId: string;
+
+  @Field()
+  timestamp: number;
+}
 
 @Resolver(() => TelemetryQuery)
 export class TelemetryResolver {

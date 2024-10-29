@@ -1,27 +1,11 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { ITelemetryQuery, ITelemetrySchema, Telemetry } from './telemetry.model';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ITelemetry, Telemetry } from './telemetry.model';
 
 
-@ObjectType()
-export class TemperatureTelemetryQuery implements ITelemetryQuery {
-
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  deviceId: string;
-
-  @Field()
-  timestamp: number;
-
-  @Field()
-  temperature: number;
-}
 
 
 @Schema()
-export class TemperatureTelemetry implements ITelemetrySchema {
+export class TemperatureTelemetry implements ITelemetry {
   deviceId: string;
   timestamp: number;
   kind: string;
