@@ -57,7 +57,7 @@ class LoginScreen extends StatelessWidget {
       additionalSignupFields: [
         UserFormField(keyName: "firstName", displayName: "First Name", fieldValidator: (value) => selfLogic.nameValidator(value),),
         UserFormField(keyName: "secondName", displayName: "Last Name", fieldValidator: (value) => selfLogic.nameValidator(value),),
-        // TODO: Additional fields?
+        UserFormField(keyName: "cf", displayName: "Codice Fiscale", fieldValidator: (value) => selfLogic.cfValidator(value),),
       ],
     );
   }
