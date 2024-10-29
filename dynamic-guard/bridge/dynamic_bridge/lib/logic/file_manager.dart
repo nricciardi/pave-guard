@@ -39,11 +39,11 @@ class FileManager {
   }
 
   // Writes onto the file
-  void writeCounter(String counter) async {
+  void writeFileContents(String contents) async {
     final file = await _localFile;
 
     // Write the file
-    file.writeAsString(counter);
+    file.writeAsString(contents);
   }
 
 }
