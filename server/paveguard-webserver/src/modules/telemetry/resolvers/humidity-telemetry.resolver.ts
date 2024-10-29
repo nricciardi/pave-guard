@@ -1,8 +1,15 @@
-import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { TemperatureTelemetryQuery } from '../models/temperature-telemetry.model';
+import { Resolver, Query, Args, Mutation, Field, ObjectType } from '@nestjs/graphql';
 import { CreateHumidityTelemetryDto } from '../dto/create-humidity-telemetry.dto';
 import { HumidityTelemetryService } from '../service/humidity-telemetry/humidity-telemetry.service';
-import { HumidityTelemetryQuery } from '../models/humidity-telemetry.model';
+import { TelemetryQuery } from './telemetry.resolver';
+
+
+@ObjectType()
+export class HumidityTelemetryQuery extends TelemetryQuery {
+
+  @Field()
+  humidity: number;
+}
 
 @Resolver(() => HumidityTelemetryQuery)
 export class HumidityTelemetryResolver {
@@ -22,3 +29,4 @@ export class HumidityTelemetryResolver {
     return this.humidityTelemetryService.create(input);
   }
 }
+

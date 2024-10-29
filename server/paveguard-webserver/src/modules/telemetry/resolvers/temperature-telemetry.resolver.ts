@@ -1,8 +1,16 @@
-import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { TelemetryService } from '../service/telemetry/telemetry.service';
-import { TemperatureTelemetryQuery } from '../models/temperature-telemetry.model';
+import { Resolver, Query, Args, Mutation, Field, ObjectType } from '@nestjs/graphql';
 import { CreateTemperatureTelemetryDto } from '../dto/create-temperature-telemetry.dto';
 import { TemperatureTelemetryService } from '../service/temperature-telemetry/temperature-telemetry.service';
+import { TelemetryQuery } from './telemetry.resolver';
+
+
+@ObjectType()
+export class TemperatureTelemetryQuery extends TelemetryQuery {
+
+  @Field()
+  temperature: number;
+}
+
 
 @Resolver(() => TemperatureTelemetryQuery)
 export class TemperatureTelemetryResolver {
@@ -22,3 +30,4 @@ export class TemperatureTelemetryResolver {
     return this.temperatureTelemetryService.create(input);
   }
 }
+
