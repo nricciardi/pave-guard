@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../views/dashboard.dart';
+import '../../views/dashboard.dart';
 import 'package:flutter_codice_fiscale/codice_fiscale.dart';
 
 class LoginLogic {

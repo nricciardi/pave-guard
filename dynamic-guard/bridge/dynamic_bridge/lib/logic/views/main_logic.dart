@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../views/login.dart';
+import '../../views/login.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MainAppLogic {

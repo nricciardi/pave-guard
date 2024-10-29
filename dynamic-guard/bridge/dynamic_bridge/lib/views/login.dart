@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
-import '../logic/login_logic.dart';
+import '../logic/views/login_logic.dart';
 
 
 // The Login View
