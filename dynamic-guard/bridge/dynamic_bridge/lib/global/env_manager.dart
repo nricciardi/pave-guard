@@ -4,7 +4,9 @@ String modeVarName = "MODE";
 String debugName = "debug";
 String deployName = "deploy";
 
- class EnvManager {
+String loginFileVarName = "LOGIN_FILE";
+
+class EnvManager {
 
   static String getStringVar(String name){
 
@@ -27,6 +29,12 @@ String deployName = "deploy";
   static bool isDeployMode(){
 
     return getStringVar(modeVarName) == deployName;
+
+  }
+
+  static String getLoginFileName(){
+
+    return getStringVar(loginFileVarName);
 
   }
 

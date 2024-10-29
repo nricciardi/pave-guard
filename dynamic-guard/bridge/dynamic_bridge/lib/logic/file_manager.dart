@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'env_manager.dart';
+import '../global/env_manager.dart';
 
 class FileManager {
 
@@ -27,10 +27,18 @@ class FileManager {
     return File('$path/$fileName');
   }
 
+  // Check if file exists
+  Future<bool> doFileExists() async{
+
+    final File file = await _localFile;
+    return await file.exists();
+
+  }
+
   // Reads from the file
   Future<String> readFileContents() async {
   
-    final file = await _localFile;
+    final File file = await _localFile;
 
     // Reads the file
     final String contents = await file.readAsString();
@@ -40,7 +48,7 @@ class FileManager {
 
   // Writes onto the file
   void writeFileContents(String contents) async {
-    final file = await _localFile;
+    final File file = await _localFile;
 
     // Write the file
     file.writeAsString(contents);

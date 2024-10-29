@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import '../logic/views/login_logic.dart';
@@ -31,12 +34,16 @@ class LoginScreen extends StatelessWidget {
 
   /// To sign up
   Future<String?> _signupUser(SignupData data) {
-    debugPrint('Signup Name: ${data.name}, Password: ${data.password}');
+
+    if(EnvManager.isDebugMode()){
+      log('Signup Name: ${data.name}, Password: ${data.password}');
+    }
+
     return Future.delayed(loginTime).then((_) {
 
-      // TODO: Database APIs
-
+      selfLogic.signupUser(data);
       return null;
+
     });
   }
 
@@ -57,7 +64,7 @@ class LoginScreen extends StatelessWidget {
       additionalSignupFields: [
         UserFormField(keyName: "firstName", displayName: "First Name", fieldValidator: (value) => selfLogic.nameValidator(value),),
         UserFormField(keyName: "secondName", displayName: "Last Name", fieldValidator: (value) => selfLogic.nameValidator(value),),
-        UserFormField(keyName: "cf", displayName: "Codice Fiscale", fieldValidator: (value) => selfLogic.cfValidator(value),),
+        UserFormField(keyName: "userCode", displayName: "Codice Fiscale", fieldValidator: (value) => selfLogic.cfValidator(value),),
       ],
     );
   }
