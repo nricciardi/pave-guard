@@ -1,8 +1,8 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { Field, ArgsType } from '@nestjs/graphql';
 import { IsNumber } from 'class-validator';
 import { CreateTelemetryDto } from './create-telemetry.dto';
 
-@InputType()
+@ArgsType()
 export class CreateTemperatureTelemetryDto extends CreateTelemetryDto {
   @Field()
   @IsNumber()

@@ -7,7 +7,7 @@ import configuration from 'config/configuration';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TelemetryModule } from './modules/telemetry/telemetry.module';
-import { HumidityTelemetryService } from './modules/telemetry/service/humidity-telemetry/humidity-telemetry.service';
+import { AuthenticationModule } from './modules/user/authentication.module';
 
 @Module({
   imports: [
@@ -44,6 +44,7 @@ import { HumidityTelemetryService } from './modules/telemetry/service/humidity-t
       }),
     }),
     TelemetryModule,
+    AuthenticationModule,
   ],
   controllers: [
     AppController,

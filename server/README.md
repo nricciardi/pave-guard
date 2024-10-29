@@ -20,7 +20,7 @@ GRAPHQL_PATH=/graphql
 Avvia tutti i servizi lanciando nella directory di `compose.yml` file:
 
 ```bash
-docker compose up       # ...or docker-compose 
+docker compose up
 ```
 
 Problemi:
@@ -34,12 +34,10 @@ Prova di funzionamento:
 
 ```gql
 mutation {
-  createHumidityTelemetry(
-    input: {
-      deviceId: "testId",
-      humidity: 12.8,
-      timestamp: 1729947160904
-    }
+  createTemperatureTelemetry(
+    temperature: 42,
+    timestamp: 1234567890,
+    deviceId: "testId"
   ) {
     id
   }

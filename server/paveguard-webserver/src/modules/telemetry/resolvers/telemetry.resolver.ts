@@ -1,5 +1,5 @@
 import { Resolver, Query, Field, ID, ObjectType } from '@nestjs/graphql';
-import { TelemetryService } from '../service/telemetry/telemetry.service';
+import { TelemetryService } from '../services/telemetry/telemetry.service';
 
 @ObjectType()
 export class TelemetryQuery {

@@ -1,8 +1,7 @@
-// src/telemetry/dto/create-telemetry.dto.ts
-import { InputType, Field } from '@nestjs/graphql';
+import { Field, ArgsType } from '@nestjs/graphql';
 import { IsDate, IsString } from 'class-validator';
 
-@InputType()
+@ArgsType()
 export class CreateTelemetryDto {
   @Field()
   @IsString()

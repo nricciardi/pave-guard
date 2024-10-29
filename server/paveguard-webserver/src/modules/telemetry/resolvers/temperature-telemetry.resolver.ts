@@ -1,6 +1,6 @@
 import { Resolver, Query, Args, Mutation, Field, ObjectType } from '@nestjs/graphql';
 import { CreateTemperatureTelemetryDto } from '../dto/create-temperature-telemetry.dto';
-import { TemperatureTelemetryService } from '../service/temperature-telemetry/temperature-telemetry.service';
+import { TemperatureTelemetryService } from '../services/temperature-telemetry/temperature-telemetry.service';
 import { TelemetryQuery } from './telemetry.resolver';
 
 
@@ -25,7 +25,7 @@ export class TemperatureTelemetryResolver {
 
   @Mutation(() => TemperatureTelemetryQuery)
   async createTemperatureTelemetry(
-    @Args('input') input: CreateTemperatureTelemetryDto,
+    @Args() input: CreateTemperatureTelemetryDto,
   ) {
     return this.temperatureTelemetryService.create(input);
   }
