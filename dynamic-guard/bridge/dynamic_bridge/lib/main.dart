@@ -13,6 +13,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    // Loading the environment
+    selfLogic.loadEnv();
+    
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
