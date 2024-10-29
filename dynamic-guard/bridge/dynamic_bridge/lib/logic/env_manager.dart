@@ -1,5 +1,9 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+String modeVarName = "MODE";
+String debugName = "debug";
+String deployName = "deploy";
+
 class EnvManager {
 
   String getStringVar(String name){
@@ -16,13 +20,13 @@ class EnvManager {
 
   bool isDebugMode(){
 
-    return getStringVar("MODE") == 'debug';
+    return getStringVar(modeVarName) == debugName;
 
   }
 
   bool isDeployMode(){
 
-    return getStringVar("MODE") == 'deploy';
+    return getStringVar(modeVarName) == deployName;
 
   }
 
