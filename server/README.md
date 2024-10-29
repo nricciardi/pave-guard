@@ -7,7 +7,7 @@
 Creare `.env` file in `paveguard-webserver` directory:
 
 ```
-DB_HOST=mongo
+DB_HOST=mongodb
 DB_PORT=27017
 DB_USER=paveguard-webserver
 DB_PASS=PaveGuardWebserverPsw123!
@@ -31,6 +31,20 @@ Problemi:
 Apollo server (per fare le query delle API graphql): `http://127.0.0.1:3000/graphql`
 
 Prova di funzionamento:
+
+```gql
+mutation {
+  createHumidityTelemetry(
+    input: {
+      deviceId: "testId",
+      humidity: 12.8,
+      timestamp: 1729947160904
+    }
+  ) {
+    id
+  }
+}
+```
 
 ```gql
 query {
