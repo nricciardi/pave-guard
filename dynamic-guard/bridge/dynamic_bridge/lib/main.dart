@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'logic/main_logic.dart';
+import 'logic/views/main_logic.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
 
     // Loading the environment
     selfLogic.loadEnv();
-    
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
