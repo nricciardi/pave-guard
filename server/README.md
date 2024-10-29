@@ -99,6 +99,10 @@ docker exec -it mongodb mongo -u root -p root --authenticationDatabase admin
 Creare l'utente per il webserver:
 
 ```js
+use paveguard;
+```
+
+```js
 db.createUser({
   user: "paveguard-webserver",
   pwd: "PaveGuardWebserverPsw123!",
