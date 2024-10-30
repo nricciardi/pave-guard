@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import '../../views/dashboard.dart';
 import 'package:flutter_codice_fiscale/codice_fiscale.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class LoginLogic {
 
@@ -29,7 +30,27 @@ class LoginLogic {
   // Returns true if the signup was successful
   bool signupUser(SignupData data){
 
-    // TODO: Writing to DB
+      final HttpLink httpLink = HttpLink('https://your-api-endpoint.com/graphql');
+      
+      final GraphQLClient client = GraphQLClient(
+        link: httpLink,
+        cache: GraphQLCache(), // Set up a cache if needed
+      );
+
+      String query = '''
+      mutation {
+        signup(
+        email: "${data.name}",
+        password: "${data.password}",
+        firstName: "${data.additionalSignupData!["firstName"]}",
+        lastName: "${data.additionalSignupData!["lastName"]}",
+        userCode: "${data.additionalSignupData!["userCode"]}"
+      ) {
+        token
+        }
+      }''';
+
+    // TODO: Capire da Nicola chi cazzo crea il token
 
     String loginFileName = EnvManager.getLoginFileName();
     FileManager fileManager = FileManager(loginFileName);
