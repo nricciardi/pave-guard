@@ -8,8 +8,12 @@ Creare `.env` file in `paveguard-webserver` directory:
 
 ```
 APP_KEY=dacambiare
+APP_ENV=local
 
-DB_HOST=mongodb
+DEBUG=true
+
+
+DB_HOST=mongo
 DB_PORT=27017
 DB_USER=paveguard-webserver
 DB_PASS=PaveGuardWebserverPsw123!
