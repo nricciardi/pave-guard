@@ -1,8 +1,8 @@
+
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/views/dashboard.dart';
 import 'package:flutter/material.dart';
 import '../../views/login.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../file_manager.dart';
 
 class MainAppLogic {
@@ -22,14 +22,6 @@ class MainAppLogic {
     return fileManager.doFileExists();
 
     }
-
-  /// Loads the environment
-  /// 
-  void loadEnv() async{
-
-    await dotenv.load();
-
-  }
 
   /// Gives the first page to load when the app starts up
   ///
