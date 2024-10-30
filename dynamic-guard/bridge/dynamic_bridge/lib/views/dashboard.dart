@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './settings.dart';
+import '../logic/photo_collector.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key, required this.title});
