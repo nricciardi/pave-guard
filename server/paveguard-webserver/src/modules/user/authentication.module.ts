@@ -6,6 +6,7 @@ import { UserService } from './services/user/user.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './models/user.model';
 import { AuthenticationResolver } from './resolvers/authentication.resolver';
+import { UserResolver } from './resolvers/user.resolver';
 
 @Module({
     providers: [
@@ -15,6 +16,7 @@ import { AuthenticationResolver } from './resolvers/authentication.resolver';
 
       // === RESOLVERs ===
       AuthenticationResolver,
+      UserResolver,
     ],
     imports: [
         JwtModule.registerAsync({
@@ -34,4 +36,4 @@ import { AuthenticationResolver } from './resolvers/authentication.resolver';
     ],
     exports: [AuthenticationService, JwtModule]
 })
-export class AuthenticationModule {}
+export class UserModule {}

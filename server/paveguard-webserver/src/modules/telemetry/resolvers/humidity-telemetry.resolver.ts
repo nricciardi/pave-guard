@@ -2,6 +2,8 @@ import { Resolver, Query, Args, Mutation, Field, ObjectType } from '@nestjs/grap
 import { CreateHumidityTelemetryDto } from '../dto/create-humidity-telemetry.dto';
 import { HumidityTelemetryService } from '../services/humidity-telemetry/humidity-telemetry.service';
 import { TelemetryQuery } from './telemetry.resolver';
+import { JwtAuthenticationGuard } from 'src/modules/user/guards/jwt-authentication/jwt-authentication.guard';
+import { UseGuards } from '@nestjs/common';
 
 
 @ObjectType()
@@ -23,6 +25,7 @@ export class HumidityTelemetryResolver {
   }
 
   @Mutation(() => HumidityTelemetryQuery)
+  @UseGuards(JwtAuthenticationGuard)
   async createHumidityTelemetry(
     @Args() input: CreateHumidityTelemetryDto,
   ) {

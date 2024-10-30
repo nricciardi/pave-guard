@@ -7,7 +7,7 @@ import configuration from 'config/configuration';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TelemetryModule } from './modules/telemetry/telemetry.module';
-import { AuthenticationModule } from './modules/user/authentication.module';
+import { UserModule } from './modules/user/authentication.module';
 
 @Module({
   imports: [
@@ -40,12 +40,12 @@ import { AuthenticationModule } from './modules/user/authentication.module';
         path: configService.get('GRAPHQL_PATH'),
         include: [
           TelemetryModule,
-          AuthenticationModule,
+          UserModule,
         ]
       }),
     }),
     TelemetryModule,
-    AuthenticationModule,
+    UserModule,
   ],
   controllers: [
     AppController,

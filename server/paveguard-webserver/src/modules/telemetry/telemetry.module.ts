@@ -9,6 +9,7 @@ import { TemperatureTelemetryResolver } from './resolvers/temperature-telemetry.
 import { HumidityTelemetryService } from './services/humidity-telemetry/humidity-telemetry.service';
 import { HumidityTelemetry, HumidityTelemetrySchema } from './models/humidity-telemetry.model';
 import { HumidityTelemetryResolver } from './resolvers/humidity-telemetry.resolver';
+import { UserModule } from '../user/authentication.module';
 
 @Module({
     controllers: [
@@ -40,7 +41,8 @@ import { HumidityTelemetryResolver } from './resolvers/humidity-telemetry.resolv
                     }
                 ]
             },
-        ])
+        ]),
+        UserModule
     ],
     exports: [
         TelemetryService,

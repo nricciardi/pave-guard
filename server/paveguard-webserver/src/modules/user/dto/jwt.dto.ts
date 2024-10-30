@@ -10,5 +10,5 @@ export class JwtDto {
 
     @Field()
     @IsString()
-    email: string;
+    userEmail: string;
 }
