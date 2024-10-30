@@ -11,18 +11,23 @@ class MainAppLogic {
   /// 
   Future<bool> isCheckedIn() async {
 
+    if(EnvManager.isDebugPcMode()){
+      return false;
+    }
+
     //TODO: JVD
 
     String loginFileName = EnvManager.getLoginFileName();
-    return FileManager(loginFileName).doFileExists();
+    FileManager fileManager = FileManager(loginFileName);
+    return fileManager.doFileExists();
 
     }
 
   /// Loads the environment
   /// 
-  Future loadEnv() async{
+  void loadEnv() async{
 
-    await dotenv.load(fileName: ".env");
+    await dotenv.load();
 
   }
 
@@ -31,8 +36,9 @@ class MainAppLogic {
   Widget loadNextPage(){
 
     Widget toLoad = const DashboardPage(title: "prova");
+    Future<bool> checkedIn = isCheckedIn();
 
-    isCheckedIn().then( (onValue) =>
+    checkedIn.then( (onValue) =>
       
       {
         if(!onValue){

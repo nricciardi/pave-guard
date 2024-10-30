@@ -1,8 +1,9 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-String modeVarName = "MODE";
-String debugName = "debug";
-String deployName = "deploy";
+const String modeVarName = "MODE";
+const String debugAndroidName = "debug-android";
+const String debugPcName = "debug-pc";
+const String deployName = "deploy";
 
 String loginFileVarName = "LOGIN_FILE";
 
@@ -22,8 +23,20 @@ class EnvManager {
 
   static bool isDebugMode(){
 
-    return getStringVar(modeVarName) == debugName;
+    return isDebugAndroidMode() || isDebugPcMode();
 
+  }
+
+  static bool isDebugAndroidMode(){
+
+    return getStringVar(modeVarName) == debugAndroidName;
+
+  }
+
+  static bool isDebugPcMode(){
+
+    return getStringVar(modeVarName) == debugPcName;
+    
   }
 
   static bool isDeployMode(){
