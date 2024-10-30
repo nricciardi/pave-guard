@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 
 export interface ITelemetry {
@@ -11,7 +12,7 @@ export interface ITelemetry {
 
 
 @Schema({ discriminatorKey: 'kind' })
-export class Telemetry implements ITelemetry {
+export class Telemetry extends Document implements ITelemetry {
 
   @Prop({ required: true })
   deviceId: string;

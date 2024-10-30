@@ -20,7 +20,7 @@ export class AuthenticationService {
     const user = await this.userService.createUser(input);
 
     return this.generateToken({
-      userId: 
+      userId: user.id,
       email: user.email
     });
   }
@@ -33,7 +33,7 @@ export class AuthenticationService {
       throw new UnauthorizedException('Invalid credentials');
 
     return this.generateToken({
-      userId: user._id,
+      userId: user.id,
       email: user.email
     });
   }
