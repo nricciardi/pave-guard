@@ -39,7 +39,8 @@ import { AuthenticationModule } from './modules/user/authentication.module';
         playground: configService.get('GRAPHQL_PLAYGROUND_ENABLED') === 'true',
         path: configService.get('GRAPHQL_PATH'),
         include: [
-          TelemetryModule
+          TelemetryModule,
+          AuthenticationModule,
         ]
       }),
     }),

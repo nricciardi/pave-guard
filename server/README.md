@@ -7,6 +7,9 @@
 Creare `.env` file in `paveguard-webserver` directory:
 
 ```
+APP_KEY=dacambiare
+SALT=10
+
 DB_HOST=mongodb
 DB_PORT=27017
 DB_USER=paveguard-webserver
@@ -15,6 +18,12 @@ DB_NAME=paveguard
 
 GRAPHQL_PLAYGROUND_ENABLED=true
 GRAPHQL_PATH=/graphql
+```
+
+Installa i moduli node in locale:
+
+```bash
+docker run -u $(id -u ${USER}):$(id -g ${USER}) --rm -it -v $(pwd)/paveguard-webserver:/usr/src/app nestjs-cli npm install
 ```
 
 Avvia tutti i servizi lanciando nella directory di `compose.yml` file:
@@ -89,8 +98,38 @@ docker run -it --rm -v $(pwd):/usr/src/app nestjs-cli nest new pave-guard-webser
 
 Per usare un endpoint di un altro container l'hostname è `nome-container:port`
 
+## Authentication
 
-# Database
+Signup:
+
+```gql
+mutation {
+  signup(
+    email: "jd@mail.com",
+    password: "psw",
+    firstName: "John",
+    lastName: "Doe",
+    userCode: "JDCODE"
+  ) {
+    token
+  }
+}
+```
+
+Login:
+
+```gql
+mutation {
+  login(
+    email: "jd@mail.com",
+    password: "psw"
+  ) {
+    token
+  }
+}
+```
+
+## Database
 
 **MongoDB** per via della sua flessibilità (i dati in arrivo dai diversi dispositivi sono eterogenei). Inoltre supporta timeseries (anche InfluxDB, ma Mongo permette di gestire collection per dati più tradizioni come utenti).
 
