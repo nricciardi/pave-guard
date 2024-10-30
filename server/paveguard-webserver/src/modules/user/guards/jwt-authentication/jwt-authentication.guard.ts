@@ -23,23 +23,22 @@ export class JwtAuthenticationGuard implements CanActivate {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
 
+    return this.canPass(context)
+  }
+
+  canPass(context: ExecutionContext,): boolean {
     if(this.configService.get("DEBUG") === 'true')
       return true;
 
     try {
-      const ctx = GqlExecutionContext.create(context);
-      const request = ctx.getContext().req as Request;
-
-      const token = extractTokenFromHeader(request);
-
-      return !!token;
+      return !!this.extractToken(context);      
 
     } catch(exception) {
 
@@ -47,6 +46,15 @@ export class JwtAuthenticationGuard implements CanActivate {
 
       return false;
     }
+  }
+
+  extractToken(context: ExecutionContext,): JwtDto {
+    const ctx = GqlExecutionContext.create(context);
+    const request = ctx.getContext().req as Request;
+
+    const token = extractTokenFromHeader(request);
+
+    return token;
   }
 }
 

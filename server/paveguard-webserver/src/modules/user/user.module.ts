@@ -7,6 +7,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './models/user.model';
 import { AuthenticationResolver } from './resolvers/authentication.resolver';
 import { UserResolver } from './resolvers/user.resolver';
+import { JwtAuthenticationGuard } from './guards/jwt-authentication/jwt-authentication.guard';
+import { AdminGuard } from './guards/admin/admin.guard';
 
 @Module({
     providers: [
@@ -17,6 +19,10 @@ import { UserResolver } from './resolvers/user.resolver';
       // === RESOLVERs ===
       AuthenticationResolver,
       UserResolver,
+
+      // === GUARDs ===
+      JwtAuthenticationGuard,
+      AdminGuard
     ],
     imports: [
         JwtModule.registerAsync({
@@ -34,6 +40,13 @@ import { UserResolver } from './resolvers/user.resolver';
             },
         ])
     ],
-    exports: [AuthenticationService, JwtModule]
+    exports: [
+      AuthenticationService,
+      UserService,
+      JwtModule,
+      
+      JwtAuthenticationGuard,
+      AdminGuard,
+    ]
 })
 export class UserModule {}

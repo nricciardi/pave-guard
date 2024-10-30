@@ -1,5 +1,7 @@
 import { Resolver, Query, Field, ID, ObjectType } from '@nestjs/graphql';
 import { TelemetryService } from '../services/telemetry/telemetry.service';
+import { UseGuards } from '@nestjs/common';
+import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
 
 @ObjectType()
 export class TelemetryQuery {
@@ -20,6 +22,7 @@ export class TelemetryResolver {
   ) {}
 
   @Query(() => [TelemetryQuery])
+  @UseGuards(AdminGuard)
   async telemetries() {
     return this.telemetryService.findAll();
   }

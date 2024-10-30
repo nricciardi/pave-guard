@@ -4,6 +4,7 @@ import { HumidityTelemetryService } from '../services/humidity-telemetry/humidit
 import { TelemetryQuery } from './telemetry.resolver';
 import { JwtAuthenticationGuard } from 'src/modules/user/guards/jwt-authentication/jwt-authentication.guard';
 import { UseGuards } from '@nestjs/common';
+import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
 
 
 @ObjectType()
@@ -20,6 +21,7 @@ export class HumidityTelemetryResolver {
   ) {}
 
   @Query(() => [HumidityTelemetryQuery])
+  @UseGuards(AdminGuard)
   async humidityTelemetries() {
     return this.humidityTelemetryService.findAll();
   }

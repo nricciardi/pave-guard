@@ -9,7 +9,8 @@ import { TemperatureTelemetryResolver } from './resolvers/temperature-telemetry.
 import { HumidityTelemetryService } from './services/humidity-telemetry/humidity-telemetry.service';
 import { HumidityTelemetry, HumidityTelemetrySchema } from './models/humidity-telemetry.model';
 import { HumidityTelemetryResolver } from './resolvers/humidity-telemetry.resolver';
-import { UserModule } from '../user/authentication.module';
+import { UserModule } from '../user/user.module';
+import { UserService } from '../user/services/user/user.service';
 
 @Module({
     controllers: [
@@ -23,7 +24,7 @@ import { UserModule } from '../user/authentication.module';
         // === RESOLVERs ===
         TelemetryResolver,
         TemperatureTelemetryResolver,
-        HumidityTelemetryResolver
+        HumidityTelemetryResolver,
     ],
     imports: [
         MongooseModule.forFeature([
@@ -42,7 +43,7 @@ import { UserModule } from '../user/authentication.module';
                 ]
             },
         ]),
-        UserModule
+        UserModule,
     ],
     exports: [
         TelemetryService,
