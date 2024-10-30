@@ -47,6 +47,7 @@ class _DashboardPageState extends State<DashboardPage> {
               title: const Text('Profile'),
               onTap: () {
                 Navigator.pop(context);
+                // TODO: profile view
               },
             ),
             ListTile(
@@ -65,6 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
               title: const Text('Logout'),
               onTap: () {
                 Navigator.pop(context);
+                // TODO: logout
               },
             ),
           ],
