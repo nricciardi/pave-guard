@@ -5,7 +5,7 @@ const String debugAndroidName = "debug-android";
 const String debugPcName = "debug-pc";
 const String deployName = "deploy";
 
-String loginFileVarName = "LOGIN_FILE";
+const String loginFileVarName = "LOGIN_FILE";
 
 class EnvManager {
 
