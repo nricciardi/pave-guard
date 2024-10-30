@@ -8,7 +8,6 @@ Creare `.env` file in `paveguard-webserver` directory:
 
 ```
 APP_KEY=dacambiare
-SALT=10
 
 DB_HOST=mongodb
 DB_PORT=27017
