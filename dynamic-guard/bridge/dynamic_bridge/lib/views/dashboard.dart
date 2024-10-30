@@ -1,6 +1,6 @@
+import 'package:dynamic_bridge/logic/views/dashboard_logic.dart';
 import 'package:flutter/material.dart';
 import './settings.dart';
-import '../logic/photo_collector.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key, required this.title});
@@ -14,7 +14,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
 
-  
+  static DashboardLogic selfLogic = DashboardLogic();
 
   @override
   Widget build(BuildContext context) {
@@ -75,15 +75,10 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         ),
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Dashboard',
-              style: TextStyle(fontSize: 24),
-            ),
-          ],
+          children: selfLogic.dashboardCenterChildren(),
         ),
       ),
     );

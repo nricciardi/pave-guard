@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:flutter_uvc_camera/flutter_uvc_camera.dart';
@@ -83,7 +81,7 @@ class PhotoCollector {
 
     if(camera == null){
       if(EnvManager.isDebugAndroidMode()){
-        print(port);
+        print("The port is $port");
       }
       throw Exception("The camera isn't loaded!");
     }
