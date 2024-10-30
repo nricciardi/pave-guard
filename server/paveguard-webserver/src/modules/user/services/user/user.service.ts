@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -8,6 +8,9 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
+
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
         private readonly configService: ConfigService,
         @InjectModel(User.name) private userModel: Model<User>
@@ -20,8 +23,8 @@ export class UserService {
     if (!!existingUser) {
       throw new ConflictException('Email already in use');
     }
-    
-    const hashedPassword = await bcrypt.hash(input.password, 10); // this.configService.get("SALT")
+
+    const hashedPassword = await bcrypt.hash(input.password, 12);
 
     input.password = hashedPassword;
 
