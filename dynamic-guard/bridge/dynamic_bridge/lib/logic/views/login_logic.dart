@@ -21,7 +21,19 @@ class LoginLogic {
   // Returns true if the user is authorized
   bool autorizeUser(LoginData data){
 
-    // TODO: Connect to DB
+    String query = '''
+      mutation {
+        login(
+        email: "${data.name}",
+        password: "${data.password}",
+      ) {
+        token
+        }
+      }''';
+
+    // TODO: Capire da Nicola chi cazzo crea il token
+
+    QueryResult queryResult = executeQuery(query);
 
     return true;
 
@@ -29,13 +41,6 @@ class LoginLogic {
 
   // Returns true if the signup was successful
   bool signupUser(SignupData data){
-
-      final HttpLink httpLink = HttpLink('http://127.0.0.1:3000/graphql');
-      
-      final GraphQLClient client = GraphQLClient(
-        link: httpLink,
-        cache: GraphQLCache(), // Set up a cache if needed
-      );
 
       String query = '''
       mutation {
@@ -50,18 +55,9 @@ class LoginLogic {
         }
       }''';
 
-    final QueryOptions options = QueryOptions(
-    document: gql(query),
-    );
-
-
-    // TODO: Cosa ritorna?
-    QueryResult result;
-    client.query(options).then((resultOfQuery) {
-      result = resultOfQuery;
-    });
-
     // TODO: Capire da Nicola chi cazzo crea il token
+
+    QueryResult queryResult = executeQuery(query);
 
     String loginFileName = EnvManager.getLoginFileName();
     FileManager fileManager = FileManager(loginFileName);
@@ -70,6 +66,29 @@ class LoginLogic {
     fileManager.writeFileContents(contents);
 
     return true;
+
+  }
+
+  QueryResult executeQuery(String query){
+
+    final HttpLink httpLink = HttpLink('http://127.0.0.1:3000/graphql');
+      
+    final GraphQLClient client = GraphQLClient(
+      link: httpLink,
+      cache: GraphQLCache(), // Set up a cache if needed
+    );
+
+    final QueryOptions options = QueryOptions(
+    document: gql(query),
+    );
+
+    // TODO: Cosa ritorna?
+    QueryResult? result;
+    client.query(options).then((resultOfQuery) {
+      result = resultOfQuery;
+    });
+
+    return result!;
 
   }
 
