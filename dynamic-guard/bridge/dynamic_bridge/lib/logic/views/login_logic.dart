@@ -30,7 +30,7 @@ class LoginLogic {
   // Returns true if the signup was successful
   bool signupUser(SignupData data){
 
-      final HttpLink httpLink = HttpLink('https://your-api-endpoint.com/graphql');
+      final HttpLink httpLink = HttpLink('http://127.0.0.1:3000/graphql');
       
       final GraphQLClient client = GraphQLClient(
         link: httpLink,
@@ -49,6 +49,17 @@ class LoginLogic {
         token
         }
       }''';
+
+    final QueryOptions options = QueryOptions(
+    document: gql(query),
+    );
+
+
+    // TODO: Cosa ritorna?
+    QueryResult result;
+    client.query(options).then((resultOfQuery) {
+      result = resultOfQuery;
+    });
 
     // TODO: Capire da Nicola chi cazzo crea il token
 
