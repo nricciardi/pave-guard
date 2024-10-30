@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './settings.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key, required this.title});
@@ -17,15 +18,13 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        actions: [
-          Builder(builder: (context) => 
+        leading: Builder(builder: (context) => 
           IconButton(
             icon: const Icon(Icons.menu),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
-          )),
-        ]
+          ))
       ),
       drawer: Drawer(
         child: ListView(
@@ -44,27 +43,28 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Option 1'),
+              leading: const Icon(Icons.person),
+              title: const Text('Profile'),
               onTap: () {
                 Navigator.pop(context);
-                // Implement option action
               },
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Option 2'),
+              title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
-                // Implement option action
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                ); //
               },
             ),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Option 3'),
+              title: const Text('Logout'),
               onTap: () {
                 Navigator.pop(context);
-                // Implement option action
               },
             ),
           ],
