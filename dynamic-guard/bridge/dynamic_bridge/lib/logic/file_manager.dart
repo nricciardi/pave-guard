@@ -19,7 +19,7 @@ class FileManager {
   }
 
   // Loads the file
-  Future<File> get _localFile async {
+  Future<File> get _docsFile async {
     final path = await _docsPath;
     if(EnvManager.isDebugMode()){
       log("Getting file $path/$fileName");
@@ -30,7 +30,7 @@ class FileManager {
   // Check if file exists
   Future<bool> doFileExists() async{
 
-    final File file = await _localFile;
+    final file = await _docsFile;
     return await file.exists();
 
   }
@@ -38,7 +38,7 @@ class FileManager {
   // Reads from the file
   Future<String> readFileContents() async {
   
-    final File file = await _localFile;
+    final File file = await _docsFile;
 
     // Reads the file
     final String contents = await file.readAsString();
@@ -48,7 +48,7 @@ class FileManager {
 
   // Writes onto the file
   void writeFileContents(String contents) async {
-    final File file = await _localFile;
+    final File file = await _docsFile;
 
     // Write the file
     file.writeAsString(contents);
