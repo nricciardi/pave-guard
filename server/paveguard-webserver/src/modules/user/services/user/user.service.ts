@@ -17,11 +17,11 @@ export class UserService {
 
     const existingUser = await this.findByEmail(input.email);
 
-    if (existingUser) {
+    if (!!existingUser) {
       throw new ConflictException('Email already in use');
     }
     
-    const hashedPassword = await bcrypt.hash(input.password, this.configService.get("SALT"));
+    const hashedPassword = await bcrypt.hash(input.password, 10); // this.configService.get("SALT")
 
     input.password = hashedPassword;
 
@@ -31,13 +31,8 @@ export class UserService {
   }
 
   
-  async findByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email });
-
-    if (!user)
-      throw new NotFoundException('User not found');
-    
-    return user;
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email });
   }
 
   

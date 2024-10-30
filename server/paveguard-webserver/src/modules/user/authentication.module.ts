@@ -5,11 +5,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserService } from './services/user/user.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './models/user.model';
+import { AuthenticationResolver } from './resolvers/authentication.resolver';
 
 @Module({
     providers: [
+      // === SERVICEs ===
       UserService,
-      AuthenticationService
+      AuthenticationService,
+
+      // === RESOLVERs ===
+      AuthenticationResolver,
     ],
     imports: [
         JwtModule.registerAsync({
