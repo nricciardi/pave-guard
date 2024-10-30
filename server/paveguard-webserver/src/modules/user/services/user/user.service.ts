@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Document, Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { User } from '../../models/user.model';
