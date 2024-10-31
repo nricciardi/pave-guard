@@ -1,4 +1,5 @@
 import 'package:dynamic_bridge/logic/views/dashboard_logic.dart';
+import 'package:dynamic_bridge/views/login.dart';
 import 'package:flutter/material.dart';
 import './settings.dart';
 
@@ -69,7 +70,11 @@ class _DashboardPageState extends State<DashboardPage> {
               title: const Text('Logout'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: logout
+                selfLogic.logout();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
               },
             ),
           ],

@@ -6,14 +6,23 @@ import '../global/env_manager.dart';
 
 abstract class QueryAbstractManager {
 
-  Future<QueryResult> sendQuery(data) async{
+  Future<QueryResult> sendQuery(data, {token = ""}) async{
 
     final String query = getQuery(data);
-    final HttpLink httpLink = HttpLink('http://${EnvManager.getUrl()}:3000/graphql');
-      
+    final String link = 'http://${EnvManager.getUrl()}:3000/graphql';
+    final HttpLink httpLink;
+    
+    if(token == ""){
+      httpLink = HttpLink(link);
+    } else {
+      httpLink = HttpLink(link, defaultHeaders: Map.of(
+        {"Authorization": "Bearer $token"}
+      ));
+    }
+
     final GraphQLClient client = GraphQLClient(
       link: httpLink,
-      cache: GraphQLCache(), // Set up a cache if needed
+      cache: GraphQLCache(),
     );
 
     final QueryOptions options = QueryOptions(
@@ -30,8 +39,8 @@ abstract class QueryAbstractManager {
 
   }
 
-  String getQuery(data);
-  bool checkData(data);
+  String getQuery(data, {token=""});
+  bool checkData(data, {token=""});
 
 }
 
@@ -39,7 +48,7 @@ class SignUpManager extends QueryAbstractManager {
 
 
   @override
-  bool checkData(data){
+  bool checkData(data, {token=""}){
 
     if(data is! SignupData){
       return false;
@@ -50,7 +59,7 @@ class SignUpManager extends QueryAbstractManager {
   }
 
   @override
-  String getQuery(data){
+  String getQuery(data, {token=""}){
 
     if(!checkData(data)){
       log("ERROR: Wrong data for sign-up!");
@@ -79,7 +88,7 @@ class SignUpManager extends QueryAbstractManager {
 class LoginManager extends QueryAbstractManager{
 
   @override
-  bool checkData(data) {
+  bool checkData(data, {token=""}) {
     
     if(data is! SignupData){
       return false;
@@ -90,7 +99,7 @@ class LoginManager extends QueryAbstractManager{
   }
 
   @override
-  String getQuery(data) {
+  String getQuery(data, {token=""}) {
     
     return '''mutation {
         login(
@@ -103,6 +112,40 @@ class LoginManager extends QueryAbstractManager{
   String getToken(QueryResult queryResult){
 
     return queryResult.data!["login"]["token"];
+
+  }
+
+}
+
+class MeQueryManager extends QueryAbstractManager {
+
+  @override
+  bool checkData(data, {token=""}) {
+    return token != "";
+  }
+
+  @override
+  String getQuery(data, {token=""}) {
+    
+    if(!checkData(data)){
+      return "";
+    }
+
+    return '''query {
+      me { email, 
+        firstName, 
+        lastName }
+    }''';
+
+  }
+
+  bool checkResults(QueryResult result){
+
+    try {
+      Map<String, dynamic> data = result.data![""];
+      log(data.toString());
+      return true;
+    } catch(e) { return false; }
 
   }
 

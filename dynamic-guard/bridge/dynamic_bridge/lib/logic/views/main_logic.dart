@@ -2,8 +2,10 @@
 import 'dart:developer';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
+import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:dynamic_bridge/views/dashboard.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../views/login.dart';
 import '../file_manager.dart';
 
@@ -19,9 +21,15 @@ class MainAppLogic {
 
     String loginFileName = EnvManager.getLoginFileName();
     FileManager fileManager = FileManager(loginFileName);
-    return await fileManager.doFileExists();
-
+    if(! await fileManager.doFileExists()){
+      return false;
     }
+
+    MeQueryManager meQueryManager = MeQueryManager();
+    QueryResult queryResult = await meQueryManager.sendQuery(fileManager.readFileContents(), token: fileManager.readFileContents());
+    return meQueryManager.checkResults(queryResult);
+
+  }
 
   /// Gives the first page to load when the app starts up
   ///
