@@ -36,7 +36,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 ListTile(
-                  title: Text('Device'),
+                  title: const Text('Device'),
                   leading: Radio<int>(
                     value: 1,
                     groupValue: _selectedOption,
@@ -48,7 +48,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 ListTile(
-                  title: Text('Dynamic Guard'),
+                  title: const Text('Dynamic Guard'),
                   leading: Radio<int>(
                     value: 2,
                     groupValue: _selectedOption,

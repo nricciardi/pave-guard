@@ -1,5 +1,6 @@
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/file_manager.dart';
+import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import '../../views/dashboard.dart';
@@ -19,76 +20,34 @@ class LoginLogic {
   }
 
   // Returns true if the user is authorized
-  bool autorizeUser(LoginData data){
+  Future<bool> authorizeUser(LoginData data) async{
 
-    String query = '''
-      mutation {
-        login(
-        email: "${data.name}",
-        password: "${data.password}",
-      ) {
-        token
-        }
-      }''';
+    LoginManager loginManager = LoginManager();
+    QueryResult queryResult = await loginManager.sendQuery(data);
+    String token = loginManager.getToken(queryResult);
 
-    // TODO: Capire da Nicola chi cazzo crea il token
+    FileManager fileManager = FileManager(EnvManager.getLoginFileName());
+    Future<String> saved_token = fileManager.readFileContents();
 
-    QueryResult queryResult = executeQuery(query);
-
-    return true;
+    return saved_token.then((value) {
+      return value == token;
+    });
 
   }
 
   // Returns true if the signup was successful
-  bool signupUser(SignupData data){
+  Future<bool> signupUser(SignupData data) async {
 
-      String query = '''
-      mutation {
-        signup(
-        email: "${data.name}",
-        password: "${data.password}",
-        firstName: "${data.additionalSignupData!["firstName"]}",
-        lastName: "${data.additionalSignupData!["lastName"]}",
-        userCode: "${data.additionalSignupData!["userCode"]}"
-      ) {
-        token
-        }
-      }''';
-
-    // TODO: Capire da Nicola chi cazzo crea il token
-
-    QueryResult queryResult = executeQuery(query);
+    SignUpManager signupQueryManager = SignUpManager();
+    QueryResult queryResult = await signupQueryManager.sendQuery(data);
 
     String loginFileName = EnvManager.getLoginFileName();
     FileManager fileManager = FileManager(loginFileName);
 
-    String contents = "${data.name}\n";
+    String contents = signupQueryManager.getToken(queryResult);
     fileManager.writeFileContents(contents);
 
     return true;
-
-  }
-
-  QueryResult executeQuery(String query){
-
-    final HttpLink httpLink = HttpLink('http://127.0.0.1:3000/graphql');
-      
-    final GraphQLClient client = GraphQLClient(
-      link: httpLink,
-      cache: GraphQLCache(), // Set up a cache if needed
-    );
-
-    final QueryOptions options = QueryOptions(
-    document: gql(query),
-    );
-
-    // TODO: Cosa ritorna?
-    QueryResult? result;
-    client.query(options).then((resultOfQuery) {
-      result = resultOfQuery;
-    });
-
-    return result!;
 
   }
 
@@ -105,6 +64,11 @@ class LoginLogic {
   /// Check if the CF is valid
   /// 
   String? cfValidator(String? value){
+
+    if(EnvManager.isDebugAndroidMode()){
+      return null;
+    }
+
     if(value == null || !CodiceFiscale.check(value.toString())){
       return "Invalid CF!";
     } return null;

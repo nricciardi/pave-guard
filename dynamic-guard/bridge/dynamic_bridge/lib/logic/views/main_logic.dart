@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/views/dashboard.dart';
 import 'package:flutter/material.dart';
@@ -15,30 +17,27 @@ class MainAppLogic {
       return false;
     }
 
-    //TODO: JVD
-
     String loginFileName = EnvManager.getLoginFileName();
     FileManager fileManager = FileManager(loginFileName);
-    return fileManager.doFileExists();
+    return await fileManager.doFileExists();
 
     }
 
   /// Gives the first page to load when the app starts up
   ///
-  Widget loadNextPage(){
+  Future<Widget> loadNextPage() async {
 
+    bool checkedIn = await isCheckedIn();
     Widget toLoad = const DashboardPage(title: "prova");
-    Future<bool> checkedIn = isCheckedIn();
 
-    checkedIn.then( (onValue) =>
-      
-      {
-        if(!onValue){
-          toLoad = const LoginScreen()
-        }
-      }
+    if(!checkedIn){
+      toLoad = const LoginScreen();
+    }
 
-    );
+    if(EnvManager.isDebugAndroidMode()){
+      log("Are you checked in? $checkedIn");
+      log("Now loading ${toLoad.toStringShort()}");
+    }
 
     return toLoad;
 

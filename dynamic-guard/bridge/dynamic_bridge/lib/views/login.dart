@@ -14,21 +14,17 @@ class LoginScreen extends StatelessWidget {
   static LoginLogic selfLogic = LoginLogic();
 
   /// For autorizing the user
-  Future<String?> _authUser(LoginData data) {
-    debugPrint('Name: ${data.name}, Password: ${data.password}');
+  Future<String?> _authUser(LoginData data) async {
+
+    bool isAuthorized = await selfLogic.authorizeUser(data);
     return Future.delayed(loginTime).then((_) {
 
-      // TODO: Database APIs
-      /*
-        if (!users.containsKey(data.name)) {
-          return 'The username does not exist';
-        }
-        if (users[data.name] != encrypt(data.password)) {
-          return 'The password does not match';
-        }
-      */
+      if(!isAuthorized){
+        return "Authentication failed!";
+      }
 
       return null;
+      
     });
   }
 

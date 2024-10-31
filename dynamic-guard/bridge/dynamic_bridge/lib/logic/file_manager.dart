@@ -20,10 +20,11 @@ class FileManager {
 
   // Loads the file
   Future<File> get _docsFile async {
-    final path = await _docsPath;
+    final String path = await _docsPath;
     if(EnvManager.isDebugMode()){
       log("Getting file $path/$fileName");
     }
+
     return File('$path/$fileName');
   }
 
