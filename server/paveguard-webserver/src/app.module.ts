@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthenticationGuard } from './modules/user/guards/jwt-authentication/jwt-authentication.guard';
 import { AdminGuard } from './modules/user/guards/admin/admin.guard';
+import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
 
 @Module({
   imports: [
@@ -57,4 +58,10 @@ import { AdminGuard } from './modules/user/guards/admin/admin.guard';
     AppService,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('graphql');
+  }
+}

@@ -48,9 +48,17 @@ export class JwtAuthenticationGuard implements CanActivate {
     }
   }
 
-  extractToken(context: ExecutionContext,): JwtDto {
+  extractRequest(context: ExecutionContext,): Request {
+
     const ctx = GqlExecutionContext.create(context);
     const request = ctx.getContext().req as Request;
+
+    return request;
+  }
+
+  extractToken(context: ExecutionContext,): JwtDto {
+
+    const request = this.extractRequest(context);
 
     const token = extractTokenFromHeader(request);
 
@@ -81,8 +89,6 @@ function extractTokenFromHeader(request: Request): JwtDto {
     return payload;
 
   } catch (error) {
-
-    logger.log(`request blocked: ${error}`);
 
     throw new UnauthorizedException('invalid or expired token');
   }
