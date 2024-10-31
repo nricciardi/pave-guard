@@ -24,15 +24,16 @@ class LoginLogic {
 
     LoginManager loginManager = LoginManager();
     QueryResult queryResult = await loginManager.sendQuery(data);
-    String token = loginManager.getToken(queryResult);
 
-    FileManager fileManager = FileManager(EnvManager.getLoginFileName());
-    Future<String> saved_token = fileManager.readFileContents();
+    try {
 
-    return saved_token.then((value) {
-      return value == token;
-    });
+      String token = loginManager.getToken(queryResult);
+      FileManager fileManager = FileManager(EnvManager.getLoginFileName());
+      fileManager.writeFileContents(token);
+      return true;
 
+    } catch (e) { return false; }
+    
   }
 
   // Returns true if the signup was successful
@@ -44,10 +45,13 @@ class LoginLogic {
     String loginFileName = EnvManager.getLoginFileName();
     FileManager fileManager = FileManager(loginFileName);
 
-    String contents = signupQueryManager.getToken(queryResult);
-    fileManager.writeFileContents(contents);
+    try {
 
-    return true;
+      String contents = signupQueryManager.getToken(queryResult);
+      fileManager.writeFileContents(contents);
+      return true;
+      
+    } catch (e) { return false; }
 
   }
 

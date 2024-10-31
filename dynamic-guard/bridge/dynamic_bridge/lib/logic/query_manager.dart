@@ -9,7 +9,7 @@ abstract class QueryAbstractManager {
   Future<QueryResult> sendQuery(data) async{
 
     final String query = getQuery(data);
-    final HttpLink httpLink = HttpLink('http://127.0.0.1:3000/graphql');
+    final HttpLink httpLink = HttpLink('http://${EnvManager.getUrl()}:3000/graphql');
       
     final GraphQLClient client = GraphQLClient(
       link: httpLink,
@@ -17,7 +17,7 @@ abstract class QueryAbstractManager {
     );
 
     final QueryOptions options = QueryOptions(
-    document: gql(query),
+      document: gql(query),
     );
 
     QueryResult result = await client.query(options);
@@ -26,7 +26,7 @@ abstract class QueryAbstractManager {
       log("response: $result");
     }
 
-    return result!;
+    return result;
 
   }
 
@@ -102,7 +102,7 @@ class LoginManager extends QueryAbstractManager{
 
   String getToken(QueryResult queryResult){
 
-    return queryResult.data!["signup"]["token"];
+    return queryResult.data!["login"]["token"];
 
   }
 

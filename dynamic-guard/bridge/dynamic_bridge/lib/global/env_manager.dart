@@ -7,6 +7,8 @@ const String deployName = "deploy";
 
 const String loginFileVarName = "LOGIN_FILE";
 
+const String urlVarName = "URL";
+
 class EnvManager {
 
   static String getStringVar(String name){
@@ -49,6 +51,10 @@ class EnvManager {
 
     return getStringVar(loginFileVarName);
 
+  }
+
+  static String getUrl(){
+    return getStringVar(urlVarName);
   }
 
 }
