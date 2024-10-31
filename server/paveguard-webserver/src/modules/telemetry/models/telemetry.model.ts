@@ -25,7 +25,8 @@ export class Telemetry extends Document implements ITelemetry {
     required: true,
     enum: [
       "TemperatureTelemetry",
-      "HumidityTelemetry"
+      "HumidityTelemetry",
+      "TrafficTelemetry"
     ]
   })
   kind: string;
