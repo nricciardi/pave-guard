@@ -131,7 +131,7 @@ class MeQueryManager extends QueryAbstractManager {
       return "";
     }
 
-    return '''query {
+    return '''mutation {
       me { email, 
         firstName, 
         lastName }

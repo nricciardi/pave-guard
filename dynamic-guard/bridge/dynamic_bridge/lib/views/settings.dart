@@ -1,6 +1,9 @@
 import 'package:dynamic_bridge/logic/views/settings_logic.dart';
 import 'package:flutter/material.dart';
 
+SettingsLogic selfLogic = SettingsLogic();
+Future<Map<String, bool>> savedOptions = selfLogic.getSavedOptions();
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -9,11 +12,9 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  SettingsLogic selfLogic = SettingsLogic();
 
   @override
   Widget build(BuildContext context) {
-    Future<Map<String, bool>> savedOptions = selfLogic.getSavedOptions();
 
     return FutureBuilder<Map<String, bool>>(
         future: savedOptions,
@@ -97,6 +98,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: ElevatedButton(
                       onPressed: () {
+                        selfLogic.saveOptions({
+                          "built-in": _selectedOption == 1 ? true : false,
+                          "external": _selectedOption == 2 ? true : false,
+                          "crock": _options2,
+                        });
                         Navigator.pop(context); // Go back to the DashboardPage
                       },
                       child: const Text('Home'),
@@ -105,7 +111,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             );
-          }
+         } 
         });
   }
 }

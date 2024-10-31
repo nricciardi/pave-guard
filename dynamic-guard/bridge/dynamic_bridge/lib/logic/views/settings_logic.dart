@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/file_manager.dart';
@@ -16,16 +17,26 @@ class SettingsLogic {
   Future<Map<String,bool>> getSavedOptions() async {
 
     if(! await fileManager.doFileExists()){
+      if(EnvManager.isDebugAndroidMode()){
+        log("Loading default settings...");
+      }
       return defaultOptions;
     }
+
     String fileContents = await fileManager.readFileContents();
-    return jsonDecode(fileContents) as Map<String, bool>;
+    Map<String, dynamic> decodedMap = jsonDecode(fileContents);
+    Map<String, bool> toRet = decodedMap.map((key, value) => MapEntry("\"$key\"", value as bool));
+    if(EnvManager.isDebugAndroidMode()){
+      log("Loading file settings...");
+      log(toRet.toString());
+    }
+    return toRet;
 
   }
 
   void saveOptions(Map<String, bool> data) async {
 
-    fileManager.writeFileContents(data.toString());
+    fileManager.writeFileContents(jsonEncode(data));
 
   }
 
