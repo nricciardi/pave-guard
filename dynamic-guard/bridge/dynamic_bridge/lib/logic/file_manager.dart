@@ -8,20 +8,27 @@ class FileManager {
 
   // The name of the file from which to read
   final String fileName;
+  bool permanent = false;
 
-  FileManager(this.fileName);
+  FileManager(this.fileName, {this.permanent = false});
 
   // Gets the permanent documents directory
-  Future<String> get _docsPath async {
+  Future<String> get _filePath async {
 
-    final Directory directory = await getApplicationCacheDirectory();
-    return directory.path;
+    if (permanent){
+      Directory directory = await getApplicationDocumentsDirectory();
+      return directory.path;
+    } else {
+      Directory directory = await getApplicationCacheDirectory();
+      return directory.path;
+    }
+    
 
   }
 
   // Loads the file
-  Future<File> get _docsFile async {
-    final String path = await _docsPath;
+  Future<File> get _myFile async {
+    final String path = await _filePath;
     if(EnvManager.isDebugMode()){
       log("Getting file $path/$fileName");
     }
@@ -32,7 +39,7 @@ class FileManager {
   // Check if file exists
   Future<bool> doFileExists() async{
 
-    final File file = await _docsFile;
+    final File file = await _myFile;
     return await file.exists();
 
   }
@@ -40,7 +47,7 @@ class FileManager {
   // Reads from the file
   Future<String> readFileContents() async {
   
-    final File file = await _docsFile;
+    final File file = await _myFile;
 
     // Reads the file
     final String contents = await file.readAsString();
@@ -50,7 +57,7 @@ class FileManager {
 
   // Writes onto the file
   void writeFileContents(String contents) async {
-    final File file = await _docsFile;
+    final File file = await _myFile;
 
     // Write the file
     file.writeAsString(contents);
@@ -58,7 +65,7 @@ class FileManager {
 
   Future<void> deleteFile() async {
     
-    final File file = await _docsFile;
+    final File file = await _myFile;
     await file.delete(recursive: false);
 
   }
