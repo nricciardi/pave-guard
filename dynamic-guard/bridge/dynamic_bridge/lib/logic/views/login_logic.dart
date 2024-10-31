@@ -13,8 +13,6 @@ class LoginLogic {
   /// 
   Widget loadNextPage() {
 
-    // TODO: The whole logic, if needed
-
     return const DashboardPage(title: "prova");
 
   }

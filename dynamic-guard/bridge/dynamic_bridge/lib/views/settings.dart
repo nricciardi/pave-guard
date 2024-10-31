@@ -36,7 +36,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 ListTile(
-                  title: const Text('Device'),
+                  title: const Text('Built-in'),
                   leading: Radio<int>(
                     value: 1,
                     groupValue: _selectedOption,

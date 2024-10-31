@@ -13,9 +13,10 @@ class FileManager {
 
   // Gets the permanent documents directory
   Future<String> get _docsPath async {
-    final directory = await getApplicationDocumentsDirectory();
 
+    final Directory directory = await getApplicationCacheDirectory();
     return directory.path;
+
   }
 
   // Loads the file
@@ -31,7 +32,7 @@ class FileManager {
   // Check if file exists
   Future<bool> doFileExists() async{
 
-    final file = await _docsFile;
+    final File file = await _docsFile;
     return await file.exists();
 
   }
@@ -53,6 +54,13 @@ class FileManager {
 
     // Write the file
     file.writeAsString(contents);
+  }
+
+  Future<void> deleteFile() async {
+    
+    final File file = await _docsFile;
+    await file.delete(recursive: false);
+
   }
 
 }
