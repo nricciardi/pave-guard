@@ -12,7 +12,6 @@ APP_ENV=local
 
 DEBUG=true
 
-
 DB_HOST=mongo
 DB_PORT=27017
 DB_USER=paveguard-webserver
@@ -122,7 +121,7 @@ mutation {
 Login:
 
 ```gql
-mutation {
+query {
   login(
     email: "jd@mail.com",
     password: "psw"

@@ -1,4 +1,4 @@
-import { Resolver, Field, ObjectType, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Field, ObjectType, Mutation, Args, Query } from '@nestjs/graphql';
 import { AuthenticationService } from '../services/authentication/authentication.service';
 import { LoginDto } from '../dto/login.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -22,7 +22,7 @@ export class AuthenticationResolver {
     return this.authenticationService.signup(input);
   }
 
-  @Mutation(() => AuthenticationQuery)
+  @Query(() => AuthenticationQuery)
   async login(
     @Args() input: LoginDto
   ) {
