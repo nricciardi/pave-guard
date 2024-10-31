@@ -11,6 +11,9 @@ import { HumidityTelemetry, HumidityTelemetrySchema } from './models/humidity-te
 import { HumidityTelemetryResolver } from './resolvers/humidity-telemetry.resolver';
 import { UserModule } from '../user/user.module';
 import { UserService } from '../user/services/user/user.service';
+import { TrafficTelemetry, TrafficTelemetrySchema } from './models/traffic-telemetry.model';
+import { TrafficTelemetryService } from './services/traffic-telemetry/traffic-telemetry.service';
+import { TrafficTelemetryResolver } from './resolvers/traffic-telemetry.resolver';
 
 @Module({
     controllers: [
@@ -20,11 +23,13 @@ import { UserService } from '../user/services/user/user.service';
         TelemetryService,
         TemperatureTelemetryService,
         HumidityTelemetryService,
+        TrafficTelemetryService,
 
         // === RESOLVERs ===
         TelemetryResolver,
         TemperatureTelemetryResolver,
         HumidityTelemetryResolver,
+        TrafficTelemetryResolver,
     ],
     imports: [
         MongooseModule.forFeature([
@@ -39,6 +44,10 @@ import { UserService } from '../user/services/user/user.service';
                     {
                         name: HumidityTelemetry.name,
                         schema: HumidityTelemetrySchema
+                    },
+                    {
+                        name: TrafficTelemetry.name,
+                        schema: TrafficTelemetrySchema
                     }
                 ]
             },
@@ -46,9 +55,6 @@ import { UserService } from '../user/services/user/user.service';
         UserModule,
     ],
     exports: [
-        TelemetryService,
-        TemperatureTelemetryService,
-        HumidityTelemetryService
     ],
 })
 export class TelemetryModule {}

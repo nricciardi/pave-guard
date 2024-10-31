@@ -145,7 +145,7 @@ Le informazioni vengono prese dal token JWT passato nell'**header**, ad esempio:
 
 ```js
 {
-  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzIxZWQzNjc4MzM2MjU4YWFmM2VhMTkiLCJ1c2VyRW1haWwiOiJqZDNAbWFpbC5jb20iLCJpYXQiOjE3MzAyOTUyNjksImV4cCI6MTczMDI5ODg2OX0.1X_HC-yLUY3-9itP-d6xcuiXpfQZNKC8f5sM70p2z1Q" 
+  "Authorization": "Bearer <token>" 
 }
 ```
 
