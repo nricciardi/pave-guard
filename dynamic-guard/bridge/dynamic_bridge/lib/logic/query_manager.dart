@@ -8,7 +8,7 @@ abstract class QueryAbstractManager {
 
   Future<QueryResult> sendQuery(data, {token = ""}) async{
 
-    final String query = getQuery(data);
+    final String query = getQuery(data, token: token);
     final String link = 'http://${EnvManager.getUrl()}:3000/graphql';
     final HttpLink httpLink;
     
@@ -127,11 +127,11 @@ class MeQueryManager extends QueryAbstractManager {
   @override
   String getQuery(data, {token=""}) {
     
-    if(!checkData(data)){
+    if(!checkData(data, token: token)){
       return "";
     }
 
-    return '''mutation {
+    return '''query {
       me { email, 
         firstName, 
         lastName }

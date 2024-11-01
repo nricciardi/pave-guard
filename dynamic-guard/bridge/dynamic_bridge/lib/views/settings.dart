@@ -2,7 +2,6 @@ import 'package:dynamic_bridge/logic/views/settings_logic.dart';
 import 'package:flutter/material.dart';
 
 SettingsLogic selfLogic = SettingsLogic();
-Future<Map<String, bool>> savedOptions = selfLogic.getSavedOptions();
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -13,19 +12,31 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
 
+  int? _selectedOption;
+  bool _options2 = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData(); // Start async initialization
+  }
+
+  Future<void> loadData() async {
+
+    Map<String, bool> loadedOptions = await selfLogic.getSavedOptions();
+    int? selectedOption = loadedOptions["built-in"]! ? 1 : 2;
+    bool options2 = loadedOptions["crock"]!;
+    setState(() {
+      _selectedOption = selectedOption;
+      _options2 = options2;
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    return FutureBuilder<Map<String, bool>>(
-        future: savedOptions,
-        builder:
-            (BuildContext context, AsyncSnapshot<Map<String, bool>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Loading widget
-          } else {
-            int? _selectedOption = snapshot.data!["built-in"]! ? 1 : 2;
-            bool _options2 = snapshot.data!["crock"]!;
-            return Scaffold(
+    return Scaffold(
               appBar: AppBar(
                 title: const Text('Settings'),
               ),
@@ -112,6 +123,4 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             );
          } 
-        });
-  }
-}
+        }

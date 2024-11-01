@@ -16,7 +16,7 @@ class SettingsLogic {
 
   Future<Map<String,bool>> getSavedOptions() async {
 
-    if(! await fileManager.doFileExists()){
+    if(!(await fileManager.doFileExists())){
       if(EnvManager.isDebugAndroidMode()){
         log("Loading default settings...");
       }
@@ -25,7 +25,7 @@ class SettingsLogic {
 
     String fileContents = await fileManager.readFileContents();
     Map<String, dynamic> decodedMap = jsonDecode(fileContents);
-    Map<String, bool> toRet = decodedMap.map((key, value) => MapEntry("\"$key\"", value as bool));
+    Map<String, bool> toRet = decodedMap.map((key, value) => MapEntry(key, value as bool));
     if(EnvManager.isDebugAndroidMode()){
       log("Loading file settings...");
       log(toRet.toString());

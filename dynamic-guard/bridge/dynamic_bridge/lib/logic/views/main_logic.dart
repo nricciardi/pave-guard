@@ -26,7 +26,8 @@ class MainAppLogic {
     }
 
     MeQueryManager meQueryManager = MeQueryManager();
-    QueryResult queryResult = await meQueryManager.sendQuery(fileManager.readFileContents(), token: fileManager.readFileContents());
+    String token = await fileManager.readFileContents();
+    QueryResult queryResult = await meQueryManager.sendQuery("", token: token);
     return meQueryManager.checkResults(queryResult);
 
   }
