@@ -132,7 +132,7 @@ class MeQueryManager extends QueryAbstractManager {
     }
 
     return '''query {
-      me { email, 
+      me { createdAt, 
         firstName, 
         lastName }
     }''';

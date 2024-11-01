@@ -10,7 +10,7 @@ class FileManager {
   final String fileName;
   bool permanent = false;
 
-  FileManager(this.fileName, {this.permanent = false});
+  FileManager(this.fileName, {this.permanent = true});
 
   // Gets the permanent documents directory
   Future<String> get _filePath async {

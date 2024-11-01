@@ -8,16 +8,14 @@ class PhotoCollector {
   UVCCameraController? camera;
 
   // THIS must be called after instatiating!
-  void initialize(){
+  void initialize() async {
 
     // Try to open external camera
     try {
       
       Future<UVCCameraController> cameraController = openExternalCamera();
-      
-      cameraController.then( (loadedCamera) {
-        camera = loadedCamera;
-      } );
+      camera = await cameraController;
+      camera!.startCamera();
 
     } catch(e) {
 
@@ -27,9 +25,6 @@ class PhotoCollector {
       
       return;
     }
-
-    camera!.startCamera();
-    
   }
 
   static Future<UVCCameraController> openExternalCamera() async{

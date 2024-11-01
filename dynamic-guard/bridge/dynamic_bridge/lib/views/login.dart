@@ -62,6 +62,8 @@ class LoginScreen extends StatelessWidget {
         UserFormField(keyName: "secondName", displayName: "Last Name", fieldValidator: (value) => selfLogic.nameValidator(value),),
         UserFormField(keyName: "userCode", displayName: "Codice Fiscale", fieldValidator: (value) => selfLogic.cfValidator(value),),
       ],
+      savedEmail: EnvManager.isDebugAndroidMode() ? "asd@gm.it" : "",
+      savedPassword: EnvManager.isDebugAndroidMode() ? "asd" : "",
     );
   }
 
