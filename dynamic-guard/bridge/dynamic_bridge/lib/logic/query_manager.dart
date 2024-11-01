@@ -142,7 +142,7 @@ class MeQueryManager extends QueryAbstractManager {
   bool checkResults(QueryResult result){
 
     try {
-      Map<String, dynamic> data = result.data![""];
+      Map<String, dynamic> data = result.data!["me"];
       log(data.toString());
       return true;
     } catch(e) { return false; }
