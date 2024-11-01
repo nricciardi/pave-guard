@@ -134,7 +134,8 @@ class MeQueryManager extends QueryAbstractManager {
     return '''query {
       me { createdAt, 
         firstName, 
-        lastName }
+        lastName,
+        email }
     }''';
 
   }

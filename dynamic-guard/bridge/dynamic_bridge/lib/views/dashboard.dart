@@ -1,5 +1,6 @@
 import 'package:dynamic_bridge/logic/views/dashboard_logic.dart';
 import 'package:dynamic_bridge/views/login.dart';
+import 'package:dynamic_bridge/views/profile.dart';
 import 'package:flutter/material.dart';
 import './settings.dart';
 
@@ -51,7 +52,10 @@ class _DashboardPageState extends State<DashboardPage> {
               title: const Text('Profile'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: profile view
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
               },
             ),
             ListTile(
@@ -62,7 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SettingsPage()),
-                ); //
+                );
               },
             ),
             ListTile(

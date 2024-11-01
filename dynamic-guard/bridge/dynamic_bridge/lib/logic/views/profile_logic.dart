@@ -13,12 +13,13 @@ class ProfileLogic {
       return {
         "firstName": "ERROR",
         "lastName": "ERROR",
-        "createdAt": "ERROR"
+        "createdAt": "ERROR",
+        "email": "ERROR"
       };
     }
     String selfToken = await fileManager.readFileContents();
     QueryResult queryResult = await meQueryManager.sendQuery("", token: selfToken);
-    return queryResult.data!;
+    return queryResult.data!["me"];
 
   }
 
