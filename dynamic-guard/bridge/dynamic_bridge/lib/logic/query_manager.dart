@@ -66,7 +66,7 @@ class SignUpManager extends QueryAbstractManager {
       return "";
     }
 
-    return '''mutation {
+    return '''query {
         signup(
         email: "${data.name}",
         password: "${data.password}",
@@ -101,7 +101,7 @@ class LoginManager extends QueryAbstractManager{
   @override
   String getQuery(data, {token=""}) {
     
-    return '''mutation {
+    return '''query {
         login(
         email: "${data.name}",
         password: "${data.password}",
