@@ -12,7 +12,6 @@ class PhotoCollector {
 
     // Try to open external camera
     try {
-      
       Future<UVCCameraController> cameraController = openExternalCamera();
       camera = await cameraController;
       camera!.startCamera();
@@ -36,17 +35,24 @@ class PhotoCollector {
 
   }
 
-  String getPhoto(){
+  Future<String?> getPhoto() async {
 
     if(camera == null){
       throw Exception("The camera isn't loaded!");
     }
 
-    String photo = "";
-    camera!.takePicture().then( (photoTaken) {
-      photo = photoTaken!;
-    });
-    return photo;
+    return camera!.takePicture();
+
+  }
+
+  void close(){
+
+    if(camera == null){
+      throw Exception("The camera isn't loaded!");
+    }
+
+    camera!.closeCamera();
+    camera!.dispose();
 
   }
 

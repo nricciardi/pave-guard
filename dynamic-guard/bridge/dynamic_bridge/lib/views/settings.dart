@@ -36,8 +36,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // Checking if camera is on!
     try {
-      UVCCameraController temp = await PhotoCollector.openExternalCamera();
-      temp.closeCamera();
+      PhotoCollector photoCollector = PhotoCollector();
+      photoCollector.initialize();
+      photoCollector.close();
       isCameraOn = true;
     } catch (e) {
       if(EnvManager.isDebugAndroidMode()){

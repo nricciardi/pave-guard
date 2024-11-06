@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class DashboardLogic {
 
-  String takePicture(){
+  Future<String?> takePicture() async {
 
     PhotoCollector photoCollector = PhotoCollector();
     photoCollector.initialize();
