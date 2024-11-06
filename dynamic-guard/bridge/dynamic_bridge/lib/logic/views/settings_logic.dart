@@ -5,9 +5,10 @@ import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/file_manager.dart';
 
 const Map<String, bool> defaultOptions = {
-  "built-in": true,
-  "external": false,
-  "crock": false,
+  "built-inC": true,
+  "externalC": false,
+  "built-inG": true,
+  "externalG": false
 };
 
 class SettingsLogic {
