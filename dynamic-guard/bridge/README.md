@@ -21,6 +21,8 @@ L'app che funge da bridge per il Dynamic Guard si compone di diverse componenti.
 Le views - ossia, le schermate - sono principalmente:
 1. **Login**: permette agli utenti di effettuare il login o il sign-up;
 2. **Dashboard**: la schermata principale;
+3. **Settings**: dove gestire le impostazioni;
+4. **Profile**: dove visualizzare le informazioni dell'utente loggato.
 
 #### Login
 
@@ -35,3 +37,15 @@ Dove un utente può registrarsi. In una prima schermata viene chiesto di inserir
 ##### Login
 
 L'utente può effettuare il login nell'applicazione, fornendo la mail e la password usati al tempo di sign-up. Per un certo periodo, i dati vengono mantenuti in memoria affinchè l'utente possa rientrare senza inserire ancora i propri dati.
+
+#### Dashboard
+
+Nella dashboard, l'utente può vedere due informazioni principali: lo stato di connessione ai sensori e la detrazione delle tasse fino a quel momento. Se vi è un errore nella connessione ai sensori così come scelti nelle impostazioni, questo viene mostrato.
+
+#### Settings
+
+Nei settings si può scegliere quale fotocamera utilizzare (quella built-in del dispositivo o quella del Dynamic Guard) e quale GPS utilizzare (quello built-in del dispositivo o quello del Dynamic Guard). Le impostazioni vengono salvate nel dispositivo e rimangono tali fino a una nuova modifica dell'utente.
+
+#### Profile
+
+Mostra i dati dell'utente loggato.
