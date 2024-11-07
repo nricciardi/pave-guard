@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:camera/camera.dart';
@@ -17,9 +18,16 @@ class DashboardLogic {
 
   Future<String?> takePicture() async {
 
-    PhotoCollector photoCollector = PhotoCollector();
-    photoCollector.initialize();
-    return photoCollector.getPhoto();
+    if(cameraController is CameraController){
+      // built-in
+      CameraController toUse = cameraController as CameraController;
+      XFile file = await toUse.takePicture();
+      return await file.readAsString();
+    } else {
+      // USB cam
+      PhotoCollector toUse = cameraController as PhotoCollector;
+      return toUse.getPhoto();
+    }
 
   }
 
@@ -29,6 +37,17 @@ class DashboardLogic {
     FileManager fileManager = FileManager(loginFileName);
     fileManager.deleteFile();
 
+  }
+
+  void collectPhotos() {
+    int interval = EnvManager.getPhotoCollectionInterval();
+    Timer timer = Timer.periodic(Duration(seconds: interval), (timer) async {
+      // The photo collection
+      String data = await takePicture() as String;
+
+      
+
+    })
   }
 
   Future<List<Widget>> dashboardCenterChildren() async{

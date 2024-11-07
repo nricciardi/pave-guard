@@ -10,6 +10,8 @@ const String settingsFileVarName = "SETTINGS_FILE";
 
 const String urlVarName = "URL";
 
+const String photoCollectionIntervalVarName = "PHOTO_INTERVAL";
+
 class EnvManager {
 
   static String getStringVar(String name){
@@ -49,6 +51,10 @@ class EnvManager {
 
   static String getSettingsFileName(){
     return getStringVar(settingsFileVarName);
+  }
+
+  static int getPhotoCollectionInterval(){
+    return int.parse(getStringVar(photoCollectionIntervalVarName));
   }
 
 }
