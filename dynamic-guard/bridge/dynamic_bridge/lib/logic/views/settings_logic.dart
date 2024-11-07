@@ -41,4 +41,18 @@ class SettingsLogic {
 
   }
 
+  Future<bool> isCameraExt() async{
+
+    Map<String, bool> settings = await getSavedOptions();
+    return settings["externalC"]!;
+
+  }
+
+  Future<bool> isGpsExt() async{
+
+    Map<String, bool> settings = await getSavedOptions();
+    return settings["externalG"]!;
+
+  }
+
 }

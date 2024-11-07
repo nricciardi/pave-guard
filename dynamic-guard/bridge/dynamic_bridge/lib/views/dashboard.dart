@@ -17,9 +17,28 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
 
   static DashboardLogic selfLogic = DashboardLogic();
+  List<Widget>? children;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeChildren();
+  }
+
+  void initializeChildren() async{
+
+    children = await selfLogic.dashboardCenterChildren();
+    setState(() {});
+
+  }
 
   @override
   Widget build(BuildContext context) {
+
+    if(children == null){
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
@@ -87,7 +106,7 @@ class _DashboardPageState extends State<DashboardPage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: selfLogic.dashboardCenterChildren(),
+          children: children!,
         ),
       ),
     );
