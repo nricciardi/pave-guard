@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/file_manager.dart';
 import 'package:dynamic_bridge/logic/gps_manager.dart';
+import 'package:dynamic_bridge/logic/hole_detector.dart';
 import 'package:dynamic_bridge/logic/photo_collector.dart';
 import 'package:dynamic_bridge/logic/views/settings_logic.dart';
 import 'package:flutter/material.dart';
@@ -44,10 +45,11 @@ class DashboardLogic {
     Timer timer = Timer.periodic(Duration(seconds: interval), (timer) async {
       // The photo collection
       String data = await takePicture() as String;
+      if(HoleDetector.isHole(data)){
+        // TODO: Send data
+      }
 
-      
-
-    })
+    });
   }
 
   Future<List<Widget>> dashboardCenterChildren() async{
