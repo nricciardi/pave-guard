@@ -16,18 +16,21 @@ class DashboardLogic {
   // Else, it's a CameraController
   // Awful, but I don't know how to make it work otherwise
   var cameraController;
+  bool cameraWorking = false;
+  Timer? _timer;
 
-  Future<String?> takePicture() async {
+  Future<XFile> takePicture() async {
 
     if(cameraController is CameraController){
       // built-in
       CameraController toUse = cameraController as CameraController;
-      XFile file = await toUse.takePicture();
-      return await file.readAsString();
+      await toUse.initialize();
+      return await toUse.takePicture();
     } else {
       // USB cam
       PhotoCollector toUse = cameraController as PhotoCollector;
-      return toUse.getPhoto();
+      String? path = await toUse.getPhoto();
+      return XFile(path!);
     }
 
   }
@@ -41,11 +44,14 @@ class DashboardLogic {
   }
 
   void collectPhotos() {
+    if(!cameraWorking){
+      return;
+    }
     int interval = EnvManager.getPhotoCollectionInterval();
-    Timer timer = Timer.periodic(Duration(seconds: interval), (timer) async {
+    _timer = Timer.periodic(Duration(seconds: interval), (timer) async {
       // The photo collection
-      String data = await takePicture() as String;
-      if(HoleDetector.isHole(data)){
+      XFile file = await takePicture();
+      if(HoleDetector.isHole(file)){
         // TODO: Send data
       }
 
@@ -68,14 +74,14 @@ class DashboardLogic {
       // The camera is external
       cameraController = PhotoCollector();
       try {
-        cameraController.initialize();
-        PhotoCollector.openExternalCamera();
+        await PhotoCollector.openExternalCamera();
         children.add(const Center(
           child: Text(
               'External Camera loaded and working.',
               style: TextStyle(fontSize: 24, color: Colors.green, ),
             ) )
         );
+        cameraWorking = true;
       } catch(e) {
         children.add(
           const Text(
@@ -91,14 +97,15 @@ class DashboardLogic {
         log(_cameras.toString());
       }
       try{
-      cameraController = CameraController(_cameras.first, ResolutionPreset.medium);
-      await cameraController.initialize();
-      children.add(
+        cameraController = CameraController(_cameras.elementAt(1), ResolutionPreset.medium);
+        await cameraController.initialize();
+        children.add(
           const Text(
               'Built-in camera loaded.',
               style: TextStyle(fontSize: 24, color: Colors.green),
             )
         );
+        cameraWorking = true;
       } catch(e){
         children.add(
           const Text(
@@ -133,6 +140,12 @@ class DashboardLogic {
 
     return children;
 
+  }
+
+  void dispose(){
+    if(_timer != null){
+      _timer!.cancel();
+    }
   }
 
 }

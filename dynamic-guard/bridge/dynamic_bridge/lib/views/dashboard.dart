@@ -28,8 +28,15 @@ class _DashboardPageState extends State<DashboardPage> {
   void initializeChildren() async{
 
     children = await selfLogic.dashboardCenterChildren();
+    selfLogic.collectPhotos();
     setState(() {});
 
+  }
+
+  @override
+  void dispose(){
+    selfLogic.dispose();
+    super.dispose();
   }
 
   @override

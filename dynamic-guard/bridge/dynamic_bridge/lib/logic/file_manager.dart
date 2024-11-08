@@ -23,7 +23,10 @@ class FileManager {
       return directory.path;
     }
     
+  }
 
+  Future<File> asFile() async {
+    return await _myFile;
   }
 
   // Loads the file
