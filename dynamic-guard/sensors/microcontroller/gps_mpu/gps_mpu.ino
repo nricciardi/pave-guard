@@ -12,36 +12,30 @@
 
 #include <TinyGPSPlus.h>
 
+// Reads from Serial1 and retrieves Latitude and Longitude
 void getLatAndLon(double* Latitude, double* Longitude, TinyGPSPlus* obj){
 
-  while(1){
-    if(!Serial1.available()) {
-      return;
-    }
+  while (1) {
+    // If Serial1 is not connected, returns
+    if(!Serial1.available()) break;
+    // Reads and parse a char from Serial1
     obj->encode(Serial1.read());
+    // If enough chars have been parsed, returns the location
     if(obj->location.isUpdated()){
       *Latitude = obj->location.lat();
       *Longitude = obj->location.lng();
       printLatAndLon(*Latitude, *Longitude);
-      return;
+      break;
     }
   }
 
 }
 
+// Writes to Serial the values of latitude and longitude
+// FORMAT: g[lat],[lon]
 void printLatAndLon(double Latitude, double Longitude){
-  Serial.print("g");
-  Serial.print(Latitude, 6);
-  Serial.print(",");
-  Serial.println(Longitude, 6 );
-}
-
-void printLatAndLonFloatExp(float Latitude, float Longitude){
-  Serial.print("Latitude: ");
-  Serial.print(Latitude, 6);
-  Serial.print(", ");
-  Serial.print("Longitude: ");
-  Serial.println(Longitude, 6);
+  Serial.print("g"); Serial.print(Latitude, 6);
+  Serial.print(","); Serial.println(Longitude, 6 );
 }
 
 // MPU part
@@ -60,10 +54,9 @@ const int MPU = 0x68; // I2C address of the MPU-6050
 
 // This should be executed once at startup
 void wireStartMPU(){
-  Wire.begin();
-  Wire.beginTransmission(MPU);
+  Wire.begin(); Wire.beginTransmission(MPU);
   Wire.write(0x6B);  // PWR_MGMT_1 register
-  Wire.write(0);     // set to zero (wakes up the MPU-6050)
+  Wire.write(0);     // Wakes up the MPU-6050
   Wire.endTransmission(true);
 }
 
@@ -76,6 +69,7 @@ void prepareToReadMPU(){
   Wire.requestFrom(MPU, 14, true); // request a total of 14 registers
 }
 
+// Reads and overwrites values of x,y,z accelerations
 void readAccelerometer(int16_t* x, int16_t* y, int16_t* z){
   prepareToReadMPU();
 
@@ -84,6 +78,7 @@ void readAccelerometer(int16_t* x, int16_t* y, int16_t* z){
   *z = Wire.read() << 8 | Wire.read(); // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
 }
 
+// Reads and overwrites values of x,y,z gyroscope
 void readGyroscope(int16_t* x, int16_t* y, int16_t* z){
   prepareToReadMPU();
 
@@ -92,35 +87,21 @@ void readGyroscope(int16_t* x, int16_t* y, int16_t* z){
   *z = Wire.read() << 8 | Wire.read(); // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
 }
 
-void readMPU(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz){
-
-  readAccelerometer(ax, ay, az);
-  readGyroscope(gx, gy, gz);
-
-}
-
+// Writes to output the values of the accelerations
+// FORMAT: A[x],[y],[z]
 void writeAccelerometer(int16_t x, int16_t y, int16_t z){
-  Serial.print("A");
-  Serial.print(x);
-  Serial.print(",");
-  Serial.print(y);
-  Serial.print(",");
-  Serial.println(z);
+  Serial.print("A"); Serial.print(x);
+  Serial.print(","); Serial.print(y);
+  Serial.print(","); Serial.println(z);
 }
 
+// Writes to output the values of the gyroscope
+// FORMAT: G[x],[y],[z]
 void writeGyroscope(int16_t x, int16_t y, int16_t z){
-  Serial.print("G");
-  Serial.print(x);
-  Serial.print(",");
-  Serial.print(y);
-  Serial.print(",");
-  Serial.println(z);
+  Serial.print("G"); Serial.print(x);
+  Serial.print(","); Serial.print(y);
+  Serial.print(","); Serial.println(z);
 }
-
-/*
-  ERRORS list:
-    - E1: GPS not connected
-*/
 
 TinyGPSPlus gps;
 double lat, lon;
@@ -142,7 +123,8 @@ void setup(){
 
 void loop(){
   
-  // Keep track of gps data
+  // Keep track of gps data,
+  // even if unnecessary
   gps.encode(Serial1.read());
 
   // If it's required to get the gps position
