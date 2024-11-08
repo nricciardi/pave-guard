@@ -27,7 +27,6 @@ export class HumidityTelemetryResolver {
   }
 
   @Mutation(() => HumidityTelemetryQuery)
-  @UseGuards(JwtAuthenticationGuard)
   async createHumidityTelemetry(
     @Args() input: CreateHumidityTelemetryDto,
   ) {

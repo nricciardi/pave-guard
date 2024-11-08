@@ -2,6 +2,10 @@
 
 **NodeJS** con la libreria **NestJS** per la creazione delle API. Python (Flask, Django) è stato scartato perché Nest permette tipizzazione tramite integrazione con TypeScript e una buona integrazione con MongoDB.
 
+## TODO
+
+- [ ] Capire come autenticare gli static guard nell'invio delle telemetrie
+
 ## Quick start
 
 Creare `.env` file in `paveguard-webserver` directory:
@@ -41,30 +45,6 @@ Problemi:
 
 Apollo server (per fare le query delle API graphql): `http://127.0.0.1:3000/graphql`
 
-Prova di funzionamento:
-
-```gql
-mutation {
-  createTemperatureTelemetry(
-    temperature: 42,
-    timestamp: 1234567890,
-    deviceId: "testId"
-  ) {
-    id
-  }
-}
-```
-
-```gql
-query {
-  temperatureTelemetries {
-    id
-  },
-  humidityTelemetries {
-    id
-  }
-}
-```
 
 ## Doc
 
@@ -148,6 +128,53 @@ Le informazioni vengono prese dal token JWT passato nell'**header**, ad esempio:
   "Authorization": "Bearer <token>" 
 }
 ```
+
+## Device
+
+Esempio di creazione di un device tramite API (serva autorizzazione):
+
+```gpl
+mutation {
+  createDynamicGuard(
+    serialNumber:"test2",
+    userId:"6723a183c409ba66f35f57fd"
+  ) {
+    id
+  }
+}
+```
+
+## Telemetrie
+
+Esempio di aggiunta di una telemetria:
+
+```gql
+mutation {
+  createTemperatureTelemetry(
+    temperature: 50,
+    timestamp:"2024-11-08 23:44:00",
+    deviceId:"672e8d9704b74a2a2971c5e5",
+    latitude:100,
+    longitude:100
+  ) {
+    id
+  }
+}
+```
+
+Ottenimento dati telemetrie:
+
+```gql
+query {
+  temperatureTelemetries {
+    id
+  },
+  humidityTelemetries {
+    id
+  }
+}
+```
+
 
 ## Database
 

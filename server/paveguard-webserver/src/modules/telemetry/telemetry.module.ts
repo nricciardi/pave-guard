@@ -10,10 +10,15 @@ import { HumidityTelemetryService } from './services/humidity-telemetry/humidity
 import { HumidityTelemetry, HumidityTelemetrySchema } from './models/humidity-telemetry.model';
 import { HumidityTelemetryResolver } from './resolvers/humidity-telemetry.resolver';
 import { UserModule } from '../user/user.module';
-import { UserService } from '../user/services/user/user.service';
 import { TrafficTelemetry, TrafficTelemetrySchema } from './models/traffic-telemetry.model';
 import { TrafficTelemetryService } from './services/traffic-telemetry/traffic-telemetry.service';
 import { TrafficTelemetryResolver } from './resolvers/traffic-telemetry.resolver';
+import { RoadCrackService } from './services/road-crack/road-crack.service';
+import { RoadPotholeService } from './services/road-pothole/road-pothole.service';
+import { RoadCrackTelemetryResolver } from './resolvers/road-crack-telemetry.resolver';
+import { RoadPotholeTelemetryResolver } from './resolvers/road-pothole-telemetry.resolver';
+import { RoadCrackTelemetry, RoadCrackTelemetrySchema } from './models/road-crack-telemetry.model';
+import { RoadPotholeTelemetry, RoadPotholeTelemetrySchema } from './models/road-pothole-telemetry.model';
 
 @Module({
     controllers: [
@@ -24,12 +29,16 @@ import { TrafficTelemetryResolver } from './resolvers/traffic-telemetry.resolver
         TemperatureTelemetryService,
         HumidityTelemetryService,
         TrafficTelemetryService,
+        RoadCrackService,
+        RoadPotholeService,
 
         // === RESOLVERs ===
         TelemetryResolver,
         TemperatureTelemetryResolver,
         HumidityTelemetryResolver,
         TrafficTelemetryResolver,
+        RoadCrackTelemetryResolver,
+        RoadPotholeTelemetryResolver
     ],
     imports: [
         MongooseModule.forFeature([
@@ -48,6 +57,14 @@ import { TrafficTelemetryResolver } from './resolvers/traffic-telemetry.resolver
                     {
                         name: TrafficTelemetry.name,
                         schema: TrafficTelemetrySchema
+                    },
+                    {
+                        name: RoadCrackTelemetry.name,
+                        schema: RoadCrackTelemetrySchema
+                    },
+                    {
+                        name: RoadPotholeTelemetry.name,
+                        schema: RoadPotholeTelemetrySchema
                     }
                 ]
             },

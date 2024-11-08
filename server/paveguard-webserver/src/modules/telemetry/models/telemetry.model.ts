@@ -1,35 +1,28 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 
-export interface ITelemetry {
-  deviceId: string;
-  
-  timestamp: number;
 
-  kind: string;
-}
-
-
-@Schema({ discriminatorKey: 'kind' })
-export class Telemetry extends Document implements ITelemetry {
+@Schema({ 
+  discriminatorKey: 'type',
+  timeseries: {
+    timeField: "timestamp",
+    granularity: "seconds"
+  } 
+})
+export class Telemetry extends Document {
 
   @Prop({ required: true })
-  deviceId: string;
+  timestamp: Date;
 
   @Prop({ required: true })
-  timestamp: number;
+  latitude: number;
 
-  @Prop({
-    type: String,
-    required: true,
-    enum: [
-      "TemperatureTelemetry",
-      "HumidityTelemetry",
-      "TrafficTelemetry"
-    ]
-  })
-  kind: string;
+  @Prop({ required: true })
+  longitude: number;
+
+  @Prop({ type: Types.ObjectId, ref: 'Device', required: true })
+  deviceId: Types.ObjectId;
 }
 
 export const TelemetrySchema = SchemaFactory.createForClass(Telemetry);

@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthenticationGuard } from './modules/user/guards/jwt-authentication/jwt-authentication.guard';
 import { AdminGuard } from './modules/user/guards/admin/admin.guard';
 import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
+import { DeviceModule } from './modules/device/device.module';
 
 @Module({
   imports: [
@@ -45,11 +46,13 @@ import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
         include: [
           TelemetryModule,
           UserModule,
+          DeviceModule,
         ]
       }),
     }),
     TelemetryModule,
     UserModule,
+    DeviceModule,
   ],
   controllers: [
     AppController,

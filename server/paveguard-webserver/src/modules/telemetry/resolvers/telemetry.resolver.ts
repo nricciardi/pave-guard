@@ -12,7 +12,13 @@ export class TelemetryQuery {
   deviceId: string;
 
   @Field()
-  timestamp: number;
+  timestamp: Date;
+
+  @Field()
+  latitude: number;
+
+  @Field()
+  longitude: number;
 }
 
 @Resolver(() => TelemetryQuery)

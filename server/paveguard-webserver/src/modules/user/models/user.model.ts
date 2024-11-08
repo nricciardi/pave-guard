@@ -3,7 +3,7 @@ import { Document } from "mongoose";
 
 
 
-@Schema()
+@Schema({ timestamps: {}})
 export class User extends Document {
   @Prop({
     required: true,
@@ -22,12 +22,6 @@ export class User extends Document {
 
   @Prop({ required: true })
   lastName: string;
-
-  @Prop({
-    required: true, 
-    default: Date.now
-  })
-  createdAt: Date;
 
   @Prop({
     required: true, 

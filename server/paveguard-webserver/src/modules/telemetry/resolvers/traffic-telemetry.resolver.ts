@@ -30,7 +30,6 @@ export class TrafficTelemetryResolver {
   }
 
   @Mutation(() => TrafficTelemetryQuery)
-  @UseGuards(JwtAuthenticationGuard)
   async createTrafficTelemetry(
     @Args() input: CreateTrafficTelemetryDto,
   ) {

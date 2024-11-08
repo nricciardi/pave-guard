@@ -2,14 +2,14 @@ import { Field, ArgsType } from '@nestjs/graphql';
 import { IsDate, IsNumber, IsString } from 'class-validator';
 
 @ArgsType()
-export class CreateTelemetryDto {
+export class CreateStaticGuardDto {
   @Field()
   @IsString()
-  deviceId: string;
+  serialNumber: string;
 
   @Field()
-  @IsDate()
-  timestamp: Date;
+  @IsString()
+  street: string;
 
   @Field()
   @IsNumber()

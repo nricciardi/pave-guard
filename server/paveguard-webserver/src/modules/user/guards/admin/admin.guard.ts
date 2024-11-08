@@ -32,10 +32,14 @@ export class AdminGuard implements CanActivate {
 
                 const token = this.jwtGuard.extractToken(context);
 
+                if(!token)
+                    resolve(false);
+
                 resolve((await this.userService.findById(token.userId)).admin);
             
             } catch (error) {
-                reject(error);
+                this.logger.error(error);
+                resolve(false);
             }
         });
     }
