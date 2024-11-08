@@ -7,6 +7,7 @@ import 'package:dynamic_bridge/logic/file_manager.dart';
 import 'package:dynamic_bridge/logic/gps_manager.dart';
 import 'package:dynamic_bridge/logic/hole_detector.dart';
 import 'package:dynamic_bridge/logic/photo_collector.dart';
+import 'package:dynamic_bridge/logic/serial_interface.dart';
 import 'package:dynamic_bridge/logic/views/settings_logic.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +17,11 @@ class DashboardLogic {
   // Else, it's a CameraController
   // Awful, but I don't know how to make it work otherwise
   var cameraController;
+
   bool cameraWorking = false;
   Timer? _timer;
+
+  SerialInterface? serialInterface;
 
   Future<XFile> takePicture() async {
 
@@ -62,6 +66,7 @@ class DashboardLogic {
 
     List<Widget> children = [];
     SettingsLogic settingsLogic = SettingsLogic();
+    serialInterface = SerialInterface();
 
     children.add(
       const Text(

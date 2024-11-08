@@ -39,6 +39,17 @@ class AccelerometerData {
 
 class SerialInterface {
 
+  SerialPort? serialPort;
+
+  SerialInterface(){
+
+    if(EnvManager.isDebugAndroidMode()){
+      log(SerialPort.availablePorts.toString());
+    }
+    serialPort = SerialPort("USB");
+
+  }
+
   static GPSData parseGpsData(String data){
 
     RegExp regex = RegExp(r'^g\d+,\d+$');

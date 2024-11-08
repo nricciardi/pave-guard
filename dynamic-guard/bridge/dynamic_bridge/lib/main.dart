@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 import 'logic/views/main_logic.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future main() async {
   await dotenv.load();
+
+  var status = await Permission.manageExternalStorage.status;
+  if (!status.isGranted) {
+      await Permission.manageExternalStorage.request();
+  }
+  status = await Permission.locationWhenInUse.status;
+  if(!status.isGranted) {
+    await Permission.locationWhenInUse.request();
+  }
+
   runApp(const MyApp());
 }
 
