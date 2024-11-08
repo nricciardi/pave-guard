@@ -13,6 +13,15 @@ Fotocellula laser 10V-30V. A temperatura ambiente funziona anche a 5V (tensione 
 
 Essendo normalmente aperto (no 0V) serve una **resistenza di pull-down** sul pin nero e `pinMode=INPUT`, per gli Arduino compatibili (no Arduino Uno) c'è `INPUT_PULLDOWN`.
 
+
+### Pluviometro
+
+Normale contatto pulito normalmente aperto. Per collegarlo due possibilità:
+
+- `INPUT_PULLUP` e metterlo in comunicazione con la massa
+- `INPUT` e resistenza di pull-down
+
+
 ### Microfono
 
 Supponiamo di avere un microfono che abbia come output alto/basso. Alto se il rumore supera una certa soglia, basso altrimenti.
