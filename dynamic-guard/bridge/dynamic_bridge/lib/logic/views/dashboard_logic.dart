@@ -44,10 +44,10 @@ class DashboardLogic {
   }
 
   void collectPhotos() {
-    if(!cameraWorking){
+    int interval = EnvManager.getPhotoCollectionInterval();
+    if(!cameraWorking || interval == 0){
       return;
     }
-    int interval = EnvManager.getPhotoCollectionInterval();
     _timer = Timer.periodic(Duration(seconds: interval), (timer) async {
       // The photo collection
       XFile file = await takePicture();
