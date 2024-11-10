@@ -123,11 +123,18 @@ class DashboardLogic {
 
     if(await settingsLogic.isGpsExt()){
       // External GPS
-      // TODO
-      children.add(const Text(
-              'Dynamic-Guard not loaded!',
-              style: TextStyle(fontSize: 24, color: Colors.red),
-            ));
+      if(await GpsManager.isExternalGPSOn()){
+        children.add(const Text(
+                'Dynamic-Guard not loaded!',
+                style: TextStyle(fontSize: 24, color: Colors.green),
+              ));
+      }
+      else {
+        children.add(const Text(
+                'Dynamic-Guard not loaded!',
+                style: TextStyle(fontSize: 24, color: Colors.red),
+              ));
+      }
     } else {
       // Internal GPS
       if(await GpsManager.isBuiltInGPSOn()){

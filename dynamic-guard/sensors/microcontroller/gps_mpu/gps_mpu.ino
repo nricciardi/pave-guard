@@ -32,7 +32,7 @@ void getLatAndLon(double* Latitude, double* Longitude, TinyGPSPlus* obj){
 }
 
 // Writes to Serial the values of latitude and longitude
-// FORMAT: g[lat],[lon]
+// FORMAT: g[lat],[lon]\n
 void printLatAndLon(double Latitude, double Longitude){
   Serial.print("g"); Serial.print(Latitude, 6);
   Serial.print(","); Serial.println(Longitude, 6 );
@@ -88,7 +88,7 @@ void readGyroscope(int16_t* x, int16_t* y, int16_t* z){
 }
 
 // Writes to output the values of the accelerations
-// FORMAT: A[x],[y],[z]
+// FORMAT: A[x],[y],[z]\n
 void writeAccelerometer(int16_t x, int16_t y, int16_t z){
   Serial.print("A"); Serial.print(x);
   Serial.print(","); Serial.print(y);
@@ -96,7 +96,7 @@ void writeAccelerometer(int16_t x, int16_t y, int16_t z){
 }
 
 // Writes to output the values of the gyroscope
-// FORMAT: G[x],[y],[z]
+// FORMAT: G[x],[y],[z]\n
 void writeGyroscope(int16_t x, int16_t y, int16_t z){
   Serial.print("G"); Serial.print(x);
   Serial.print(","); Serial.print(y);
@@ -108,6 +108,8 @@ double lat, lon;
 
 int16_t pAcX, pAcY, pAcZ, pGyX, pGyY, pGyZ;
 int16_t AcX, AcY, AcZ, GyX, GyY, GyZ;
+
+String gps_command = "g";
 
 void setup(){
 
@@ -128,14 +130,14 @@ void loop(){
   gps.encode(Serial1.read());
 
   // If it's required to get the gps position
-  if(Serial.read() == 'g'){
+  if(Serial.readStringUntil('\n') == gps_command){
     getLatAndLon(&lat, &lon, &gps);
   }
 
   readAccelerometer(&AcX, &AcY, &AcZ);
   // readGyroscope(&GyX, &GyY, &GyZ);
 
-  if(abs(AcZ - pAcZ) >= 2000){
+  if(abs(AcZ - pAcZ) >= 1000){
       writeAccelerometer(AcX, AcY, AcZ);
       getLatAndLon(&lat, &lon, &gps);
       printLatAndLon(lat, lon);

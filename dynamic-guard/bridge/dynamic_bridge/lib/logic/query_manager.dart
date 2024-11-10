@@ -151,3 +151,6 @@ class MeQueryManager extends QueryAbstractManager {
   }
 
 }
+
+// TODO: class RoadCrackTelemetry extends QueryAbstractManager
+// TODO: class RoadPotholeTelemtry extends QueryAbstractManager
