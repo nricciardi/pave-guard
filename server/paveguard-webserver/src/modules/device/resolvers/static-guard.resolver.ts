@@ -29,7 +29,7 @@ export class StaticGuardResolver {
 
   @Query(() => [StaticGuardQuery])
   @UseGuards(AdminGuard)
-  async staticGuard() {
+  async staticGuards() {
     return this.staticGuardService.findAll();
   }
 

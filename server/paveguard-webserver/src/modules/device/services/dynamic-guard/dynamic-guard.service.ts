@@ -12,6 +12,12 @@ export class DynamicGuardService {
         return this.dynamicGuardModel.find().exec()
     }
 
+    async findByUserId(userId: number): Promise<DynamicGuard[]> {
+        return this.dynamicGuardModel.find({
+            userId
+        }).exec()
+    }
+
     async create(data: CreateDynamicGuardDto): Promise<DynamicGuard> {
         return this.dynamicGuardModel.create({...data});
     }
