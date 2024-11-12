@@ -3,13 +3,8 @@ class GPSData {
   double latitude, longitude;
   GPSData(this.latitude, this.longitude);
 
-  double getLatitude(){
-    return latitude;
-  }
-
-  double getLongitude(){
-    return longitude;
-  }
+  double getLatitude(){ return latitude; }
+  double getLongitude(){ return longitude;}
 
 }
 
@@ -18,17 +13,31 @@ class AccelerometerData {
   double x, y, z;
   AccelerometerData(this.x, this.y, this.z);
 
-  double getX(){
-    return x;
-  }
+  double getX(){ return x; }
+  double getY(){ return y; }
+  double getZ(){ return z; }
 
-  double getY(){
-    return y;
-  }
+}
 
-  double getZ(){
-    return z;
-  }
+class GyroscopeData {
+
+  double x, y, z;
+  GyroscopeData(this.x, this.y, this.z);
+
+  double getX(){ return x; }
+  double getY(){ return y; }
+  double getZ(){ return z; }
+
+}
+
+class AccGyrData {
+
+  AccelerometerData accData;
+  GyroscopeData gyrData;
+  AccGyrData(this.accData, this.gyrData);
+
+  AccelerometerData getAccelerometerData(){ return accData; }
+  GyroscopeData getGyroscopeData(){ return gyrData; }
 
 }
 
@@ -37,32 +46,43 @@ class VibrationManager {
   static const int lastMeasurement = 10;
 
   // Last x measurements for comparisons reason
-  List<AccelerometerData> lastAccelerometerData = List.empty(growable: true);
+  List<AccGyrData> lastAccGyrData = List.empty(growable: true);
   List<GPSData> lastGPSData = List.empty(growable: true);
 
   // Latest measurements
   AccelerometerData? accelerometerData;
+  GyroscopeData? gyroscopeData;
   GPSData? gpsData;
 
   bool isDataComplete(){
-    if(accelerometerData == null || gpsData == null){
-      return false;
-    } return true;
+    if(accelerometerData == null || gpsData == null || gyroscopeData == null){ return false; } 
+    return true;
   }
 
   void addAccelerometerData(AccelerometerData data){
     
-    if(accelerometerData == null){
-      accelerometerData = data;
-      return;
+    updateAccGyr();
+    accelerometerData ??= data;
+
+  }
+
+  void addGyroscopeData(GyroscopeData data){
+
+    updateAccGyr();
+    gyroscopeData ??= data;
+
+  }
+
+  void updateAccGyr(){
+
+    if(accelerometerData == null || gyroscopeData == null){ return; }
+
+    if(lastAccGyrData.length >= lastMeasurement){
+      lastAccGyrData.removeAt(0);
     }
 
-    if(lastAccelerometerData.length >= lastMeasurement){
-      lastAccelerometerData.removeAt(0);
-    }
-
-    lastAccelerometerData.add(accelerometerData!);
-    accelerometerData = data;    
+    lastAccGyrData.add(AccGyrData(accelerometerData!, gyroscopeData!));
+    accelerometerData = null; gyroscopeData = null;
 
   }
 
@@ -94,11 +114,17 @@ class VibrationManager {
     } return accelerometerData as AccelerometerData;
   }
 
+  GyroscopeData getGyroscopeData(){
+    if(gyroscopeData == null){
+      return GyroscopeData(0, 0, 0);
+    } return gyroscopeData as GyroscopeData;
+  }
+
   void update(){
 
     if(isDataComplete()){
 
-      // TODO: check if the data is to send
+      // TODO: check if the data in the list is to send
       if(true){
         // TODO: send data
       }
