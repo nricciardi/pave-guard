@@ -131,9 +131,10 @@ class DashboardLogic {
               ));
       }
       else {
-        children.add(const Text(
-                'Dynamic-Guard not loaded!',
-                style: TextStyle(fontSize: 24, color: Colors.red),
+        children.add(Text(
+                result,
+                style: const TextStyle(fontSize: 24, color: Colors.red),
+                textAlign: TextAlign.center,
               ));
       }
     } else {

@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  embedded_serialport
   url_launcher_linux
 )
 

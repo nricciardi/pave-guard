@@ -24,7 +24,6 @@ void getLatAndLon(double* Latitude, double* Longitude, TinyGPSPlus* obj){
     if(obj->location.isUpdated()){
       *Latitude = obj->location.lat();
       *Longitude = obj->location.lng();
-      printLatAndLon(*Latitude, *Longitude);
       break;
     }
   }
@@ -32,9 +31,10 @@ void getLatAndLon(double* Latitude, double* Longitude, TinyGPSPlus* obj){
 }
 
 // Writes to Serial the values of latitude and longitude
-// FORMAT: g[lat],[lon]\n
+// FORMAT: gR[lat],[lon]\n - for routine send
+// FORMAT: gE[lat],[lon]\n - for exceptional send
 void printLatAndLon(double Latitude, double Longitude){
-  Serial.print("g"); Serial.print(Latitude, 6);
+  Serial.print("g"); Serial.print(Latitude, 6); 
   Serial.print(","); Serial.println(Longitude, 6 );
 }
 
@@ -109,8 +109,6 @@ double lat, lon;
 int16_t pAcX, pAcY, pAcZ, pGyX, pGyY, pGyZ;
 int16_t AcX, AcY, AcZ, GyX, GyY, GyZ;
 
-String gps_command = "g";
-
 void setup(){
 
   Serial.begin(9600);
@@ -124,21 +122,14 @@ void setup(){
 }
 
 void loop(){
-  
-  // Keep track of gps data,
-  // even if unnecessary
-  gps.encode(Serial1.read());
-
-  // If it's required to get the gps position
-  if(Serial.readStringUntil('\n') == gps_command){
-    getLatAndLon(&lat, &lon, &gps);
-  }
 
   readAccelerometer(&AcX, &AcY, &AcZ);
   // readGyroscope(&GyX, &GyY, &GyZ);
 
-  if(abs(AcZ - pAcZ) >= 1000){
+  if(abs(AcZ - pAcZ) >= 200){
       writeAccelerometer(AcX, AcY, AcZ);
+      // writeGyroscope(GyX, GyY, GyZ);
+
       getLatAndLon(&lat, &lon, &gps);
       printLatAndLon(lat, lon);
   }
@@ -147,10 +138,10 @@ void loop(){
   pAcY = AcY;
   pAcZ = AcZ;
 
-  /*
-    pGyX = GyX;
-    pGyY = GyY;
-    pGyZ = GyZ;
-  */
+/*
+  pGyX = GyX;
+  pGyY = GyY;
+  pGyZ = GyZ;
+*/
 
 }

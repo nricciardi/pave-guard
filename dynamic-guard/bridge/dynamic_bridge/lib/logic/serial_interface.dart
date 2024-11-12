@@ -3,28 +3,33 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
-import 'package:embedded_serialport/embedded_serialport.dart';
 import 'package:dynamic_bridge/logic/vibration_manager.dart';
+import 'package:usb_serial/usb_serial.dart';
 
 class SerialInterface {
 
-  Serial? serial;
+  UsbPort? port;
   VibrationManager vibrationManager = VibrationManager();
 
-  Future<void> initialize() async {
+  Future<String> initialize() async {
 
-    List<String> ports = Serial.getPorts();
+    List<UsbDevice> devices = await UsbSerial.listDevices();
 
     if(EnvManager.isDebugAndroidMode()){
-      log(ports.join(" "));
+      log(devices.join(" "));
     }
-    
-    serial = Serial(ports.first, Baudrate.b9600);
-    Serial fixSerial = serial as Serial;
-    fixSerial.timeout(2);
-    fixSerial.setDataBits(DataBits.db8);
-    fixSerial.setParity(Parity.parityNone);
-    fixSerial.setStopBits(StopBits.sb1);
+
+    port = await devices[0].create();
+    UsbPort fixPort = port!;
+    await fixPort.open();
+
+    await fixPort.setDTR(true);
+	  await fixPort.setRTS(true);
+
+	  fixPort.setPortParameters(115200, UsbPort.DATABITS_8,
+	              UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
+
+    return "";
 
   }
 
@@ -46,27 +51,13 @@ class SerialInterface {
 
   }
 
-  void closePort() async { serial!.dispose(); }
-
-  void readFromPort(){
-
-    Serial fixSerial = serial as Serial;
-    SerialReadEvent readData = fixSerial.read(0);
-    String stringData = readData.uf8ToString();
-
-    if (stringData.contains('\n')) {
-        List<String> lines = stringData.split('\n');
-        for(int i = 0; i < lines.length - 1; i++) {
-          manageSerialLine(lines[i]);
-        }
-    }
-  }
+  void closePort() async { port!.close(); }
 
   Future<bool> writeOnPort(String toWrite) async {
     
-    if(serial == null){ return false; }
+    if(port == null){ return false; }
     try{
-      serial!.write(Uint8List.fromList(utf8.encode(toWrite)));
+      port!.write(Uint8List.fromList(utf8.encode(toWrite)));
     } catch(e) { return false; }
     return true;
 

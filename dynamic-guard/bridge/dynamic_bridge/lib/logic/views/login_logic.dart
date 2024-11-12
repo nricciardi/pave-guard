@@ -19,7 +19,7 @@ class LoginLogic {
 
   // Returns true if the user is authorized
   Future<bool> authorizeUser(LoginData data) async{
-
+    
     LoginManager loginManager = LoginManager();
     QueryResult queryResult = await loginManager.sendQuery(data);
 

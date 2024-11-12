@@ -17,8 +17,6 @@ class GpsManager {
     try{ await serialInterface.initialize(); } 
     catch(e) { return "No USB devices connected!"; }
 
-    try{ serialInterface.readFromPort(); }
-    catch(e) { return "Can't read from Dynamic Guard!"; }
     GPSData? gpsData;
     for(int i = 0; i < 10; i++){
       if(!await serialInterface.writeOnPort("g")) { return "Can't send data to Dynamic Guard!"; }
