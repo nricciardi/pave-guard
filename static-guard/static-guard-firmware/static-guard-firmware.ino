@@ -1,10 +1,8 @@
 
-int PIN = 8;
+
 
 
 void setup() {
-  pinMode(PIN, INPUT_PULLUP);
-
   Serial.begin(9600);
 }
 
