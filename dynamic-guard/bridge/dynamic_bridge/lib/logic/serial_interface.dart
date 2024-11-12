@@ -11,9 +11,10 @@ class SerialInterface {
   Serial? serial;
   VibrationManager vibrationManager = VibrationManager();
 
-  void initialize() async {
+  Future<void> initialize() async {
 
     List<String> ports = Serial.getPorts();
+
     if(EnvManager.isDebugAndroidMode()){
       log(ports.join(" "));
     }
@@ -46,19 +47,16 @@ class SerialInterface {
 
   void readFromPort(){
 
-    try {
-      Serial fixSerial = serial as Serial;
-      SerialReadEvent readData = fixSerial.read(0);
-      String stringData = readData.uf8ToString();
+    Serial fixSerial = serial as Serial;
+    SerialReadEvent readData = fixSerial.read(0);
+    String stringData = readData.uf8ToString();
 
-      if (stringData.contains('\n')) {
-          List<String> lines = stringData.split('\n');
-          for(int i = 0; i < lines.length - 1; i++) {
-            manageSerialLine(lines[i]);
-          }
+    if (stringData.contains('\n')) {
+        List<String> lines = stringData.split('\n');
+        for(int i = 0; i < lines.length - 1; i++) {
+          manageSerialLine(lines[i]);
         }
-	  } catch(e) { return; }
-
+    }
   }
 
   Future<bool> writeOnPort(String toWrite) async {

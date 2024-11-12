@@ -10,19 +10,23 @@ class GpsManager {
 
   }
 
-  static Future<bool> isExternalGPSOn() async {
+  static Future<String> isExternalGPSOn() async {
 
     SerialInterface serialInterface = SerialInterface();
-    serialInterface.initialize();
-    serialInterface.readFromPort();
+
+    try{ await serialInterface.initialize(); } 
+    catch(e) { return "No USB devices connected!"; }
+
+    try{ serialInterface.readFromPort(); }
+    catch(e) { return "Can't read from Dynamic Guard!"; }
     GPSData? gpsData;
     for(int i = 0; i < 10; i++){
-      if(!await serialInterface.writeOnPort("g")) { return false; }
+      if(!await serialInterface.writeOnPort("g")) { return "Can't send data to Dynamic Guard!"; }
       gpsData = serialInterface.vibrationManager.getGpsData();
       if(gpsData.latitude == 0 && gpsData.longitude == 0) { continue; }
-      else { return true; }
+      else { return ""; }
     }
-    return false;
+    return "Can't connect to Dynamic-Guard's GPS!";
 
   }
 

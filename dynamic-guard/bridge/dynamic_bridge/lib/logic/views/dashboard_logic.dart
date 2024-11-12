@@ -123,9 +123,10 @@ class DashboardLogic {
 
     if(await settingsLogic.isGpsExt()){
       // External GPS
-      if(await GpsManager.isExternalGPSOn()){
+      String result = await GpsManager.isExternalGPSOn();
+      if(result == ""){
         children.add(const Text(
-                'Dynamic-Guard not loaded!',
+                'Dynamic-Guard correctly loaded.',
                 style: TextStyle(fontSize: 24, color: Colors.green),
               ));
       }
