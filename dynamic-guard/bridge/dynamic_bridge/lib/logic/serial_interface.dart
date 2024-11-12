@@ -37,6 +37,9 @@ class SerialInterface {
 
     } else if (line[0] == 'g'){
       // GPS
+      GPSData data = parseGpsData(line);
+      vibrationManager.addGpsData(data);
+
     } else if (line[0] == 'G'){
       // Gyroscope
     }
@@ -98,12 +101,31 @@ class SerialInterface {
       return AccelerometerData(0, 0, 0);
     }
 
-    regex = RegExp(r'^g(\d+),(\d+),(\d+)$');
+    regex = RegExp(r'^A(\d+),(\d+),(\d+)$');
     final RegExpMatch match = regex.firstMatch(data)!;
     double x = double.parse(match.group(1)!);
     double y = double.parse(match.group(2)!);
     double z = double.parse(match.group(3)!);
     return AccelerometerData(x, y, z);
+
+  }
+
+  static GyroscopeData parseGyroscopeData(String data){
+
+    RegExp regex = RegExp(r'^G\d+,\d+,\d+$');
+    if(!regex.hasMatch(data)){
+      if(EnvManager.isDebugAndroidMode()){
+        log("Wrong gyroscope data format!");
+      }
+      return GyroscopeData(0, 0, 0);
+    }
+
+    regex = RegExp(r'^G(\d+),(\d+),(\d+)$');
+    final RegExpMatch match = regex.firstMatch(data)!;
+    double x = double.parse(match.group(1)!);
+    double y = double.parse(match.group(2)!);
+    double z = double.parse(match.group(3)!);
+    return GyroscopeData(x, y, z);
 
   }
 
