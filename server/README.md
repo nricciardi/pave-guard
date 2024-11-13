@@ -29,8 +29,14 @@ GRAPHQL_PATH=/graphql
 Installa i moduli node in locale:
 
 ```bash
+# build util image
+docker image build -t nestjs-cli -f nestjs-cli.dockerfile .
+
 docker run -u $(id -u ${USER}):$(id -g ${USER}) --rm -it -v $(pwd)/paveguard-webserver:/usr/src/app nestjs-cli npm install
 ```
+
+> [!TIP]
+> Se dà errori di permessi: `sudo chown -R <tuo-utente> paveguard-webserver` 
 
 Avvia tutti i servizi lanciando nella directory di `compose.yml` file:
 

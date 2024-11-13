@@ -5,11 +5,16 @@
 
 
 class Telemetry {
+
   protected:
     String deviceId;
 
+    double latitude;
+    double longitude;
+
   public:
-    Telemetry(const String& id) : deviceId(id) {}
+    Telemetry(String deviceId, double latitude, double longitude): deviceId(deviceId), latitude(latitude), longitude(longitude) {
+    }
 
     String getDeviceId() const {
       return deviceId;

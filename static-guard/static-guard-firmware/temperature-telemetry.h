@@ -5,26 +5,17 @@
 #include <Arduino.h>
 
 class TemperatureTelemetry: public Telemetry {
+
   private:
     double temperature;
 
   public:
-    TemperatureTelemetry(const String& id, float temp) : Telemetry(id), temperature(temp) {}
+    TemperatureTelemetry(String deviceId, double latitude, double longitude, float temperature): Telemetry(deviceId, latitude, longitude), temperature(temperature) {}
 
   String toSendableString() const override {
     return String("prova");
   }
 };
-
-
-
-
-
-
-
-
-
-
 
 
 

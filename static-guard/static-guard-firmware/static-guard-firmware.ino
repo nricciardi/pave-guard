@@ -1,17 +1,16 @@
+#include "device.h"
 
-#include "temperature-telemetry.h"
 
 
+const Device* device = Device::GetInstance();
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600);   // debug only
 
-  // TemperatureTelemetry temperatureTelemetry(String("testId"), 6);
-
-  TemperatureTelemetry temperatureTelemetry(String("testId"), 42);
-
-  Serial.println(temperatureTelemetry.getDeviceId());
+  device->setup();
 }
 
 void loop() {
+
+  device->work();
 }
