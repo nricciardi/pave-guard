@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/query_manager.dart';
+import 'package:dynamic_bridge/logic/token_manager.dart';
 import 'package:dynamic_bridge/views/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -19,14 +20,8 @@ class MainAppLogic {
       return false;
     }
 
-    String loginFileName = EnvManager.getLoginFileName();
-    FileManager fileManager = FileManager(loginFileName);
-    if(! await fileManager.doFileExists()){
-      return false;
-    }
-
+    String token = await TokenManager.getToken();
     MeQueryManager meQueryManager = MeQueryManager();
-    String token = await fileManager.readFileContents();
     QueryResult queryResult = await meQueryManager.sendQuery("", token: token);
     return meQueryManager.checkResults(queryResult);
 

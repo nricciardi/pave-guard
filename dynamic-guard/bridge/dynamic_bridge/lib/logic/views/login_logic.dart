@@ -1,6 +1,7 @@
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/file_manager.dart';
 import 'package:dynamic_bridge/logic/query_manager.dart';
+import 'package:dynamic_bridge/logic/token_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import '../../views/dashboard.dart';
@@ -26,8 +27,7 @@ class LoginLogic {
     try {
 
       String token = loginManager.getToken(queryResult);
-      FileManager fileManager = FileManager(EnvManager.getLoginFileName());
-      fileManager.writeFileContents(token);
+      await TokenManager.writeToken(token);
       return true;
 
     } catch (e) { return false; }
@@ -40,13 +40,10 @@ class LoginLogic {
     SignUpManager signupQueryManager = SignUpManager();
     QueryResult queryResult = await signupQueryManager.sendQuery(data);
 
-    String loginFileName = EnvManager.getLoginFileName();
-    FileManager fileManager = FileManager(loginFileName);
-
     try {
 
-      String contents = signupQueryManager.getToken(queryResult);
-      fileManager.writeFileContents(contents);
+      String token = signupQueryManager.getToken(queryResult);
+      await TokenManager.writeToken(token);
       return true;
       
     } catch (e) { return false; }

@@ -1,7 +1,20 @@
-import 'package:dynamic_bridge/global/env_manager.dart';
-import 'package:dynamic_bridge/logic/file_manager.dart';
+import 'package:dynamic_bridge/logic/query_manager.dart';
+import 'package:dynamic_bridge/logic/token_manager.dart';
 import 'package:dynamic_bridge/views/dashboard.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+class DeviceLinkageData {
+
+  String serialNumber;
+  String id;
+
+  DeviceLinkageData(this.serialNumber, this.id);
+
+  String getSerialNumber(){ return serialNumber; }
+  String getId(){ return id; }
+
+}
 
 class Devices extends StatefulWidget {
   const Devices({super.key});
@@ -21,10 +34,13 @@ class DevicesLinkedState extends State<Devices> {
 
   // Load and parse the JSON file
   Future<void> loadDevices() async {
-    FileManager fileManager = FileManager(EnvManager.getDevicesFileName());
-    dynamic data = await fileManager.parseJsonContent();
+
+    String token = await TokenManager.getToken();
+    DynamicGuardsGetQueryManager dynamicGuardsGetQueryManager = DynamicGuardsGetQueryManager();
+    QueryResult queryResult = await dynamicGuardsGetQueryManager.sendQuery("", token: token);
+
     setState(() {
-      devices = data['devices'];
+      devices = queryResult.data!['devices'];
     });
   }
 
