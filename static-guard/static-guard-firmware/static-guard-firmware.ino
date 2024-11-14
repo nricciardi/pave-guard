@@ -1,16 +1,16 @@
+#include "device.h"
 
 
 
+const Device* device = Device::GetInstance();
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600);   // debug only
+
+  device->setup();
 }
 
 void loop() {
 
-  int read = digitalRead(PIN);
-
-  Serial.println(read);
-
-  delay(300);
+  device->work();
 }
