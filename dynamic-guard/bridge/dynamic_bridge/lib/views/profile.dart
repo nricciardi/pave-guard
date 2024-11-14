@@ -1,3 +1,4 @@
+import 'package:dynamic_bridge/logic/user_data_manager.dart';
 import 'package:dynamic_bridge/logic/views/profile_logic.dart';
 import 'package:flutter/material.dart';
 
@@ -23,13 +24,13 @@ class _ProfilePageState extends State<ProfilePage> {
   void fetchData() async {
 
     ProfileLogic selfLogic = ProfileLogic();
-    Map<String, dynamic> data = await selfLogic.getProfileData();
+    MeData data = await selfLogic.getProfileData();
 
     setState(() {
-      name = data["firstName"];
-      surname = data["lastName"];
-      signupDate = data["createdAt"].toString().substring(0, 10);
-      email = data["email"];
+      name = data.getFirstName();
+      surname = data.getLastName();
+      signupDate = data.getCreatedAt();
+      email = data.getEmail();
     });
 
   }

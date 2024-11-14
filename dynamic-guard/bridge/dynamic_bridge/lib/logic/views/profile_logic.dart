@@ -1,23 +1,15 @@
-import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:dynamic_bridge/logic/token_manager.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:dynamic_bridge/logic/user_data_manager.dart';
 
 class ProfileLogic {
 
-  Future<Map<String, dynamic>> getProfileData() async{
+  Future<MeData> getProfileData() async{
 
-    MeQueryManager meQueryManager = MeQueryManager();
     String selfToken = await TokenManager.getToken();
     if(selfToken == ""){
-      return {
-        "firstName": "ERROR",
-        "lastName": "ERROR",
-        "createdAt": "ERROR",
-        "email": "ERROR"
-      };
+      return MeData("ERROR", "ERROR", "ERROR", "ERROR", "ERROR");
     }
-    QueryResult queryResult = await meQueryManager.sendQuery("", token: selfToken);
-    return queryResult.data!["me"];
+    return UserDataManager.getSelfData();
 
   }
 

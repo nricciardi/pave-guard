@@ -174,7 +174,7 @@ class MeQueryManager extends QueryAbstractManager {
   MeData getMeData(QueryResult queryResult){
 
     Map<String, dynamic> data = queryResult.data!["me"];
-    return MeData(data["firstName"], data["lastName"], data["createdAt"], data["email"], data["id"]);
+    return MeData(data["firstName"], data["lastName"], data["createdAt"].toString().substring(0, 10), data["email"], data["id"]);
 
   }
 

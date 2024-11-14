@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:dynamic_bridge/logic/token_manager.dart';
-import 'package:dynamic_bridge/views/dashboard.dart';
+import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../views/login.dart';
@@ -31,11 +31,7 @@ class MainAppLogic {
   Future<Widget> loadNextPage() async {
 
     bool checkedIn = await isCheckedIn();
-    Widget toLoad = const DashboardPage(title: "prova");
-
-    if(!checkedIn){
-      toLoad = const LoginScreen();
-    }
+    Widget toLoad = checkedIn ? const Devices() : const LoginScreen();
 
     if(EnvManager.isDebugAndroidMode()){
       log("Are you checked in? $checkedIn");
