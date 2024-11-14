@@ -103,45 +103,67 @@ void writeGyroscope(int16_t x, int16_t y, int16_t z){
   Serial.print(","); Serial.println(z);
 }
 
+const int buf_size = 100;
+const int max_avs = 1000;
+
 TinyGPSPlus gps;
 double lat, lon;
+double* pLat,* pLon;
 
-int16_t pAcX, pAcY, pAcZ, pGyX, pGyY, pGyZ;
-int16_t AcX, AcY, AcZ, GyX, GyY, GyZ;
+int16_t* pAcX,* pAcY,* pAcZ;
+char i;
+int16_t AvAcX, AvAcY, AvAcZ, nAv;
+
+int16_t computeAverage(int16_t val, int16_t av, int n_av){
+
+  return (val + (av * n_av)) / (n-av + 1);
+
+}
 
 void setup(){
 
   Serial.begin(9600);
   Serial1.begin(9600);
 
+  pAcX = malloc(sizeof(int16_t) * buf_size);
+  pAcY = malloc(sizeof(int16_t) * buf_size);
+  pAcZ = malloc(sizeof(int16_t) * buf_size);
+
+  pLat = malloc(sizeof(double) * buf_size);
+  pLon = malloc(sizeof(double) * buf_size);
+  i = 0;
+
+  AvAcX = AvAcY = AvAcZ = nAv = 0;
+
   wireStartMPU();
 
-  readAccelerometer(&pAcX, &pAcY, &pAcZ);
-  readGyroscope(&pGyX, &pGyY, &pGyZ);
+  readAccelerometer(&pAcX[i], &pAcY[i], &pAcZ[i]);
+  // readGyroscope;
+  getLatAndLon(&pLat[i], &pLon[i], &gps);
+  AvAcX = pAcX[i]; AvAcY = pAcY[i]; AvAcZ = pAcZ[i];
+  i++; n_av++;
 
 }
 
+/*
+  If the buf_size is reached
+*/
 void loop(){
 
-  readAccelerometer(&AcX, &AcY, &AcZ);
-  // readGyroscope(&GyX, &GyY, &GyZ);
+  if(nAv >= max_avs) nAv /= 3;
 
-  if(abs(AcZ - pAcZ) >= 200){
-      writeAccelerometer(AcX, AcY, AcZ);
-      // writeGyroscope(GyX, GyY, GyZ);
-
-      getLatAndLon(&lat, &lon, &gps);
-      printLatAndLon(lat, lon);
+  if(i >= buf_size){
+    for(int j = 0; j < buf_size; j++){
+      writeAccelerometer(pAcX[j] - AvAcX, pAcY[j] - AvAcY, pAcZ[j] - AvAcZ);
+      // writeGyroscope;
+      printLatAndLon(pLat[j], pLon[j]);
+    } i = 0;
+  } else {
+    readAccelerometer(&pAcX[i], &pAcY[i], &pAcZ[i]);
+    // readGyroscope;
+    getLatAndLon(&pLat[i], &pLon[i], &gps);
+    AvAcX = computeAverage(pAcX[i], AvAcX, n_av); AvAcY = computeAverage(pAcY[i], AvAcY, n_av); AvAcZ = computeAverage(pAcZ[i], AvAcZ, n_av);
+    i++; n_av++;
   }
-
-  pAcX = AcX;
-  pAcY = AcY;
-  pAcZ = AcZ;
-
-/*
-  pGyX = GyX;
-  pGyY = GyY;
-  pGyZ = GyZ;
-*/
 
 }
