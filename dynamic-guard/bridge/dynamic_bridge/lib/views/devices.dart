@@ -52,8 +52,7 @@ class DevicesLinkedState extends State<Devices> {
 
   Future<void> loadDevices() async {
 
-    selfData = await UserDataManager.getSelfData();
-
+    selfData = selfData ?? await UserDataManager.getSelfData();
     String token = await TokenManager.getToken();
     DynamicGuardsGetQueryManager dynamicGuardsGetQueryManager = DynamicGuardsGetQueryManager();
     QueryResult queryResult = await dynamicGuardsGetQueryManager.sendQuery("", token: token);
@@ -65,7 +64,7 @@ class DevicesLinkedState extends State<Devices> {
 
   Future<void> addDevice(String serialNumber) async{
     DynamicGuardCreationQueryManager dynamicGuardCreationQueryManager = DynamicGuardCreationQueryManager();
-    dynamicGuardCreationQueryManager.sendQuery(
+    await dynamicGuardCreationQueryManager.sendQuery(
       DeviceLinkageData(serialNumber, selfData!.getId()), 
       token: await TokenManager.getToken()
     );
@@ -98,9 +97,10 @@ class DevicesLinkedState extends State<Devices> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                addDevice(nameController.text);
+              onPressed: () async {
+                await addDevice(nameController.text);
                 Navigator.of(context).pop(); // Close the dialog
+                setState(() {});
               },
               child: const Text('Save'),
             ),
@@ -137,15 +137,15 @@ class DevicesLinkedState extends State<Devices> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (devices.isNotEmpty)
-            FloatingActionButton.extended(
+          if (selectedDeviceIndex != null)
+            FloatingActionButton(
               onPressed: () {
                 Navigator.pop(context);
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const DashboardPage(title: "Dashboard"),
+                Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => DashboardPage(selfData: selfData!, selfDevice: devices[selectedDeviceIndex!]),
         ));
               },
-              label: const Text('Home'),
+              child: const Icon(Icons.check),
             ),
           const SizedBox(height: 10),
           FloatingActionButton(
