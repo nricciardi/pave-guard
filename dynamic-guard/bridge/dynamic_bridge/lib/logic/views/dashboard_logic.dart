@@ -97,12 +97,12 @@ class DashboardLogic {
       }
     } else {
       // The camera is internal
-      List<CameraDescription> _cameras = await availableCameras();
+      List<CameraDescription> cameras = await availableCameras();
       if(EnvManager.isDebugAndroidMode()){
-        log(_cameras.toString());
+        log(cameras.toString());
       }
       try{
-        cameraController = CameraController(_cameras.elementAt(1), ResolutionPreset.medium);
+        cameraController = CameraController(cameras.elementAt(1), ResolutionPreset.medium);
         await cameraController.initialize();
         children.add(
           const Text(

@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 class Devices extends StatefulWidget {
   const Devices({super.key});
   @override
-  _DevicesLinkedState createState() => _DevicesLinkedState();
+  DevicesLinkedState createState() => DevicesLinkedState();
 }
 
-class _DevicesLinkedState extends State<Devices> {
+class DevicesLinkedState extends State<Devices> {
   List<dynamic> devices = [];
   int? selectedDeviceIndex;
 
