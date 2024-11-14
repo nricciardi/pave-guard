@@ -1,15 +1,19 @@
 import 'dart:async';
 
+import 'package:dynamic_bridge/logic/user_data_manager.dart';
 import 'package:dynamic_bridge/logic/views/dashboard_logic.dart';
+import 'package:dynamic_bridge/views/devices.dart';
 import 'package:dynamic_bridge/views/login.dart';
 import 'package:dynamic_bridge/views/profile.dart';
 import 'package:flutter/material.dart';
 import './settings.dart';
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key, required this.title});
+  
+  final MeData selfData;
+  final DeviceData selfDevice;
 
-  final String title;
+  const DashboardPage({super.key, required this.selfData, required this.selfDevice});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();

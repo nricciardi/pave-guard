@@ -207,13 +207,13 @@ class DynamicGuardsGetQueryManager extends QueryAbstractManager{
 
   List<DeviceData> getDevicesList(QueryResult queryResult){
 
-    Map<String, dynamic> data = queryResult.data!["data"];
+    List<dynamic> data = queryResult.data!["dynamicGuards"];
     List<DeviceData> toRet = List.empty(growable: true);
-    data.forEach((key, value) {
+    for (var element in data) {
       toRet.add(
-        DeviceData(data["key"]["serialNumber"], data["key"]["id"], data["key"]["userId"], data["key"]["createdAt"])
+        DeviceData(element["serialNumber"], element["id"], element["userId"], element["createdAt"].toString().substring(0, 10))
       );
-    }); return toRet;
+    } return toRet;
 
   }
 
