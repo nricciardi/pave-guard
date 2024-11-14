@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:path_provider/path_provider.dart';
@@ -70,6 +71,13 @@ class FileManager {
     
     final File file = await _myFile;
     await file.delete(recursive: false);
+
+  }
+
+  Future<dynamic> parseJsonContent() async {
+
+    String fileContents = await readFileContents();
+    return jsonDecode(fileContents);
 
   }
 

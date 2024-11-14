@@ -7,6 +7,7 @@ const String deployName = "deploy";
 
 const String loginFileVarName = "LOGIN_FILE";
 const String settingsFileVarName = "SETTINGS_FILE";
+const String devicesFileVarName = "DEVICES_FILE";
 
 const String urlVarName = "URL";
 
@@ -43,6 +44,10 @@ class EnvManager {
 
   static String getLoginFileName(){
     return getStringVar(loginFileVarName);
+  }
+
+  static String getDevicesFileName(){
+    return getStringVar(devicesFileVarName);
   }
 
   static String getUrl(){

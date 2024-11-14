@@ -50,6 +50,7 @@ class LoginScreen extends StatelessWidget {
       onLogin: _authUser,
       onSignup: _signupUser,
       onSubmitAnimationCompleted: () {
+        Navigator.pop(context);
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => selfLogic.loadNextPage(),
         ));
