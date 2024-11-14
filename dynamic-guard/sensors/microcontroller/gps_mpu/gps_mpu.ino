@@ -104,13 +104,21 @@ void writeGyroscope(int16_t x, int16_t y, int16_t z){
 }
 
 const int buf_size = 100;
+const int max_avs = 1000;
+
 TinyGPSPlus gps;
 double lat, lon;
 double* pLat,* pLon;
 
 int16_t* pAcX,* pAcY,* pAcZ;
 char i;
-int16_t AcX, AcY, AcZ;
+int16_t AvAcX, AvAcY, AvAcZ, nAv;
+
+int16_t computeAverage(int16_t val, int16_t av, int n_av){
+
+  return (val + (av * n_av)) / (n-av + 1);
+
+}
 
 void setup(){
 
@@ -125,15 +133,28 @@ void setup(){
   pLon = malloc(sizeof(double) * buf_size);
   i = 0;
 
+  AvAcX = AvAcY = AvAcZ = nAv = 0;
+
   wireStartMPU();
+
+  readAccelerometer(&pAcX[i], &pAcY[i], &pAcZ[i]);
+  // readGyroscope;
+  getLatAndLon(&pLat[i], &pLon[i], &gps);
+  AvAcX = pAcX[i]; AvAcY = pAcY[i]; AvAcZ = pAcZ[i];
+  i++; n_av++;
 
 }
 
+/*
+  If the buf_size is reached
+*/
 void loop(){
+
+  if(nAv >= max_avs) nAv /= 3;
 
   if(i >= buf_size){
     for(int j = 0; j < buf_size; j++){
-      writeAccelerometer(pAcX[j], pAcY[j], pAcZ[j]);
+      writeAccelerometer(pAcX[j] - AvAcX, pAcY[j] - AvAcY, pAcZ[j] - AvAcZ);
       // writeGyroscope;
       printLatAndLon(pLat[j], pLon[j]);
     } i = 0;
@@ -141,7 +162,8 @@ void loop(){
     readAccelerometer(&pAcX[i], &pAcY[i], &pAcZ[i]);
     // readGyroscope;
     getLatAndLon(&pLat[i], &pLon[i], &gps);
-    i++;
+    AvAcX = computeAverage(pAcX[i], AvAcX, n_av); AvAcY = computeAverage(pAcY[i], AvAcY, n_av); AvAcZ = computeAverage(pAcZ[i], AvAcZ, n_av);
+    i++; n_av++;
   }
 
 }
