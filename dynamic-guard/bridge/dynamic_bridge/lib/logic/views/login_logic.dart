@@ -1,10 +1,9 @@
 import 'package:dynamic_bridge/global/env_manager.dart';
-import 'package:dynamic_bridge/logic/file_manager.dart';
 import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:dynamic_bridge/logic/token_manager.dart';
+import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
-import '../../views/dashboard.dart';
 import 'package:flutter_codice_fiscale/codice_fiscale.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -14,7 +13,7 @@ class LoginLogic {
   /// 
   Widget loadNextPage() {
 
-    return const DashboardPage(title: "prova");
+    return const Devices();
 
   }
 

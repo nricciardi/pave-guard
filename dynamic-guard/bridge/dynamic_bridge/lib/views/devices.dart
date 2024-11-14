@@ -1,5 +1,6 @@
 import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:dynamic_bridge/logic/token_manager.dart';
+import 'package:dynamic_bridge/logic/user_data_manager.dart';
 import 'package:dynamic_bridge/views/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -7,12 +8,28 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 class DeviceLinkageData {
 
   String serialNumber;
-  String id;
+  String userId;
 
-  DeviceLinkageData(this.serialNumber, this.id);
+  DeviceLinkageData(this.serialNumber, this.userId);
+
+  String getSerialNumber(){ return serialNumber; }
+  String getUserId(){ return userId; }
+
+}
+
+class DeviceData {
+
+  String serialNumber;
+  String id;
+  String userId;
+  String createdAt;
+
+  DeviceData(this.serialNumber, this.id, this.userId, this.createdAt);
 
   String getSerialNumber(){ return serialNumber; }
   String getId(){ return id; }
+  String getUserId(){ return userId; }
+  String getCreatedAt(){ return createdAt; }
 
 }
 
@@ -23,8 +40,9 @@ class Devices extends StatefulWidget {
 }
 
 class DevicesLinkedState extends State<Devices> {
-  List<dynamic> devices = [];
+  List<DeviceData> devices = [];
   int? selectedDeviceIndex;
+  MeData? selfData;
 
   @override
   void initState() {
@@ -32,22 +50,31 @@ class DevicesLinkedState extends State<Devices> {
     loadDevices();
   }
 
-  // Load and parse the JSON file
   Future<void> loadDevices() async {
+
+    selfData = await UserDataManager.getSelfData();
 
     String token = await TokenManager.getToken();
     DynamicGuardsGetQueryManager dynamicGuardsGetQueryManager = DynamicGuardsGetQueryManager();
     QueryResult queryResult = await dynamicGuardsGetQueryManager.sendQuery("", token: token);
 
     setState(() {
-      devices = queryResult.data!['devices'];
+      devices = dynamicGuardsGetQueryManager.getDevicesList(queryResult);
     });
+  }
+
+  Future<void> addDevice(String serialNumber) async{
+    DynamicGuardCreationQueryManager dynamicGuardCreationQueryManager = DynamicGuardCreationQueryManager();
+    dynamicGuardCreationQueryManager.sendQuery(
+      DeviceLinkageData(serialNumber, selfData!.getId()), 
+      token: await TokenManager.getToken()
+    );
+    await loadDevices();
   }
 
   // Show dialog to add a new device
   void _showAddDeviceDialog() {
     final TextEditingController nameController = TextEditingController();
-    final TextEditingController infoController = TextEditingController();
 
     showDialog(
       context: context,
@@ -59,11 +86,7 @@ class DevicesLinkedState extends State<Devices> {
             children: [
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Device Name'),
-              ),
-              TextField(
-                controller: infoController,
-                decoration: const InputDecoration(labelText: 'Device Info'),
+                decoration: const InputDecoration(labelText: 'Serial Number'),
               ),
             ],
           ),
@@ -76,14 +99,8 @@ class DevicesLinkedState extends State<Devices> {
             ),
             ElevatedButton(
               onPressed: () {
-                setState(() {
-                  devices.add({
-                    'name': nameController.text,
-                    'info': infoController.text,
-                  });
-                });
+                addDevice(nameController.text);
                 Navigator.of(context).pop(); // Close the dialog
-                setState(() {});
               },
               child: const Text('Save'),
             ),
@@ -106,8 +123,8 @@ class DevicesLinkedState extends State<Devices> {
                 final isSelected = index == selectedDeviceIndex;
 
                 return ListTile(
-                  title: Text(device['name']),
-                  subtitle: Text(device['info']),
+                  title: Text(device.serialNumber),
+                  subtitle: Text(device.createdAt),
                   selected: isSelected,
                   onTap: () {
                     setState(() {

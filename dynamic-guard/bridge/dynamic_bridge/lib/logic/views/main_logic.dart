@@ -8,7 +8,6 @@ import 'package:dynamic_bridge/views/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../views/login.dart';
-import '../file_manager.dart';
 
 class MainAppLogic {
 

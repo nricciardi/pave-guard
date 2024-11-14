@@ -1,5 +1,5 @@
 import 'dart:developer';
-
+import 'package:dynamic_bridge/logic/user_data_manager.dart';
 import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -171,9 +171,10 @@ class MeQueryManager extends QueryAbstractManager {
 
   }
 
-  String getId(QueryResult queryResult){
+  MeData getMeData(QueryResult queryResult){
 
-    return queryResult.data!["me"]["id"];
+    Map<String, dynamic> data = queryResult.data!["me"];
+    return MeData(data["firstName"], data["lastName"], data["createdAt"], data["email"], data["id"]);
 
   }
 
@@ -188,21 +189,33 @@ class DynamicGuardsGetQueryManager extends QueryAbstractManager{
 
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    // TODO: implement it
-    return true;
+    try{
+      queryResult.data!["data"];
+      return true;
+    } catch(e) { return false; }
   }
 
   @override
   String getQuery(data, {String token = ""}) {
     
     return """query{
-      dynamicGuards { id, serialNumber, userId }
+      dynamicGuards { id, serialNumber, userId, createdAt }
     }
     """;
 
   }
 
-  
+  List<DeviceData> getDevicesList(QueryResult queryResult){
+
+    Map<String, dynamic> data = queryResult.data!["data"];
+    List<DeviceData> toRet = List.empty(growable: true);
+    data.forEach((key, value) {
+      toRet.add(
+        DeviceData(data["key"]["serialNumber"], data["key"]["id"], data["key"]["userId"], data["key"]["createdAt"])
+      );
+    }); return toRet;
+
+  }
 
 }
 
@@ -219,8 +232,10 @@ class DynamicGuardCreationQueryManager extends QueryAbstractManager{
 
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    // TODO: implement it
-    return true;
+    try{
+      queryResult.data!["data"]["id"];
+      return true;  
+    } catch(e) { return false; }
   }
 
   @override
@@ -231,11 +246,15 @@ class DynamicGuardCreationQueryManager extends QueryAbstractManager{
     return """mutation {
       createDynamicGuard(
         serialNumber:"${deviceLinkageData.getSerialNumber()}",
-        userId:"${deviceLinkageData.getId()}"
+        userId:"${deviceLinkageData.getUserId()}"
       ) { id }
     }
     """;
 
+  }
+
+  String getId(QueryResult queryResult){
+    return queryResult.data!["data"]["id"];
   }
 
 }
