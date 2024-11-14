@@ -13,7 +13,7 @@ class TemperatureTelemetry: public Telemetry {
     TemperatureTelemetry(String deviceId, double latitude, double longitude, float temperature): Telemetry(deviceId, latitude, longitude), temperature(temperature) {}
 
   String toSendableString() const override {
-    return String("prova");
+    return String("TemperatureTelemetry");
   }
 };
 

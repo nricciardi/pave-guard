@@ -3,10 +3,10 @@
 
 
 #include <Arduino.h>
-#include <DHT.h>
+#include "DHT.h"
 #include "bridge.h"
 #include "temperature-telemetry.h"
-
+#include "fail-telemetry.h"
 
 // ==== DEVICE SIGN ====
 // information about specific device, these information are unique for each device
@@ -23,19 +23,22 @@ const DeviceSign deviceSign = {
   .longitude = 42
 };
 
+
 // ==== DEVICE CONFIGURATION ====
 // information about pin numbers, rates and other general configuration options
 
 struct DeviceConfiguration {
-  unsigned char temperaturePin;
-  unsigned char humidityPin;
+  bool verbose;
+  unsigned char humidityTemperaturePin;
+  int humidityTemperatureSensorType;
   unsigned int temperatureSamplingRateInMillis;
   unsigned int humiditySamplingRateInMillis;
 };
 
 const DeviceConfiguration deviceConfiguration = {
-  .temperaturePin = 5,
-  .humidityPin = 6,
+  .verbose = true,
+  .humidityTemperaturePin = 2,
+  .humidityTemperatureSensorType = DHT22,
   .temperatureSamplingRateInMillis = 3 * 1000,
   .humiditySamplingRateInMillis = 4 * 1000,
 };
@@ -47,9 +50,10 @@ class Device {
 
     const Bridge* bridge = Bridge::GetInstance();
 
+    DHT* dht;
+
     unsigned long lastTemperatureSamplingMillis = 0;
     unsigned long lastHumiditySamplingMillis = 0;
-
 
     static Device* instance;
 
@@ -72,7 +76,7 @@ class Device {
     void operator=(const Device &) = delete;
 
     static Device* GetInstance();
-
+    
     /**
     * Setup
     */
@@ -83,8 +87,7 @@ class Device {
     */
     void work();
 
-
-    int readTemperature();
+    void handleHumidityAndTemperature();
 };
 
 
