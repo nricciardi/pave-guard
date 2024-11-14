@@ -10,6 +10,7 @@ Device* Device::GetInstance() {
   return instance;
 }
 
+// ========================== SETUP ==========================
 void Device::setup() {
   Serial.println("setupping device...");
 
@@ -21,6 +22,30 @@ void Device::setup() {
   bridge->setup();
 }
 
+// ========================== WORK ==========================
 void Device::work() {
   Serial.println("device working...");
 }
+
+int Device::readTemperature() {
+
+  int temperature = 0;
+
+  Serial.print("temperature read: ");
+  Serial.println(temperature);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

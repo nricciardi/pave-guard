@@ -1,0 +1,1 @@
+https://learn.adafruit.com/dht/using-a-dhtxx-sensor-with-arduino

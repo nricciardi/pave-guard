@@ -3,6 +3,7 @@
 
 
 #include <Arduino.h>
+#include <DHT.h>
 #include "bridge.h"
 #include "temperature-telemetry.h"
 
@@ -35,8 +36,8 @@ struct DeviceConfiguration {
 const DeviceConfiguration deviceConfiguration = {
   .temperaturePin = 5,
   .humidityPin = 6,
-  .temperatureSamplingRateInMillis = 2 * 1000,
-  .humiditySamplingRateInMillis = 3 * 1000,
+  .temperatureSamplingRateInMillis = 3 * 1000,
+  .humiditySamplingRateInMillis = 4 * 1000,
 };
 
 
@@ -81,6 +82,32 @@ class Device {
     * Work
     */
     void work();
+
+
+    int readTemperature();
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif
