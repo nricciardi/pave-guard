@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dynamic_bridge/logic/views/dashboard_logic.dart';
 import 'package:dynamic_bridge/views/login.dart';
 import 'package:dynamic_bridge/views/profile.dart';
@@ -18,11 +20,13 @@ class _DashboardPageState extends State<DashboardPage> {
 
   static DashboardLogic selfLogic = DashboardLogic();
   List<Widget>? children;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     initializeChildren();
+    initializeTimer();
   }
 
   void initializeChildren() async{
@@ -33,9 +37,14 @@ class _DashboardPageState extends State<DashboardPage> {
 
   }
 
+  void initializeTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {setState(() {}); });
+  }
+
   @override
   void dispose(){
     selfLogic.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 

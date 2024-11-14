@@ -4,7 +4,6 @@ import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/gps_manager.dart';
 import 'package:dynamic_bridge/logic/photo_collector.dart';
 import 'package:dynamic_bridge/logic/views/settings_logic.dart';
-import 'package:dynamic_bridge/views/dashboard.dart';
 import 'package:flutter/material.dart';
 
 SettingsLogic selfLogic = SettingsLogic();
@@ -208,8 +207,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   "externalG": _selectedOption2 == 2 ? true : false,
                 });
                 Navigator.pop(context); // Go back to the DashboardPage
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const DashboardPage(title: "Dashboard")));
               },
               child: const Text('Home'),
             ),
