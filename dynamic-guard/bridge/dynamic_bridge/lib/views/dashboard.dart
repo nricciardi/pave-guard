@@ -102,10 +102,12 @@ class _DashboardPageState extends State<DashboardPage> {
               title: const Text('Devices'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => Devices(selfData: widget.selfData)),
                 );
+                dispose();
               },
             ),
             ListTile(
@@ -125,10 +127,12 @@ class _DashboardPageState extends State<DashboardPage> {
               onTap: () {
                 Navigator.pop(context);
                 selfLogic.logout();
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
+                dispose();
               },
             ),
           ],
