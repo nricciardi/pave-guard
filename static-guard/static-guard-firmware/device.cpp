@@ -20,7 +20,15 @@ void Device::setup() {
   dht->begin();
   
   // === BRIDGE ===
-  bridge->setup();
+  bool bridgeSetupOutcome = bridge->setup();
+
+  if(!bridgeSetupOutcome) {
+
+    Serial.println("CRITICAL: impossible to setup bridge, execution will be blocked");
+
+    // don't continue
+    while(true);
+  }
 }
 
 // ========================== WORK ==========================
@@ -36,44 +44,13 @@ void Device::work() {
   }
 
   currentMillis = millis();
-  if(currentMillis - lastHumiditySamplingMillis > configuration.temperatureSamplingRateInMillis) {
-    handleTemperature();
+  if(currentMillis - lastHumiditySamplingMillis > configuration.humiditySamplingRateInMillis) {
+    handleHumidity();
 
     lastHumiditySamplingMillis = currentMillis;
   }
   
-  /*delay(2000);
-
-  // Reading temperature or humidity takes about 250 milliseconds!
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  float h = dht->readHumidity();
-  
-  // Read temperature as Fahrenheit (isFahrenheit = true)
-  float f = dht->readTemperature(true);
-
-  // Check if any reads failed and exit early (to try again).
-  if (isnan(h) || isnan(t) || isnan(f)) {
-    Serial.println(F("Failed to read from DHT sensor!"));
-    return;
-  }
-
-  // Compute heat index in Fahrenheit (the default)
-  float hif = dht->computeHeatIndex(f, h);
-  // Compute heat index in Celsius (isFahreheit = false)
-  float hic = dht->computeHeatIndex(t, h, false);
-
-  Serial.print(F("Humidity: "));
-  Serial.print(h);
-  Serial.print(F("%  Temperature: "));
-  Serial.print(t);
-  Serial.print(F("°C "));
-  Serial.print(f);
-  Serial.print(F("°F  Heat index: "));
-  Serial.print(hic);
-  Serial.print(F("°C "));
-  Serial.print(hif);
-  Serial.println(F("°F"));*/
-
+  bridge->work();
 }
 
 void Device::handleHumidity() {
@@ -82,10 +59,8 @@ void Device::handleHumidity() {
 
   if(!isnan(h)) {
 
-    if(configuration.verbose) {
-      Serial.print("read humidity: ");
-      Serial.println(h);
-    }
+    Serial.print("read humidity: ");
+    Serial.println(h);
 
     HumidityTelemetry humidityTelemetry(sign.deviceId, sign.latitude, sign.longitude, h);
 
@@ -93,9 +68,7 @@ void Device::handleHumidity() {
 
   } else {
 
-    if(configuration.verbose) {
-      Serial.println("ERROR: fail to read humidity");
-    }
+    Serial.println("ERROR: fail to read humidity");
     
     FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity"));
 
@@ -111,10 +84,8 @@ void Device::handleTemperature() {
 
   if(!isnan(t)) {
 
-    if(configuration.verbose) {
-      Serial.print("read temperature: ");
-      Serial.println(t);
-    }
+    Serial.print("read temperature: ");
+    Serial.println(t);
 
     TemperatureTelemetry temperatureTelemetry(sign.deviceId, sign.latitude, sign.longitude, t);
 
@@ -122,9 +93,7 @@ void Device::handleTemperature() {
 
   } else {
 
-    if(configuration.verbose) {
-      Serial.println("ERROR: fail to read temperature");
-    }
+    Serial.println("ERROR: fail to read temperature");
     
     FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT002"), String("Fail to read temperature"));
 

@@ -1,5 +1,8 @@
 # Static Guard
 
+## Arduino R4 WIFI
+
+Il wifi deve essere 2.4GHz, non è supportato 5GHz.
 
 ## Sensori
 

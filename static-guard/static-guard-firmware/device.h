@@ -29,7 +29,6 @@ const DeviceSign deviceSign = {
 // information about pin numbers, rates and other general configuration options
 
 struct DeviceConfiguration {
-  bool verbose;
   unsigned char humidityTemperatureSensorPin;
   int humidityTemperatureSensorType;
   unsigned int temperatureSamplingRateInMillis;
@@ -37,7 +36,6 @@ struct DeviceConfiguration {
 };
 
 const DeviceConfiguration deviceConfiguration = {
-  .verbose = true,
   .humidityTemperatureSensorPin = 2,
   .humidityTemperatureSensorType = DHT22,
   .temperatureSamplingRateInMillis = 3 * 1000,
@@ -49,9 +47,9 @@ class Device {
 
   protected:
 
-    const Bridge* bridge = Bridge::GetInstance();
+    Bridge* bridge = Bridge::GetInstance();
 
-    const DHT* dht;
+    DHT* dht = nullptr;
 
     unsigned long lastTemperatureSamplingMillis = 0;
     unsigned long lastHumiditySamplingMillis = 0;
