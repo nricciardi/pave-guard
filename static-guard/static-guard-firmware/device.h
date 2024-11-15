@@ -50,7 +50,7 @@ class Device {
 
     const Bridge* bridge = Bridge::GetInstance();
 
-    DHT* dht;
+    const DHT* dht;
 
     unsigned long lastTemperatureSamplingMillis = 0;
     unsigned long lastHumiditySamplingMillis = 0;

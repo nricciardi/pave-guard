@@ -67,9 +67,20 @@ void Device::handleHumidityAndTemperature() {
 
   if(!isnan(t)) {
 
+    if(configuration.verbose) {
+      Serial.print("read temperature: ");
+      Serial.println(t);
+    }
+
     TemperatureTelemetry temperatureTelemetry(sign.deviceId, sign.latitude, sign.longitude, t);
 
+    bridge->put((Telemetry*) temperatureTelemetry);
+
   } else {
+
+    if(configuration.verbose) {
+      Serial.println("ERROR: fail to read temperature");
+    }
     
     FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity and temperature"));
   }

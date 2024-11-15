@@ -22,11 +22,11 @@ bool Bridge::work() {
   return true;
 }
 
-/*bool Bridge::put(Telemetry* telemetry) {
+void Bridge::put(Telemetry* telemetry) {
   Serial.println("put new telemetry");
 
   return true;
-}*/
+}
 
 
 

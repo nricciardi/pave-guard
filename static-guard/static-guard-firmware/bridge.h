@@ -2,6 +2,7 @@
 #define BRIDGE_H
 
 #include <Arduino.h>
+#include "telemetry.h"
 
 const unsigned short QUEUE_LENGTH = 20;
 
@@ -44,7 +45,7 @@ class Bridge {
     /**
     * Used by other components to delegate telemetry sent
     */
-    // bool put(Telemetry* telemetry);
+    void put(Telemetry* telemetry);
 
 };
 
