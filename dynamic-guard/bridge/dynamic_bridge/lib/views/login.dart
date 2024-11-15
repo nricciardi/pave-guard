@@ -1,6 +1,7 @@
 import 'dart:developer';
-
 import 'package:dynamic_bridge/global/env_manager.dart';
+import 'package:dynamic_bridge/logic/user_data_manager.dart';
+import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import '../logic/views/login_logic.dart';
@@ -10,14 +11,14 @@ import '../logic/views/login_logic.dart';
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  Duration get loginTime => const Duration(milliseconds: 2250);
+  Duration get loginTime => const Duration(milliseconds: 1050);
   static LoginLogic selfLogic = LoginLogic();
 
   /// For autorizing the user
   Future<String?> _authUser(LoginData data) async {
 
     bool isAuthorized = await selfLogic.authorizeUser(data);
-    return Future.delayed(loginTime).then((_) {
+    return Future.delayed(loginTime).then((_) async {
 
       if(!isAuthorized){
         return "Authentication failed!";
@@ -35,9 +36,9 @@ class LoginScreen extends StatelessWidget {
       log('Signup Name: ${data.name}, Password: ${data.password}');
     }
 
-    return Future.delayed(loginTime).then((_) {
+    return Future.delayed(loginTime).then((_) async {
 
-      selfLogic.signupUser(data);
+      await selfLogic.signupUser(data);
       return null;
 
     });
@@ -52,7 +53,14 @@ class LoginScreen extends StatelessWidget {
       onSubmitAnimationCompleted: () {
         Navigator.pop(context);
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => selfLogic.loadNextPage(),
+          builder: (context) => FutureBuilder(future: UserDataManager.getSelfData(), 
+            builder: (context, snapshot) {
+              if (snapshot.hasData == false) { return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );}
+            else {
+              return Devices(selfData: snapshot.requireData!);
+            }}),
         ));
       },
       // NOTE: The following line must be done because the package requires it, but the function does nothing

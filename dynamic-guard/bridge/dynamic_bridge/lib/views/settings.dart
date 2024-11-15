@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/gps_manager.dart';
 import 'package:dynamic_bridge/logic/photo_collector.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/material.dart';
 SettingsLogic selfLogic = SettingsLogic();
 
 class SettingsPage extends StatefulWidget {
+
   const SettingsPage({super.key});
 
   @override

@@ -22,10 +22,11 @@ class MeData {
 
 class UserDataManager {
 
-  static Future<MeData> getSelfData() async {
+  static Future<MeData?> getSelfData() async {
 
     MeQueryManager meQueryManager = MeQueryManager();
     QueryResult queryResult = await meQueryManager.sendQuery("", token: await TokenManager.getToken());
+    if(!meQueryManager.checkResults(queryResult)){ return null; }
     return meQueryManager.getMeData(queryResult);
 
   }

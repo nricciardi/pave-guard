@@ -93,7 +93,18 @@ class _DashboardPageState extends State<DashboardPage> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                  MaterialPageRoute(builder: (context) => ProfilePage(selfData: widget.selfData)),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.router),
+              title: const Text('Devices'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Devices(selfData: widget.selfData)),
                 );
               },
             ),

@@ -1,21 +1,11 @@
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:dynamic_bridge/logic/token_manager.dart';
-import 'package:dynamic_bridge/views/devices.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:flutter_codice_fiscale/codice_fiscale.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class LoginLogic {
-
-  /// Returns the page to load as soon as the login succeeds
-  /// 
-  Widget loadNextPage() {
-
-    return const Devices();
-
-  }
 
   // Returns true if the user is authorized
   Future<bool> authorizeUser(LoginData data) async{

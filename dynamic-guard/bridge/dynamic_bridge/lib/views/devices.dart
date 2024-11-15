@@ -34,7 +34,10 @@ class DeviceData {
 }
 
 class Devices extends StatefulWidget {
-  const Devices({super.key});
+
+  final MeData selfData;
+
+  const Devices({super.key, required this.selfData});
   @override
   DevicesLinkedState createState() => DevicesLinkedState();
 }
@@ -99,6 +102,7 @@ class DevicesLinkedState extends State<Devices> {
             ElevatedButton(
               onPressed: () async {
                 await addDevice(nameController.text);
+                // ignore: use_build_context_synchronously
                 Navigator.of(context).pop(); // Close the dialog
                 setState(() {});
               },
