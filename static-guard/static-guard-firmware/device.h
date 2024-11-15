@@ -6,6 +6,7 @@
 #include "DHT.h"
 #include "bridge.h"
 #include "temperature-telemetry.h"
+#include "humidity-telemetry.h"
 #include "fail-telemetry.h"
 
 // ==== DEVICE SIGN ====
@@ -29,7 +30,7 @@ const DeviceSign deviceSign = {
 
 struct DeviceConfiguration {
   bool verbose;
-  unsigned char humidityTemperaturePin;
+  unsigned char humidityTemperatureSensorPin;
   int humidityTemperatureSensorType;
   unsigned int temperatureSamplingRateInMillis;
   unsigned int humiditySamplingRateInMillis;
@@ -37,7 +38,7 @@ struct DeviceConfiguration {
 
 const DeviceConfiguration deviceConfiguration = {
   .verbose = true,
-  .humidityTemperaturePin = 2,
+  .humidityTemperatureSensorPin = 2,
   .humidityTemperatureSensorType = DHT22,
   .temperatureSamplingRateInMillis = 3 * 1000,
   .humiditySamplingRateInMillis = 4 * 1000,
@@ -87,7 +88,9 @@ class Device {
     */
     void work();
 
-    void handleHumidityAndTemperature();
+    void handleTemperature();
+
+    void handleHumidity();
 };
 
 

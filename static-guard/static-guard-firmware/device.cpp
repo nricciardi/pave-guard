@@ -16,7 +16,7 @@ void Device::setup() {
   Serial.println("setupping device...");
 
   // === HUMIDITY & TEMPERATURE ===
-  dht = new DHT(configuration.humidityTemperaturePin, configuration.humidityTemperatureSensorType);
+  dht = new DHT(configuration.humidityTemperatureSensorPin, configuration.humidityTemperatureSensorType);
   dht->begin();
   
   // === BRIDGE ===
@@ -25,6 +25,22 @@ void Device::setup() {
 
 // ========================== WORK ==========================
 void Device::work() {
+
+  long currentMillis;
+  
+  currentMillis = millis();
+  if(currentMillis - lastTemperatureSamplingMillis > configuration.temperatureSamplingRateInMillis) {
+    handleTemperature();
+
+    lastTemperatureSamplingMillis = currentMillis;
+  }
+
+  currentMillis = millis();
+  if(currentMillis - lastHumiditySamplingMillis > configuration.temperatureSamplingRateInMillis) {
+    handleTemperature();
+
+    lastHumiditySamplingMillis = currentMillis;
+  }
   
   /*delay(2000);
 
@@ -60,7 +76,35 @@ void Device::work() {
 
 }
 
-void Device::handleHumidityAndTemperature() {
+void Device::handleHumidity() {
+  
+  float h = dht->readHumidity();
+
+  if(!isnan(h)) {
+
+    if(configuration.verbose) {
+      Serial.print("read humidity: ");
+      Serial.println(h);
+    }
+
+    HumidityTelemetry humidityTelemetry(sign.deviceId, sign.latitude, sign.longitude, h);
+
+    bridge->put(&humidityTelemetry);
+
+  } else {
+
+    if(configuration.verbose) {
+      Serial.println("ERROR: fail to read humidity");
+    }
+    
+    FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity"));
+
+    bridge->put(&failTelemetry);
+  }
+
+}
+
+void Device::handleTemperature() {
   
   // Read temperature as Celsius (the default)
   float t = dht->readTemperature();
@@ -82,7 +126,7 @@ void Device::handleHumidityAndTemperature() {
       Serial.println("ERROR: fail to read temperature");
     }
     
-    FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity and temperature"));
+    FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT002"), String("Fail to read temperature"));
 
     bridge->put(&failTelemetry);
   }
