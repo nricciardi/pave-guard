@@ -1,9 +1,9 @@
 import 'package:dynamic_bridge/logic/user_data_manager.dart';
-import 'package:dynamic_bridge/logic/views/profile_logic.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final MeData selfData;
+  const ProfilePage({super.key, required this.selfData});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -23,8 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void fetchData() async {
 
-    ProfileLogic selfLogic = ProfileLogic();
-    MeData data = await selfLogic.getProfileData();
+    MeData data = widget.selfData;
 
     setState(() {
       name = data.getFirstName();
@@ -43,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person, size: 30),
-            onPressed: () {}, // You can add functionality here, e.g., editing profile
+            onPressed: (){},
           ),
         ],
       ),

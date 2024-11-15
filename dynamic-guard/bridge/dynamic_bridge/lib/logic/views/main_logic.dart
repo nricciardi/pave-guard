@@ -2,27 +2,18 @@
 import 'dart:developer';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
-import 'package:dynamic_bridge/logic/query_manager.dart';
-import 'package:dynamic_bridge/logic/token_manager.dart';
+import 'package:dynamic_bridge/logic/user_data_manager.dart';
 import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../views/login.dart';
 
 class MainAppLogic {
 
   /// Checks if the user is already logged in
   /// 
-  Future<bool> isCheckedIn() async {
+  Future<MeData?> isCheckedIn() async {
 
-    if(EnvManager.isDebugPcMode()){
-      return false;
-    }
-
-    String token = await TokenManager.getToken();
-    MeQueryManager meQueryManager = MeQueryManager();
-    QueryResult queryResult = await meQueryManager.sendQuery("", token: token);
-    return meQueryManager.checkResults(queryResult);
+    return UserDataManager.getSelfData();
 
   }
 
@@ -30,11 +21,11 @@ class MainAppLogic {
   ///
   Future<Widget> loadNextPage() async {
 
-    bool checkedIn = await isCheckedIn();
-    Widget toLoad = checkedIn ? const Devices() : const LoginScreen();
+    MeData? selfData = await isCheckedIn();
+    Widget toLoad = selfData != null ? Devices(selfData: selfData) : const LoginScreen();
 
     if(EnvManager.isDebugAndroidMode()){
-      log("Are you checked in? $checkedIn");
+      log("Are you checked in? ${selfData != null}}");
       log("Now loading ${toLoad.toStringShort()}");
     }
 
