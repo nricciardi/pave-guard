@@ -74,7 +74,7 @@ void Device::handleHumidityAndTemperature() {
 
     TemperatureTelemetry temperatureTelemetry(sign.deviceId, sign.latitude, sign.longitude, t);
 
-    bridge->put((Telemetry*) temperatureTelemetry);
+    bridge->put(&temperatureTelemetry);
 
   } else {
 
@@ -83,6 +83,8 @@ void Device::handleHumidityAndTemperature() {
     }
     
     FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity and temperature"));
+
+    bridge->put(&failTelemetry);
   }
 
 }

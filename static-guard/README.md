@@ -3,6 +3,10 @@
 
 ## Sensori
 
+### Humidity and Temperature
+
+Installare la libreria [DHT di Adafruit](https://learn.adafruit.com/dht/using-a-dhtxx-sensor-with-arduino)
+
 ### Fotocellula
 
 Fotocellula laser 10V-30V. A temperatura ambiente funziona anche a 5V (tensione di arduino).
