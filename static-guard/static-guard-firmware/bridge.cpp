@@ -53,13 +53,93 @@ bool Bridge::setup() {
 }
 
 bool Bridge::work() {
-  // Serial.println("bridge working...");
+  
+  if(telemetriesInQueue >= configuration.queueSendingThreshold) {
+
+    printWifiStatus();
+
+    Serial.println("telemetries will be sent before that queue reaches a critical state");
+
+    sendWithRetry();   // ignore outcome, it will be retried later
+  }
 
   return true;
 }
 
 void Bridge::put(Telemetry* telemetry) {
-  Serial.println("put new telemetry");
+  Serial.println("putting new telemetry...");
+
+  if(telemetriesInQueue + 1 >= configuration.queueLength) {
+    Serial.println("WARNING: queue is full, it will be empty before any other actions");
+
+    bool areSent = sendWithRetry();
+    
+    if(!areSent)
+      Serial.println("CRITICAL: error during sending phase, telemetries in queue will be lost");
+
+    telemetriesInQueue = 0;
+  }
+
+  queue[telemetriesInQueue + 1] = telemetry;
+  telemetriesInQueue += 1;
+
+  Serial.print("new telemetry was correctly saved in queue (");
+  Serial.print(telemetriesInQueue);
+  Serial.print("/");
+  Serial.print(configuration.queueLength);
+  Serial.println(")");
+}
+
+bool Bridge::send() {
+  Serial.println("sending telemetries...");
+
+  Serial.println("\nStarting connection to server...");
+
+  /*if (client.connect(configuration.serverUrl, configuration.serverPort)) {
+
+    Serial.println("connected to server");
+
+    // Make a HTTP request:
+    client.println("GET /search?q=arduino HTTP/1.1");
+    client.print("Host: ");
+    client.prinln(configuration.serverUrl);
+    client.println("Connection: close");
+    client.println();
+  }*/
+
+  telemetriesInQueue = 0;
+
+  return true;
+}
+
+bool Bridge::sendWithRetry() {
+  Serial.println("sending telemetries (with retry system)...");
+
+  unsigned int attempts = 0;
+  bool sendSuccess = false;
+
+  while(attempts < configuration.maxSendAttempts) {
+    
+    sendSuccess = send();
+
+    attempts += 1;
+
+    if(sendSuccess)
+      break;
+
+    Serial.println("ERROR: error occurs during sending...");
+
+    delay(configuration.sendRetryDelayInMillis);      // execution must be blocked
+  }
+
+  if(!sendSuccess) {
+    Serial.println("ERROR: telemetries are not sent");
+    return false;
+  }
+
+  Serial.println("telemetries sent successfully");
+
+  return true;
 }
 
 void Bridge::printWifiStatus() {

@@ -4,6 +4,8 @@
 
 Il wifi deve essere 2.4GHz, non è supportato 5GHz.
 
+Aggiungere libreria `ArduinoHttpClient by Arduino`
+
 ## Sensori
 
 ### Humidity and Temperature
