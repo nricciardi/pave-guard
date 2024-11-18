@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:flutter_uvc_camera/flutter_uvc_camera.dart';
 
@@ -14,9 +13,8 @@ class PhotoCollector {
     try {
       Future<UVCCameraController> cameraController = openExternalCamera();
       camera = await cameraController;
-      camera!.startCamera();
+      camera!.initializeCamera();
     } catch(e) {
-
       if(EnvManager.isDebugAndroidMode()){
         log("Unable to open camera!");
       }

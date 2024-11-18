@@ -10,6 +10,7 @@ import 'package:dynamic_bridge/logic/photo_collector.dart';
 import 'package:dynamic_bridge/logic/serial_interface.dart';
 import 'package:dynamic_bridge/logic/views/settings_logic.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_uvc_camera/flutter_uvc_camera.dart';
 
 class DashboardLogic {
 
@@ -79,13 +80,16 @@ class DashboardLogic {
       // The camera is external
       cameraController = PhotoCollector();
       try {
-        await PhotoCollector.openExternalCamera();
-        children.add(const Center(
-          child: Text(
-              'External Camera loaded and working.',
-              style: TextStyle(fontSize: 24, color: Colors.green, ),
-            ) )
-        );
+        UVCCameraController uvcCameraController = await PhotoCollector.openExternalCamera();
+        uvcCameraController.msgCallback = (state) {
+          children.add(Text(
+                'External Camera loaded and working.\n$state',
+                style: const TextStyle(fontSize: 24, color: Colors.green, ),
+                textAlign: TextAlign.center,
+              )
+          );
+        };
+        children.add(UVCCameraView(cameraController: uvcCameraController, width: 300, height: 300));
         cameraWorking = true;
       } catch(e) {
         children.add(
