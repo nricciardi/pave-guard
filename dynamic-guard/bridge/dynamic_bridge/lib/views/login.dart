@@ -52,14 +52,14 @@ class LoginScreen extends StatelessWidget {
       onSignup: _signupUser,
       onSubmitAnimationCompleted: () {
         Navigator.pop(context);
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
+        Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => FutureBuilder(future: UserDataManager.getSelfData(), 
             builder: (context, snapshot) {
               if (snapshot.hasData == false) { return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );}
+            body: Center(child: CircularProgressIndicator()));
+            }
             else {
-              return Devices(selfData: snapshot.requireData!);
+              return Devices(selfData: snapshot.data!);
             }}),
         ));
       },

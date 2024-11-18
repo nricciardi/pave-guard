@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
@@ -9,9 +10,26 @@ import '../../views/login.dart';
 
 class MainAppLogic {
 
+  Future<MeData?> awaitCheckedIn() async {
+    
+    return await UserDataManager.getSelfData();
+
+  }
+
   /// Checks if the user is already logged in
   /// 
   Future<MeData?> isCheckedIn() async {
+
+    final Completer completer = Completer<void>();
+    final minDelay = Future.delayed(const Duration(seconds: 1));
+    final asyncTask = awaitCheckedIn();
+
+    asyncTask.then((_) => completer.complete());
+    await Future.any([minDelay, completer.future]);
+
+    if (!completer.isCompleted) {
+      return null;
+    }
 
     return UserDataManager.getSelfData();
 

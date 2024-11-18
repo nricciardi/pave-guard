@@ -28,13 +28,6 @@ class PhotoCollector {
   static Future<UVCCameraController> openExternalCamera() async{
 
     UVCCameraController cameraController = UVCCameraController();
-    try{
-      await cameraController.initializeCamera();
-    } catch(e) {
-      log("Unable to open camera!");
-      throw Exception("Camera not working!");
-    }
-    await cameraController.openUVCCamera();
     return cameraController;
 
   }

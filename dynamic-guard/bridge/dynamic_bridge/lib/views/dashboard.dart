@@ -42,14 +42,12 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void initializeTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {setState(() {}); });
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {initializeChildren();});
   }
 
-  @override
-  void dispose(){
+  void delete(){
     selfLogic.dispose();
     _timer?.cancel();
-    super.dispose();
   }
 
   @override
@@ -107,7 +105,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   context,
                   MaterialPageRoute(builder: (context) => Devices(selfData: widget.selfData)),
                 );
-                dispose();
+                delete();
               },
             ),
             ListTile(
@@ -132,7 +130,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
-                dispose();
+                delete();
               },
             ),
           ],
