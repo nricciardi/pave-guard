@@ -81,15 +81,12 @@ class DashboardLogic {
       cameraController = PhotoCollector();
       try {
         UVCCameraController uvcCameraController = await PhotoCollector.openExternalCamera();
-        uvcCameraController.msgCallback = (state) {
-          children.add(Text(
-                'External Camera loaded and working.\n$state',
-                style: const TextStyle(fontSize: 24, color: Colors.green, ),
+        children.add(const Text(
+                'External Camera loaded and working.',
+                style: TextStyle(fontSize: 24, color: Colors.green),
                 textAlign: TextAlign.center,
               )
           );
-        };
-        children.add(UVCCameraView(cameraController: uvcCameraController, width: 300, height: 300));
         cameraWorking = true;
       } catch(e) {
         children.add(

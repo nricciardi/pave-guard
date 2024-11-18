@@ -33,7 +33,7 @@ class _DashboardPageState extends State<DashboardPage> {
     initializeTimer();
   }
 
-  void initializeChildren() async{
+  Future<void> initializeChildren() async{
 
     children = await selfLogic.dashboardCenterChildren();
     selfLogic.collectPhotos();
@@ -42,7 +42,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void initializeTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {initializeChildren();});
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) async {await initializeChildren();});
   }
 
   void delete(){

@@ -13,7 +13,6 @@ class PhotoCollector {
     try {
       Future<UVCCameraController> cameraController = openExternalCamera();
       camera = await cameraController;
-      camera!.initializeCamera();
     } catch(e) {
       if(EnvManager.isDebugAndroidMode()){
         log("Unable to open camera!");
