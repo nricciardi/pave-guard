@@ -8,9 +8,11 @@ class Telemetry {
 
   protected:
     String deviceId;
-
+    
     double latitude;
     double longitude;
+
+    String buildGraphqlMutationBody(char* mutationRef, String extraBody); 
 
   public:
     Telemetry(String deviceId, double latitude, double longitude): deviceId(deviceId), latitude(latitude), longitude(longitude) {
@@ -24,7 +26,7 @@ class Telemetry {
       deviceId = id;
     }
 
-    virtual String toSendableString() const = 0;
+    virtual String toGraphqlMutationBody() const = 0;
 };
 
 

@@ -15,8 +15,11 @@ class FailTelemetry: public Telemetry {
   public:
     FailTelemetry(String deviceId, double latitude, double longitude, String code, String message): Telemetry(deviceId, latitude, longitude), code(code), message(message) {}
 
-  String toSendableString() const override {
-    return String("FailTelemetry");
+  String toGraphqlMutationBody() const override {
+
+    String extraBody("");
+
+    return Telemetry::buildGraphqlMutationBody((char*) "createTemperatureTelemetries", extraBody);
   }
 };
 

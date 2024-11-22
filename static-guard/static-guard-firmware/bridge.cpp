@@ -1,3 +1,5 @@
+#include "Arduino.h"
+#include "api/Common.h"
 #include "bridge.h"
 
 Bridge* Bridge::instance = nullptr;
@@ -26,6 +28,7 @@ bool Bridge::setup() {
   }
 
   unsigned int attempts = 0;
+
   // attempt to connect to WiFi network:
   while (status != WL_CONNECTED) {
     Serial.print("attempting to connect to SSID: ");
@@ -45,9 +48,14 @@ bool Bridge::setup() {
     // wait for new connection:
     delay(configuration.connectionRetryDelayInMillis);
   }
-
+  
   // connected now, so print out the status:
   printWifiStatus();
+
+  // initialize http client
+  httpClient = new HttpClient(wifiClient, configuration.serverAddress, configuration.serverPort);
+  send();
+
 
   return true;
 }
@@ -91,13 +99,45 @@ void Bridge::put(Telemetry* telemetry) {
 }
 
 bool Bridge::send() {
+
   Serial.println("sending telemetries...");
 
-  Serial.println("\nStarting connection to server...");
+  String postData("{}");
 
-  /*if (client.connect(configuration.serverUrl, configuration.serverPort)) {
+  httpClient->beginRequest();
 
-    Serial.println("connected to server");
+  Serial.print("opening POST connection to server... ");
+  int connectionResult = httpClient->post("/graphql");
+  if (connectionResult == 0) {
+    Serial.println("opened!");
+  } else {
+    Serial.print("ERROR: ");
+    Serial.println(connectionResult);
+  }
+
+  httpClient->sendHeader("Content-Type", "application/json");
+  httpClient->sendHeader("Content-Length", postData.length());
+  httpClient->sendHeader("X-Custom-Header", "custom-header-value");
+  httpClient->beginBody();
+  httpClient->print(postData);
+  httpClient->endRequest();
+
+  // read the status code and body of the response
+  int statusCode = httpClient->responseStatusCode();
+  String response = httpClient->responseBody();
+
+  Serial.print("Status code: ");
+  Serial.println(statusCode);
+  Serial.print("Response: ");
+  Serial.println(response);
+
+
+
+  //Serial.print("connectioning to server... ");
+
+  /*if (httpClient->connect(configuration.serverAddress, configuration.serverPort)) {
+
+    Serial.println("connected!");
 
     // Make a HTTP request:
     client.println("GET /search?q=arduino HTTP/1.1");
@@ -108,6 +148,9 @@ bool Bridge::send() {
   }*/
 
   telemetriesInQueue = 0;
+
+  Serial.println("telemetry sent!");
+  while(true);
 
   return true;
 }

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <WiFiS3.h>
-#include <ArduinoHttpClient.h>
+#include <HttpClient.h>
 #include "telemetry.h"
 
 
@@ -17,7 +17,7 @@ struct BridgeConfiguration {
 
   char* wifiSsid;
   char* wifiPassword;
-  char* serverUrl;
+  char* serverAddress;
   unsigned short serverPort;
 
   unsigned int connectionRetryDelayInMillis;
@@ -30,13 +30,13 @@ const BridgeConfiguration bridgeConfiguration = {
   .queueLength = QUEUE_LENGTH,
   .queueSendingThreshold = (unsigned short) (QUEUE_LENGTH * 0.6),
 
-  .wifiSsid = "Martin Router King Guest 2.4GHz",
-  .wifiPassword = "GuestWifi123!",
-  .serverUrl = "192.168.0.11",
+  .wifiSsid = "Not eduroam",
+  .wifiPassword = "celestecarbone",
+  .serverAddress = "192.168.11.3",
   .serverPort = 3000,
 
   .connectionRetryDelayInMillis = 2 * 1000,
-  .maxConnectionAttempts = 300,
+  .maxConnectionAttempts = 500,
   .sendRetryDelayInMillis = 2 * 1000,
   .maxSendAttempts = 3
 };
@@ -52,8 +52,10 @@ class Bridge {
 
     static Bridge* instance;
 
-    WiFiClient* client = nullptr;
+    WiFiClient wifiClient;
     int status = WL_IDLE_STATUS;
+
+    HttpClient* httpClient = nullptr;
 
     Bridge(): configuration(bridgeConfiguration) {
     }

@@ -12,8 +12,12 @@ class TemperatureTelemetry: public Telemetry {
   public:
     TemperatureTelemetry(String deviceId, double latitude, double longitude, float temperature): Telemetry(deviceId, latitude, longitude), temperature(temperature) {}
 
-  String toSendableString() const override {
-    return String("TemperatureTelemetry");
+  String toGraphqlMutationBody() const override {
+
+    String extraBody("tempearture: ");
+    extraBody.concat(temperature);
+
+    return Telemetry::buildGraphqlMutationBody("createTemperatureTelemetries", extraBody);
   }
 };
 

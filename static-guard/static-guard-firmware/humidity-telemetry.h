@@ -12,8 +12,12 @@ class HumidityTelemetry: public Telemetry {
   public:
     HumidityTelemetry(String deviceId, double latitude, double longitude, float humidity): Telemetry(deviceId, latitude, longitude), humidity(humidity) {}
 
-  String toSendableString() const override {
-    return String("HumidityTelemetry");
+  String toGraphqlMutationBody() const override {
+  
+    String extraBody("humidity: ");
+    extraBody.concat(humidity);
+
+    return Telemetry::buildGraphqlMutationBody("createHumidityTelemetries", extraBody);
   }
 };
 
