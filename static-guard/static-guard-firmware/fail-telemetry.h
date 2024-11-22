@@ -17,9 +17,10 @@ class FailTelemetry: public Telemetry {
 
   String toGraphqlMutationBody() const override {
 
-    String extraBody("");
+    String extraBody("code: \"" + code + "\",");
+    extraBody.concat("message: \"" + message + "\",");
 
-    return buildGraphqlMutationBody("createTemperatureTelemetries", extraBody);
+    return buildGraphqlMutationBody("createFailTelemetries", extraBody);
   }
 };
 

@@ -8,9 +8,6 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TelemetryModule } from './modules/telemetry/telemetry.module';
 import { UserModule } from './modules/user/user.module';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthenticationGuard } from './modules/user/guards/jwt-authentication/jwt-authentication.guard';
-import { AdminGuard } from './modules/user/guards/admin/admin.guard';
 import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
 import { DeviceModule } from './modules/device/device.module';
 

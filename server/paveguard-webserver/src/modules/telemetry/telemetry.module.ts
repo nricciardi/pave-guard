@@ -19,6 +19,9 @@ import { RoadCrackTelemetryResolver } from './resolvers/road-crack-telemetry.res
 import { RoadPotholeTelemetryResolver } from './resolvers/road-pothole-telemetry.resolver';
 import { RoadCrackTelemetry, RoadCrackTelemetrySchema } from './models/road-crack-telemetry.model';
 import { RoadPotholeTelemetry, RoadPotholeTelemetrySchema } from './models/road-pothole-telemetry.model';
+import { FailTelemetry, FailTelemetrySchema } from './models/fail-telemetry.model';
+import { FailTelemetryService } from './services/fail-telemetry/fail-telemetry.service';
+import { FailTelemetryResolver } from './resolvers/fail-telemetry.resolver';
 
 @Module({
     controllers: [
@@ -31,6 +34,7 @@ import { RoadPotholeTelemetry, RoadPotholeTelemetrySchema } from './models/road-
         TrafficTelemetryService,
         RoadCrackService,
         RoadPotholeService,
+        FailTelemetryService,
 
         // === RESOLVERs ===
         TelemetryResolver,
@@ -38,7 +42,8 @@ import { RoadPotholeTelemetry, RoadPotholeTelemetrySchema } from './models/road-
         HumidityTelemetryResolver,
         TrafficTelemetryResolver,
         RoadCrackTelemetryResolver,
-        RoadPotholeTelemetryResolver
+        RoadPotholeTelemetryResolver,
+        FailTelemetryResolver,
     ],
     imports: [
         MongooseModule.forFeature([
@@ -65,7 +70,11 @@ import { RoadPotholeTelemetry, RoadPotholeTelemetrySchema } from './models/road-
                     {
                         name: RoadPotholeTelemetry.name,
                         schema: RoadPotholeTelemetrySchema
-                    }
+                    },
+                    {
+                        name: FailTelemetry.name,
+                        schema: FailTelemetrySchema
+                    },
                 ]
             },
         ]),
