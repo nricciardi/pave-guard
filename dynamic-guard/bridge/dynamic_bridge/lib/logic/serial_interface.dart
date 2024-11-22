@@ -3,10 +3,23 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
+import 'package:dynamic_bridge/logic/query_manager.dart';
+import 'package:dynamic_bridge/logic/token_manager.dart';
 import 'package:dynamic_bridge/logic/vibration_manager.dart';
 import 'package:dynamic_bridge/logic/views/settings_logic.dart';
+import 'package:dynamic_bridge/views/devices.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:usb_serial/usb_serial.dart';
+
+class SendableData {
+
+  GPSData position;
+  int severity;
+  DeviceData deviceData;
+  SendableData(this.position, this.severity, this.deviceData);
+
+}
 
 class SerialInterface {
 
@@ -108,6 +121,40 @@ class SerialInterface {
     double y = double.parse(match.group(2)!);
     double z = double.parse(match.group(3)!);
     return AccelerometerData(x, y, z);
+
+  }
+
+  void sendData(DeviceData deviceData) async {
+
+    Map<GPSData, int> data = vibrationManager.getDataToSend();
+    GPSData gpsToSend = compressGPS(data.keys.toList());
+    int severityToSend = compressSeverities(data.values.toList());
+
+    RoadCrackTelemetryQuery roadCrackTelemetry = RoadCrackTelemetryQuery();
+    QueryResult queryResult = await roadCrackTelemetry.sendQuery(SendableData(
+        gpsToSend, severityToSend, deviceData
+      ), token: await TokenManager.getToken()); 
+    if(EnvManager.isDebugAndroidMode()){
+      log(queryResult.toString());
+    }
+
+  }
+
+  GPSData compressGPS(List<GPSData> data){
+    
+    double lat = 0; double lon = 0;
+    for (var key in data) {
+      lat += key.latitude;
+      lon += key.longitude;
+    }
+    return GPSData(lat / data.length, lon / data.length);
+  }
+
+  int compressSeverities(List<int> severities){
+
+    severities.sort();
+    return 
+      ((severities[severities.length - 1] - severities[0]) / 2).round();
 
   }
 

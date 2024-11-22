@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:dynamic_bridge/global/env_manager.dart';
@@ -9,8 +10,10 @@ import 'package:dynamic_bridge/logic/hole_detector.dart';
 import 'package:dynamic_bridge/logic/photo_collector.dart';
 import 'package:dynamic_bridge/logic/serial_interface.dart';
 import 'package:dynamic_bridge/logic/views/settings_logic.dart';
+import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uvc_camera/flutter_uvc_camera.dart';
+import 'package:usb_serial/transaction.dart';
 
 class DashboardLogic {
 
@@ -23,6 +26,8 @@ class DashboardLogic {
   Timer? _timer;
 
   SerialInterface? serialInterface;
+  DeviceData deviceData;
+  DashboardLogic(this.deviceData);
 
   Future<XFile> takePicture() async {
 
@@ -45,6 +50,22 @@ class DashboardLogic {
     String loginFileName = EnvManager.getLoginFileName();
     FileManager fileManager = FileManager(loginFileName);
     fileManager.deleteFile();
+
+  }
+
+  void collectAndSendTelemtries() async {
+
+    serialInterface = SerialInterface();
+    serialInterface!.initialize();
+    Transaction<String> transaction = Transaction.stringTerminated(serialInterface!.port!.inputStream!, Uint8List.fromList([10, 10]));
+
+    transaction.stream.listen( (String data) {
+      for(String line in data.split("\n")){
+          serialInterface!.manageSerialLine(line);
+        }
+        serialInterface!.sendData(deviceData);
+      }
+    );
 
   }
 
@@ -87,6 +108,7 @@ class DashboardLogic {
                 textAlign: TextAlign.center,
               )
           );
+          uvcCameraController.msgCallback;
         cameraWorking = true;
       } catch(e) {
         children.add(

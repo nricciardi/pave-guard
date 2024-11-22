@@ -168,6 +168,7 @@ void empty_buffer() {
       writeAccelerometer(pAcX[j] - mAcX, pAcY[j] - mAcY, pAcZ[j] - mAcZ);
       printLatAndLon(pLat[j], pLon[j]);
     } i = 0;
+  Serial.print("\n\n");
 
 }
 
