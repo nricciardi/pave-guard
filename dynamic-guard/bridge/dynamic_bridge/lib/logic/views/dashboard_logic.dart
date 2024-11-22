@@ -134,7 +134,7 @@ class DashboardLogic {
       else {
         children.add(Text(
                 result,
-                style: const TextStyle(fontSize: 24, color: Colors.red),
+                style: TextStyle(fontSize: 24, color: result.contains("Connected") ? Colors.green : Colors.red),
                 textAlign: TextAlign.center,
               ));
       }
