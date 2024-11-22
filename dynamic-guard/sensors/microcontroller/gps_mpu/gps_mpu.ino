@@ -32,8 +32,8 @@ void getLatAndLon(double* Latitude, double* Longitude, TinyGPSPlus* obj){
 // FORMAT: gR[lat],[lon]\n - for routine send
 // FORMAT: gE[lat],[lon]\n - for exceptional send
 void printLatAndLon(double Latitude, double Longitude){
-  Serial.print("g"); Serial.print(Latitude, 6); 
-  Serial.print(","); Serial.println(Longitude, 6 );
+  Serial.print("g"); Serial.print(Latitude, 8); 
+  Serial.print(","); Serial.println(Longitude, 8);
 }
 
 // MPU part
@@ -101,7 +101,8 @@ void writeGyroscope(int16_t x, int16_t y, int16_t z){
   Serial.print(","); Serial.println(z);
 }
 
-const int buf_size = 100;
+const int buf_size = 110;
+const unsigned long interval = 20;
 
 TinyGPSPlus gps;
 double lat, lon;
@@ -110,6 +111,8 @@ double* pLat,* pLon;
 int16_t mAcX, mAcY, mAcZ;
 int16_t* pAcX,* pAcY,* pAcZ;
 char i;
+
+unsigned long previousTime;
 
 int16_t getMedian(int16_t* list, int len){
 
@@ -123,19 +126,14 @@ void insertSorted(int16_t* list, int len, int16_t to_insert){
     list[0] = to_insert; return;
   }
 
-  for(int16_t j = 0; j < len; j++){
-    if(list[j] >= to_insert){
-      if(len == buf_size){
-        list[j] = to_insert; return;
-      } else {
-        for(int k = j; k < len - 1; k++)
-          list[k + 1] = list[k];
-        return;
-      }
-    }
+  int j = len - 1;
+  while (j >= 0) {
+    if(list[j] > to_insert){ list[j + 1] = list[j]; }
+    else{ break; }
+    j--;
   }
 
-  list[len - 1] = to_insert;
+  list[j + 1] = to_insert;
 
 }
 
@@ -144,13 +142,15 @@ void setup(){
   Serial.begin(9600);
   Serial1.begin(9600);
 
-  pAcX = malloc(sizeof(int16_t) * buf_size);
-  pAcY = malloc(sizeof(int16_t) * buf_size);
-  pAcZ = malloc(sizeof(int16_t) * buf_size);
+  pAcX = calloc(sizeof(int16_t), buf_size);
+  pAcY = calloc(sizeof(int16_t), buf_size);
+  pAcZ = calloc(sizeof(int16_t), buf_size);
 
-  pLat = malloc(sizeof(double) * buf_size);
-  pLon = malloc(sizeof(double) * buf_size);
+  pLat = calloc(sizeof(double), buf_size);
+  pLon = calloc(sizeof(double), buf_size);
   i = 0;
+
+  previousTime = millis();
 
   wireStartMPU();
 
@@ -161,22 +161,28 @@ void setup(){
 
 }
 
-/*
-  If the buf_size is reached
-*/
-void loop(){
+void empty_buffer() {
 
-  if(i >= buf_size){
-    mAcX = getMedian(pAcX, i); mAcY = getMedian(pAcY, i); mAcZ = getMedian(pAcZ, i);
-    for(int j = 0; j < buf_size; j++){
+  mAcX = getMedian(pAcX, i); mAcY = getMedian(pAcY, i); mAcZ = getMedian(pAcZ, i);
+    for(int j = 0; j < i; j++){
       writeAccelerometer(pAcX[j] - mAcX, pAcY[j] - mAcY, pAcZ[j] - mAcZ);
       printLatAndLon(pLat[j], pLon[j]);
     } i = 0;
+
+}
+
+void loop(){
+
+  if(millis() - previousTime < interval) return;
+  else previousTime = millis();
+
+  if(i >= buf_size){
+    empty_buffer();   
   } else {
     readAccelerometer(&mAcX, &mAcY, &mAcZ);
     insertSorted(pAcX, i, mAcX); insertSorted(pAcY, i, mAcY); insertSorted(pAcZ, i, mAcZ);
-    getLatAndLon(&pLat[i], &pLon[i], &gps);
-    i++;
+    getLatAndLon(&pLat[i], &pLon[i], &gps); i++;
+    if(mAcX >= 13000 || mAcY >= 13000){ empty_buffer(); return; }
   }
 
 }
