@@ -36,6 +36,9 @@ void Device::setup() {
     // don't continue
     while(true);
   }
+
+  Serial.print("setupped device: ");
+  Serial.println(sign.deviceId);
 }
 
 // ========================== WORK ==========================
@@ -50,14 +53,14 @@ void Device::work() {
     lastTemperatureSamplingMillis = currentMillis;
   }
 
-  currentMillis = millis();
+  /*currentMillis = millis();
   if(currentMillis - lastHumiditySamplingMillis > configuration.humiditySamplingRateInMillis) {
     handleHumidity();
 
     lastHumiditySamplingMillis = currentMillis;
-  }
+  }*/
   
-  bridge->work();
+  // bridge->work();
 }
 
 void Device::handleHumidity() {

@@ -69,10 +69,6 @@ bool Bridge::setup() {
   httpClient = new HttpClient(wifiClient, configuration.serverAddress, configuration.serverPort);
 
 
-  // TODO: remove
-  send();
-
-
   return true;
 }
 
@@ -107,6 +103,10 @@ void Bridge::put(Telemetry* telemetry) {
   queue[telemetriesInQueue + 1] = telemetry;
   telemetriesInQueue += 1;
 
+
+  Serial.print("telemetry: ");
+  Serial.println(queue[telemetriesInQueue-1]->getDeviceId());
+
   Serial.print("new telemetry was correctly saved in queue (");
   Serial.print(telemetriesInQueue);
   Serial.print("/");
@@ -120,15 +120,21 @@ bool Bridge::send() {
 
   String body = buildRequestBody();
 
+  return false;
   httpClient->beginRequest();
 
   Serial.print("opening POST connection to server... ");
+
   int connectionResult = httpClient->post("/graphql");
   if (connectionResult == 0) {
+
     Serial.println("opened!");
+
   } else {
-    Serial.print("ERROR: ");
-    Serial.println(connectionResult);
+
+    Serial.println("FAILED");
+
+    return false;
   }
 
   httpClient->sendHeader("Content-Type", "application/json");
@@ -138,49 +144,38 @@ bool Bridge::send() {
   httpClient->print(body);
   httpClient->endRequest();
 
+  Serial.println("sent request having body: \n" + body);
+
   // read the status code and body of the response
   int statusCode = httpClient->responseStatusCode();
   String response = httpClient->responseBody();
 
-  Serial.print("Status code: ");
+  Serial.print("response status code: ");
   Serial.println(statusCode);
-  Serial.print("Response: ");
+  Serial.print("response: ");
   Serial.println(response);
-
-
-
-  //Serial.print("connectioning to server... ");
-
-  /*if (httpClient->connect(configuration.serverAddress, configuration.serverPort)) {
-
-    Serial.println("connected!");
-
-    // Make a HTTP request:
-    client.println("GET /search?q=arduino HTTP/1.1");
-    client.print("Host: ");
-    client.prinln(configuration.serverUrl);
-    client.println("Connection: close");
-    client.println();
-  }*/
 
   telemetriesInQueue = 0;
 
   Serial.println("telemetry sent!");
-  while(true);
-
   return true;
 }
 
 String Bridge::buildRequestBody() const {
   String body("{\"query\":\"mutation {");
 
-  for(unsigned short i=0; i < telemetriesInQueue; i++) {
+  Serial.print("queue: ");
+  Serial.println(telemetriesInQueue);
+  Serial.println(queue[0]->getDeviceId());
+  Serial.println("post concat");
+
+  /*for(unsigned short i=0; i < telemetriesInQueue; i++) {
     body.concat("update");
     body.concat(i);
     body.concat(": ");
-    body.concat(queue[i]->toGraphqlMutationBody()); 
+    // body.concat(queue[i]->toGraphqlMutationBody()); 
     body.concat(",");
-  }
+  }*/
   
   body.concat("}\"}");
 

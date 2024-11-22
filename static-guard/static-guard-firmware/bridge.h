@@ -7,7 +7,7 @@
 #include "telemetry.h"
 
 
-#define QUEUE_LENGTH 5
+#define QUEUE_LENGTH 2
 
 
 // ==== BRIDGE CONFIGURATION ====
@@ -30,9 +30,9 @@ const BridgeConfiguration bridgeConfiguration = {
   .queueLength = QUEUE_LENGTH,
   .queueSendingThreshold = (unsigned short) (QUEUE_LENGTH * 0.6),
 
-  .wifiSsid = "Martin Router King Guest 2.4GHz",
-  .wifiPassword = "GuestWifi123!",
-  .serverAddress = "192.168.11.3",
+  .wifiSsid = "Martin Router King 2.4GHz",
+  .wifiPassword = "M.L.King7",
+  .serverAddress = "192.168.0.11",
   .serverPort = 3000,
 
   .connectionRetryDelayInMillis = 2 * 1000,

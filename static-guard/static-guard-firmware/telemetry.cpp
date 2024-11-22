@@ -1,9 +1,9 @@
 #include "telemetry.h"
 
-String Telemetry::buildGraphqlMutationBody(const char* mutationRef, String extraBody) const {
+String Telemetry::buildGraphqlMutationBody(char* mutationRef, String* extraBody) {
 
   String body("{\"query\":");
-  body.concat(mutationRef);
+  /*body.concat(mutationRef);
   body.concat("(deviceId: \"" + deviceId + "\",");
   body.concat("timestamp: '2024-11-08 23:44:00',");
   body.concat("latitude: ");
@@ -11,12 +11,12 @@ String Telemetry::buildGraphqlMutationBody(const char* mutationRef, String extra
   body.concat(",longitude: ");
   body.concat(longitude);
   
-  if(!extraBody.isEmpty())
+  if(!extraBody->isEmpty())
     body.concat(",");
 
-  body.concat(extraBody);
+  body.concat(*extraBody);
 
-  body.concat("){id}'}");
+  body.concat("){id}'}");*/
 
   return body;
 }

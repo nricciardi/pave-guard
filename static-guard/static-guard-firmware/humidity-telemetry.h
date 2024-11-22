@@ -10,14 +10,18 @@ class HumidityTelemetry: public Telemetry {
     double humidity;
 
   public:
-    HumidityTelemetry(String deviceId, double latitude, double longitude, float humidity): Telemetry(deviceId, latitude, longitude), humidity(humidity) {}
+    HumidityTelemetry(char* deviceId, double latitude, double longitude, float humidity): Telemetry(deviceId, latitude, longitude), humidity(humidity) {}
 
-  String toGraphqlMutationBody() const override {
+  String toGraphqlMutationBody() override {
+
+    Serial.println("in to graph body");
   
     String extraBody("humidity: ");
     extraBody.concat(humidity);
 
-    return buildGraphqlMutationBody("createHumidityTelemetries", extraBody);
+    Serial.println("pre return");
+
+    return extraBody; //buildGraphqlMutationBody("createHumidityTelemetries", &extraBody);
   }
 };
 

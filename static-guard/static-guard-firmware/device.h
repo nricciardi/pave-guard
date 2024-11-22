@@ -13,13 +13,13 @@
 // information about specific device, these information are unique for each device
 
 struct DeviceSign {
-  String deviceId;
+  char* deviceId;
   double latitude;
   double longitude;
 };
 
 const DeviceSign deviceSign = {
-  .deviceId = String("testId"),
+  .deviceId = "testId",
   .latitude = 42,
   .longitude = 42
 };
@@ -41,8 +41,8 @@ const DeviceConfiguration deviceConfiguration = {
   .delayBeforeSetupInMillis = 2 * 1000,
   .humidityTemperatureSensorPin = 2,
   .humidityTemperatureSensorType = DHT22,
-  .temperatureSamplingRateInMillis = 3 * 1000,
-  .humiditySamplingRateInMillis = 4 * 1000,
+  .temperatureSamplingRateInMillis = 5 * 1000,
+  .humiditySamplingRateInMillis = 10 * 1000,
 };
 
 
