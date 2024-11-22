@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:dynamic_bridge/logic/serial_interface.dart';
 import 'package:dynamic_bridge/logic/user_data_manager.dart';
 import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter_login/flutter_login.dart';
@@ -259,5 +260,33 @@ class DynamicGuardCreationQueryManager extends QueryAbstractManager{
 
 }
 
-// TODO: class RoadCrackTelemetry extends QueryAbstractManager
+class RoadCrackTelemetryQuery extends QueryAbstractManager {
+
+  @override
+  bool checkData(data, {String token = ""}) {
+    return (token != "" && data is SendableData);
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try{
+      queryResult.data!["data"]["createRoadCrackTelemetry"]["id"];
+    } catch(e) { return false; }
+    return true; 
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    SendableData toSend = data as SendableData;
+    return """mutation {
+  	createRoadCrackTelemetry (
+      deviceId: ${toSend.deviceData.id},
+      timestamp: ${DateTime.now().toString()},
+      latitude: ${toSend.position.latitude.toStringAsFixed(8)},
+      longitude: ${toSend.position.longitude.toStringAsFixed(8)},
+      severity: ${toSend.severity}
+    ) { id } """;
+  }
+}
+
 // TODO: class RoadPotholeTelemtry extends QueryAbstractManager

@@ -3,13 +3,29 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
+import 'package:dynamic_bridge/logic/query_manager.dart';
+import 'package:dynamic_bridge/logic/token_manager.dart';
 import 'package:dynamic_bridge/logic/vibration_manager.dart';
+import 'package:dynamic_bridge/logic/views/settings_logic.dart';
+import 'package:dynamic_bridge/views/devices.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:usb_serial/usb_serial.dart';
+
+class SendableData {
+
+  GPSData position;
+  int severity;
+  DeviceData deviceData;
+  SendableData(this.position, this.severity, this.deviceData);
+
+}
 
 class SerialInterface {
 
   UsbPort? port;
   VibrationManager vibrationManager = VibrationManager();
+  SettingsLogic settings = SettingsLogic();
 
   Future<String> initialize() async {
 
@@ -33,7 +49,7 @@ class SerialInterface {
 
   }
 
-  void manageSerialLine(String line){
+  void manageSerialLine(String line) async {
 
     if (line[0] == 'A'){
       // Accelerometer
@@ -41,9 +57,16 @@ class SerialInterface {
       vibrationManager.addAccelerometerData(data);
 
     } else if (line[0] == 'g'){
-      // GPS
-      GPSData data = parseGpsData(line);
-      vibrationManager.addGpsData(data);
+      if(await settings.isGpsExt()){
+        // GPS
+        GPSData data = parseGpsData(line);
+        vibrationManager.addGpsData(data);
+      } else {
+        Position currentPosition = await Geolocator.getCurrentPosition(timeLimit: const Duration(milliseconds: 10));
+        vibrationManager.addGpsData(
+          GPSData(currentPosition.latitude, currentPosition.longitude)
+        );
+      }
 
     } else if (line[0] == 'G'){
       // Gyroscope
@@ -101,22 +124,37 @@ class SerialInterface {
 
   }
 
-  static GyroscopeData parseGyroscopeData(String data){
+  void sendData(DeviceData deviceData) async {
 
-    RegExp regex = RegExp(r'^G\d+,\d+,\d+$');
-    if(!regex.hasMatch(data)){
-      if(EnvManager.isDebugAndroidMode()){
-        log("Wrong gyroscope data format!");
-      }
-      return GyroscopeData(0, 0, 0);
+    Map<GPSData, int> data = vibrationManager.getDataToSend();
+    GPSData gpsToSend = compressGPS(data.keys.toList());
+    int severityToSend = compressSeverities(data.values.toList());
+
+    RoadCrackTelemetryQuery roadCrackTelemetry = RoadCrackTelemetryQuery();
+    QueryResult queryResult = await roadCrackTelemetry.sendQuery(SendableData(
+        gpsToSend, severityToSend, deviceData
+      ), token: await TokenManager.getToken()); 
+    if(EnvManager.isDebugAndroidMode()){
+      log(queryResult.toString());
     }
 
-    regex = RegExp(r'^G(\d+),(\d+),(\d+)$');
-    final RegExpMatch match = regex.firstMatch(data)!;
-    double x = double.parse(match.group(1)!);
-    double y = double.parse(match.group(2)!);
-    double z = double.parse(match.group(3)!);
-    return GyroscopeData(x, y, z);
+  }
+
+  GPSData compressGPS(List<GPSData> data){
+    
+    double lat = 0; double lon = 0;
+    for (var key in data) {
+      lat += key.latitude;
+      lon += key.longitude;
+    }
+    return GPSData(lat / data.length, lon / data.length);
+  }
+
+  int compressSeverities(List<int> severities){
+
+    severities.sort();
+    return 
+      ((severities[severities.length - 1] - severities[0]) / 2).round();
 
   }
 

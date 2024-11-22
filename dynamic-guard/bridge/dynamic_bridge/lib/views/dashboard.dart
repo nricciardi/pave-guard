@@ -21,8 +21,8 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-
-  static DashboardLogic selfLogic = DashboardLogic();
+  
+  DashboardLogic? selfLogic;
   List<Widget>? children;
   Timer? _timer;
 
@@ -35,18 +35,19 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> initializeChildren() async{
 
-    children = await selfLogic.dashboardCenterChildren();
-    selfLogic.collectPhotos();
+    selfLogic = DashboardLogic(widget.selfDevice);
+    children = await selfLogic!.dashboardCenterChildren();
+    selfLogic!.collectPhotos();
     setState(() {});
 
   }
 
   void initializeTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 4), (timer) async {await initializeChildren();});
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {await initializeChildren();});
   }
 
   void delete(){
-    selfLogic.dispose();
+    selfLogic!.dispose();
     _timer?.cancel();
   }
 
@@ -124,7 +125,7 @@ class _DashboardPageState extends State<DashboardPage> {
               title: const Text('Logout'),
               onTap: () {
                 Navigator.pop(context);
-                selfLogic.logout();
+                selfLogic!.logout();
                 Navigator.pop(context);
                 Navigator.push(
                   context,
