@@ -1,15 +1,17 @@
 import { Field, ArgsType } from '@nestjs/graphql';
-import { IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 import { CreateTelemetryDto } from './create-telemetry.dto';
 
 @ArgsType()
 export class CreateTrafficTelemetryDto extends CreateTelemetryDto {
   @Field()
   @IsNumber()
+  @IsNotEmpty()
   start: number;
 
   @Field()
   @IsNumber()
+  @IsNotEmpty()
   end: number;
 
   @Field({

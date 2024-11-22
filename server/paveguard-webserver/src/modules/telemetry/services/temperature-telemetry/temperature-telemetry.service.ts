@@ -14,6 +14,7 @@ export class TemperatureTelemetryService {
     }
 
     async create(data: CreateTemperatureTelemetryDto): Promise<TemperatureTelemetry> {
+
         return this.temperatureTelemetryModel.create({ ...data });
     }
 }

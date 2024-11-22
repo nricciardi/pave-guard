@@ -30,8 +30,8 @@ const BridgeConfiguration bridgeConfiguration = {
   .queueLength = QUEUE_LENGTH,
   .queueSendingThreshold = (unsigned short) (QUEUE_LENGTH * 0.6),
 
-  .wifiSsid = "Not eduroam",
-  .wifiPassword = "celestecarbone",
+  .wifiSsid = "Martin Router King Guest 2.4GHz",
+  .wifiPassword = "GuestWifi123!",
   .serverAddress = "192.168.11.3",
   .serverPort = 3000,
 
@@ -61,6 +61,8 @@ class Bridge {
     }
 
     void printWifiStatus();
+
+    String buildRequestBody() const;
 
   public:
 

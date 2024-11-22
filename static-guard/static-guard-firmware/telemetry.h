@@ -12,7 +12,7 @@ class Telemetry {
     double latitude;
     double longitude;
 
-    String buildGraphqlMutationBody(char* mutationRef, String extraBody) const;
+    String buildGraphqlMutationBody(const char* mutationRef, String extraBody) const;
 
   public:
     Telemetry(String deviceId, double latitude, double longitude): deviceId(deviceId), latitude(latitude), longitude(longitude) {

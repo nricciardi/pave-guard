@@ -4,13 +4,16 @@ import { Document, Types } from 'mongoose';
 
 
 @Schema({ 
-  discriminatorKey: 'type',
+  discriminatorKey: 'kind',
   timeseries: {
     timeField: "timestamp",
-    granularity: "seconds"
+    granularity: "seconds",
+    metaField: "metadata"
   } 
 })
 export class Telemetry extends Document {
+  
+  kind: string;
 
   @Prop({ required: true })
   timestamp: Date;
@@ -21,8 +24,29 @@ export class Telemetry extends Document {
   @Prop({ required: true })
   longitude: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'Device', required: true })
-  deviceId: Types.ObjectId;
+  // @Prop({
+  //   type: Types.ObjectId,
+  //   ref: 'Device',
+  //   required: true,
+  // })
+  // deviceId: Types.ObjectId
+
+  @Prop({
+    required: true,
+    type: {
+      deviceId: { type: Types.ObjectId, ref: 'Device', required: true },
+      kind: { type: String, required: false }
+    }
+  })
+  metadata: {
+    deviceId: Types.ObjectId;
+    kind: string;
+  };
 }
 
 export const TelemetrySchema = SchemaFactory.createForClass(Telemetry);
+
+TelemetrySchema.pre('save', function (next) {
+  this.metadata.kind = this.kind;
+  next();
+});

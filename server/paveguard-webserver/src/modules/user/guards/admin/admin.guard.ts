@@ -16,11 +16,15 @@ export class AdminGuard implements CanActivate {
     constructor(
         private readonly jwtGuard: JwtAuthenticationGuard,
         private readonly userService: UserService,
+        private readonly configService: ConfigService,
     ) {}
 
     canActivate(
         context: ExecutionContext,
       ): boolean | Promise<boolean> | Observable<boolean> {
+
+        if(this.configService.get("DEBUG") === 'true')
+            return true;
     
         return new Promise(async (resolve, reject) => {
 

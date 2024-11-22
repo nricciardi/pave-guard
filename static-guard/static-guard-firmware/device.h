@@ -29,6 +29,8 @@ const DeviceSign deviceSign = {
 // information about pin numbers, rates and other general configuration options
 
 struct DeviceConfiguration {
+  unsigned short delayBeforeSetupInMillis; 
+
   unsigned char humidityTemperatureSensorPin;
   int humidityTemperatureSensorType;
   unsigned int temperatureSamplingRateInMillis;
@@ -36,6 +38,7 @@ struct DeviceConfiguration {
 };
 
 const DeviceConfiguration deviceConfiguration = {
+  .delayBeforeSetupInMillis = 2 * 1000,
   .humidityTemperatureSensorPin = 2,
   .humidityTemperatureSensorType = DHT22,
   .temperatureSamplingRateInMillis = 3 * 1000,

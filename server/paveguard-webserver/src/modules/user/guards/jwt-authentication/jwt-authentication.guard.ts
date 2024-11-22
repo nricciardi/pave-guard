@@ -34,6 +34,7 @@ export class JwtAuthenticationGuard implements CanActivate {
   }
 
   canPass(context: ExecutionContext,): boolean {
+    
     if(this.configService.get("DEBUG") === 'true')
       return true;
 

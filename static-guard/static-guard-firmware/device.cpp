@@ -13,6 +13,13 @@ Device* Device::GetInstance() {
 
 // ========================== SETUP ==========================
 void Device::setup() {
+
+  if(configuration.delayBeforeSetupInMillis > 0) {
+    Serial.print("setup delayed of ");
+    Serial.println(configuration.delayBeforeSetupInMillis);
+    delay(configuration.delayBeforeSetupInMillis);
+  }
+
   Serial.println("setupping device...");
 
   // === HUMIDITY & TEMPERATURE ===

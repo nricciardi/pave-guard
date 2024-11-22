@@ -30,20 +30,33 @@ bool Bridge::setup() {
   unsigned int attempts = 0;
 
   // attempt to connect to WiFi network:
-  while (status != WL_CONNECTED) {
-    Serial.print("attempting to connect to SSID: ");
-    Serial.println(configuration.wifiSsid);
+  while (true) {
+    Serial.print("attempting to connect to SSID: '");
+    Serial.print(configuration.wifiSsid);
+    Serial.print("'... ");
 
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     status = WiFi.begin(configuration.wifiSsid, configuration.wifiPassword);
 
+    if(status == WL_CONNECTED) {
+      
+      Serial.println("done!");
+      break;
+
+    } else {
+
+      Serial.print("FAILED");
+    }
+
     attempts += 1;
 
     if(attempts > configuration.maxConnectionAttempts) {
-      Serial.println("max connection attempts");
+      Serial.println("\n\nCRITICAL: max connection attempts\n\n");
 
       return false;
     }
+
+    Serial.println(" (but retrying)");
 
     // wait for new connection:
     delay(configuration.connectionRetryDelayInMillis);
@@ -54,6 +67,9 @@ bool Bridge::setup() {
 
   // initialize http client
   httpClient = new HttpClient(wifiClient, configuration.serverAddress, configuration.serverPort);
+
+
+  // TODO: remove
   send();
 
 
@@ -102,7 +118,7 @@ bool Bridge::send() {
 
   Serial.println("sending telemetries...");
 
-  String postData("{}");
+  String body = buildRequestBody();
 
   httpClient->beginRequest();
 
@@ -116,10 +132,10 @@ bool Bridge::send() {
   }
 
   httpClient->sendHeader("Content-Type", "application/json");
-  httpClient->sendHeader("Content-Length", postData.length());
+  httpClient->sendHeader("Content-Length", body.length());
   httpClient->sendHeader("X-Custom-Header", "custom-header-value");
   httpClient->beginBody();
-  httpClient->print(postData);
+  httpClient->print(body);
   httpClient->endRequest();
 
   // read the status code and body of the response
@@ -153,6 +169,22 @@ bool Bridge::send() {
   while(true);
 
   return true;
+}
+
+String Bridge::buildRequestBody() const {
+  String body("{\"query\":\"mutation {");
+
+  for(unsigned short i=0; i < telemetriesInQueue; i++) {
+    body.concat("update");
+    body.concat(i);
+    body.concat(": ");
+    body.concat(queue[i]->toGraphqlMutationBody()); 
+    body.concat(",");
+  }
+  
+  body.concat("}\"}");
+
+  return body;
 }
 
 bool Bridge::sendWithRetry() {
