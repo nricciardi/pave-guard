@@ -4,12 +4,15 @@ import 'dart:typed_data';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
 import 'package:dynamic_bridge/logic/vibration_manager.dart';
+import 'package:dynamic_bridge/logic/views/settings_logic.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:usb_serial/usb_serial.dart';
 
 class SerialInterface {
 
   UsbPort? port;
   VibrationManager vibrationManager = VibrationManager();
+  SettingsLogic settings = SettingsLogic();
 
   Future<String> initialize() async {
 
@@ -33,7 +36,7 @@ class SerialInterface {
 
   }
 
-  void manageSerialLine(String line){
+  void manageSerialLine(String line) async {
 
     if (line[0] == 'A'){
       // Accelerometer
@@ -41,9 +44,16 @@ class SerialInterface {
       vibrationManager.addAccelerometerData(data);
 
     } else if (line[0] == 'g'){
-      // GPS
-      GPSData data = parseGpsData(line);
-      vibrationManager.addGpsData(data);
+      if(await settings.isGpsExt()){
+        // GPS
+        GPSData data = parseGpsData(line);
+        vibrationManager.addGpsData(data);
+      } else {
+        Position currentPosition = await Geolocator.getCurrentPosition(timeLimit: const Duration(milliseconds: 10));
+        vibrationManager.addGpsData(
+          GPSData(currentPosition.latitude, currentPosition.longitude)
+        );
+      }
 
     } else if (line[0] == 'G'){
       // Gyroscope
@@ -98,25 +108,6 @@ class SerialInterface {
     double y = double.parse(match.group(2)!);
     double z = double.parse(match.group(3)!);
     return AccelerometerData(x, y, z);
-
-  }
-
-  static GyroscopeData parseGyroscopeData(String data){
-
-    RegExp regex = RegExp(r'^G\d+,\d+,\d+$');
-    if(!regex.hasMatch(data)){
-      if(EnvManager.isDebugAndroidMode()){
-        log("Wrong gyroscope data format!");
-      }
-      return GyroscopeData(0, 0, 0);
-    }
-
-    regex = RegExp(r'^G(\d+),(\d+),(\d+)$');
-    final RegExpMatch match = regex.firstMatch(data)!;
-    double x = double.parse(match.group(1)!);
-    double y = double.parse(match.group(2)!);
-    double z = double.parse(match.group(3)!);
-    return GyroscopeData(x, y, z);
 
   }
 

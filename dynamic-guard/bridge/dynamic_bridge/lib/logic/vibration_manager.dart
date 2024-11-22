@@ -19,70 +19,40 @@ class AccelerometerData {
 
 }
 
-class GyroscopeData {
-
-  double x, y, z;
-  GyroscopeData(this.x, this.y, this.z);
-
-  double getX(){ return x; }
-  double getY(){ return y; }
-  double getZ(){ return z; }
-
-}
-
-class AccGyrData {
-
-  AccelerometerData accData;
-  GyroscopeData gyrData;
-  AccGyrData(this.accData, this.gyrData);
-
-  AccelerometerData getAccelerometerData(){ return accData; }
-  GyroscopeData getGyroscopeData(){ return gyrData; }
-
-}
-
 class VibrationManager {
 
-  static const int lastMeasurement = 10;
+  static const int lastMeasurement = 200;
 
   // Last x measurements for comparisons reason
-  List<AccGyrData> lastAccGyrData = List.empty(growable: true);
+  List<AccelerometerData> lastAccData = List.empty(growable: true);
   List<GPSData> lastGPSData = List.empty(growable: true);
 
   // Latest measurements
   AccelerometerData? accelerometerData;
-  GyroscopeData? gyroscopeData;
   GPSData? gpsData;
 
   bool isDataComplete(){
-    if(accelerometerData == null || gpsData == null || gyroscopeData == null){ return false; } 
+    if(accelerometerData == null || gpsData == null){ return false; } 
     return true;
   }
 
   void addAccelerometerData(AccelerometerData data){
     
-    updateAccGyr();
+    updateAcc();
     accelerometerData ??= data;
 
   }
 
-  void addGyroscopeData(GyroscopeData data){
+  void updateAcc(){
 
-    updateAccGyr();
-    gyroscopeData ??= data;
+    if(accelerometerData == null){ return; }
 
-  }
-
-  void updateAccGyr(){
-
-    if(accelerometerData == null || gyroscopeData == null){ return; }
-
-    if(lastAccGyrData.length >= lastMeasurement){
-      lastAccGyrData.removeAt(0);
+    if(lastAccData.length >= lastMeasurement){
+      lastAccData.removeAt(0);
     }
 
-    lastAccGyrData.add(AccGyrData(accelerometerData!, gyroscopeData!));
-    accelerometerData = null; gyroscopeData = null;
+    lastAccData.add(accelerometerData!);
+    accelerometerData = null;
 
   }
 
@@ -114,23 +84,26 @@ class VibrationManager {
     } return accelerometerData as AccelerometerData;
   }
 
-  GyroscopeData getGyroscopeData(){
-    if(gyroscopeData == null){
-      return GyroscopeData(0, 0, 0);
-    } return gyroscopeData as GyroscopeData;
-  }
-
   void update(){
 
     if(isDataComplete()){
 
-      // TODO: check if the data in the list is to send
-      if(true){
+      for(AccelerometerData data in lastAccData){
+        if(isDataToSend(data)){
         // TODO: send data
+        }
+
       }
 
     }
-
   }
+
+  bool isDataToSend(AccelerometerData data){
+
+    return data.x >= 200;
+    
+  }
+
+
   
 }
