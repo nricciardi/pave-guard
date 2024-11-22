@@ -32,7 +32,7 @@ class AccelerometerData {
 
 class VibrationManager {
   static const int lastMeasurement = 200;
-  static const int severityThreshold = 15;
+  static const int severityThreshold = 1;
 
   // Last x measurements for comparisons reason
   List<AccelerometerData> lastAccData = List.empty(growable: true);
@@ -112,6 +112,6 @@ class VibrationManager {
   }
 
   int measureSeverity(AccelerometerData data) {
-    return max((data.x - 200).round(), 0);
+    return min(max((data.x).round(), 0), 100);
   }
 }

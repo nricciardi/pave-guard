@@ -269,21 +269,23 @@ class RoadCrackTelemetryQuery extends QueryAbstractManager {
 
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    // TODO: implement checkResults
-    throw UnimplementedError();
+    try{
+      queryResult.data!["data"]["createRoadCrackTelemetry"]["id"];
+    } catch(e) { return false; }
+    return true; 
   }
 
   @override
   String getQuery(data, {String token = ""}) {
     SendableData toSend = data as SendableData;
-    return """query {
-  	roadCrackTelemetries {
+    return """mutation {
+  	createRoadCrackTelemetry (
       deviceId: ${toSend.deviceData.id},
       timestamp: ${DateTime.now().toString()},
       latitude: ${toSend.position.latitude.toStringAsFixed(8)},
       longitude: ${toSend.position.longitude.toStringAsFixed(8)},
       severity: ${toSend.severity}
-    }""";
+    ) { id } """;
   }
 }
 
