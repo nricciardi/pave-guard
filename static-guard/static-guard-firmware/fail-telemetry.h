@@ -19,7 +19,7 @@ class FailTelemetry: public Telemetry {
 
     String extraBody("");
 
-    return Telemetry::buildGraphqlMutationBody((char*) "createTemperatureTelemetries", extraBody);
+    return buildGraphqlMutationBody("createTemperatureTelemetries", extraBody);
   }
 };
 

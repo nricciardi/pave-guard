@@ -1,6 +1,6 @@
 #include "telemetry.h"
 
-String Telemetry::buildGraphqlMutationBody(char* mutationRef, String extraBody) {
+String Telemetry::buildGraphqlMutationBody(char* mutationRef, String extraBody) const {
 
   String body("{\"query\":");
   /*body.concat("'mutation { " + mutationRef + "("));

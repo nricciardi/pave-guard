@@ -17,7 +17,7 @@ class TemperatureTelemetry: public Telemetry {
     String extraBody("tempearture: ");
     extraBody.concat(temperature);
 
-    return Telemetry::buildGraphqlMutationBody("createTemperatureTelemetries", extraBody);
+    return buildGraphqlMutationBody("createTemperatureTelemetries", extraBody);
   }
 };
 

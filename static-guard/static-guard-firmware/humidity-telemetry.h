@@ -17,7 +17,7 @@ class HumidityTelemetry: public Telemetry {
     String extraBody("humidity: ");
     extraBody.concat(humidity);
 
-    return Telemetry::buildGraphqlMutationBody("createHumidityTelemetries", extraBody);
+    return buildGraphqlMutationBody("createHumidityTelemetries", extraBody);
   }
 };
 
