@@ -7,13 +7,13 @@
 #include "telemetry.h"
 
 
-#define QUEUE_LENGTH 2
+#define BUCKET_LENGTH 10
 
 
 // ==== BRIDGE CONFIGURATION ====
 struct BridgeConfiguration {
-  unsigned short queueLength;
-  unsigned short queueSendingThreshold;
+  unsigned short bucketLength;
+  unsigned short bucketSendingThreshold;
 
   char* wifiSsid;
   char* wifiPassword;
@@ -27,8 +27,8 @@ struct BridgeConfiguration {
 };
 
 const BridgeConfiguration bridgeConfiguration = {
-  .queueLength = QUEUE_LENGTH,
-  .queueSendingThreshold = (unsigned short) (QUEUE_LENGTH * 0.6),
+  .bucketLength = BUCKET_LENGTH,
+  .bucketSendingThreshold = (unsigned short) (BUCKET_LENGTH * 0.6),
 
   .wifiSsid = "Martin Router King 2.4GHz",
   .wifiPassword = "M.L.King7",
@@ -47,8 +47,8 @@ class Bridge {
 
     const BridgeConfiguration configuration;
 
-    Telemetry* queue[QUEUE_LENGTH];
-    unsigned short telemetriesInQueue = 0;
+    Telemetry** bucket = new Telemetry*[bridgeConfiguration.bucketLength];
+    unsigned short telemetriesInBucket = 0;
 
     static Bridge* instance;
 
@@ -63,6 +63,8 @@ class Bridge {
     void printWifiStatus();
 
     String buildRequestBody() const;
+
+    void cleanBucket();
 
   public:
 

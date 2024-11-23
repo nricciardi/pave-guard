@@ -10,16 +10,14 @@ class TemperatureTelemetry: public Telemetry {
     double temperature;
 
   public:
-    TemperatureTelemetry(char* deviceId, double latitude, double longitude, float temperature): Telemetry(deviceId, latitude, longitude), temperature(temperature) {}
+    TemperatureTelemetry(String deviceId, double latitude, double longitude, float temperature): Telemetry(deviceId, latitude, longitude), temperature(temperature) {}
 
     String toGraphqlMutationBody() override {
 
-      Serial.println("temperatura!!!!");
-
-      String extraBody("tempearture: ");
+      String extraBody("temperature:");
       extraBody.concat(temperature);
 
-      return extraBody;//buildGraphqlMutationBody("createTemperatureTelemetries", &extraBody);
+      return buildGraphqlMutationBody("createTemperatureTelemetry", &extraBody);
     }
 };
 

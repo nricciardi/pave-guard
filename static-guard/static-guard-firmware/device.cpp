@@ -53,14 +53,14 @@ void Device::work() {
     lastTemperatureSamplingMillis = currentMillis;
   }
 
-  /*currentMillis = millis();
+  currentMillis = millis();
   if(currentMillis - lastHumiditySamplingMillis > configuration.humiditySamplingRateInMillis) {
     handleHumidity();
 
     lastHumiditySamplingMillis = currentMillis;
-  }*/
+  }
   
-  // bridge->work();
+  bridge->work();
 }
 
 void Device::handleHumidity() {
@@ -72,17 +72,17 @@ void Device::handleHumidity() {
     Serial.print("read humidity: ");
     Serial.println(h);
 
-    HumidityTelemetry humidityTelemetry(sign.deviceId, sign.latitude, sign.longitude, h);
+    HumidityTelemetry* humidityTelemetry = new HumidityTelemetry(sign.deviceId, sign.latitude, sign.longitude, h);
 
-    bridge->put(&humidityTelemetry);
+    bridge->put(humidityTelemetry);
 
   } else {
 
     Serial.println("ERROR: fail to read humidity");
     
-    FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity"));
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity"));
 
-    bridge->put(&failTelemetry);
+    bridge->put(failTelemetry);
   }
 
 }
@@ -97,17 +97,17 @@ void Device::handleTemperature() {
     Serial.print("read temperature: ");
     Serial.println(t);
 
-    TemperatureTelemetry temperatureTelemetry(sign.deviceId, sign.latitude, sign.longitude, t);
+    Telemetry* temperatureTelemetry = new TemperatureTelemetry(sign.deviceId, sign.latitude, sign.longitude, t);
 
-    bridge->put(&temperatureTelemetry);
+    bridge->put(temperatureTelemetry);
 
   } else {
 
     Serial.println("ERROR: fail to read temperature");
     
-    FailTelemetry failTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT002"), String("Fail to read temperature"));
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT002"), String("Fail to read temperature"));
 
-    bridge->put(&failTelemetry);
+    bridge->put(failTelemetry);
   }
 
 }

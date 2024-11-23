@@ -7,7 +7,7 @@
 class Telemetry {
 
   protected:
-    char* deviceId;
+    String deviceId;
     
     double latitude;
     double longitude;
@@ -15,14 +15,14 @@ class Telemetry {
     String buildGraphqlMutationBody(char* mutationRef, String* extraBody);
 
   public:
-    Telemetry(char* deviceId, double latitude, double longitude): deviceId(deviceId), latitude(latitude), longitude(longitude) {
+    Telemetry(String deviceId, double latitude, double longitude): deviceId(deviceId), latitude(latitude), longitude(longitude) {
     }
 
-    char* getDeviceId() const {
-      return deviceId;
+    String* getDeviceId() {
+      return &deviceId;
     }
 
-    void setDeviceId(char* id) {
+    void setDeviceId(String id) {
       deviceId = id;
     }
 

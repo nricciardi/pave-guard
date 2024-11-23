@@ -2,13 +2,13 @@
 
 String Telemetry::buildGraphqlMutationBody(char* mutationRef, String* extraBody) {
 
-  String body("{\"query\":");
-  /*body.concat(mutationRef);
-  body.concat("(deviceId: \"" + deviceId + "\",");
-  body.concat("timestamp: '2024-11-08 23:44:00',");
-  body.concat("latitude: ");
+  String body(mutationRef);
+  body.concat("(metadata:{deviceId:\\\"");
+  body.concat(deviceId);
+  body.concat("\\\"},timestamp:\\\"2024-11-08 23:44:00\\\",");
+  body.concat("latitude:");
   body.concat(latitude);
-  body.concat(",longitude: ");
+  body.concat(",longitude:");
   body.concat(longitude);
   
   if(!extraBody->isEmpty())
@@ -16,7 +16,7 @@ String Telemetry::buildGraphqlMutationBody(char* mutationRef, String* extraBody)
 
   body.concat(*extraBody);
 
-  body.concat("){id}'}");*/
+  body.concat("){id}");
 
   return body;
 }

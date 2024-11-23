@@ -74,7 +74,7 @@ bool Bridge::setup() {
 
 bool Bridge::work() {
   
-  if(telemetriesInQueue >= configuration.queueSendingThreshold) {
+  if(telemetriesInBucket >= configuration.bucketSendingThreshold) {
 
     printWifiStatus();
 
@@ -89,7 +89,7 @@ bool Bridge::work() {
 void Bridge::put(Telemetry* telemetry) {
   Serial.println("putting new telemetry...");
 
-  if(telemetriesInQueue + 1 >= configuration.queueLength) {
+  if(telemetriesInBucket + 1 >= configuration.bucketLength) {
     Serial.println("WARNING: queue is full, it will be empty before any other actions");
 
     bool areSent = sendWithRetry();
@@ -97,21 +97,25 @@ void Bridge::put(Telemetry* telemetry) {
     if(!areSent)
       Serial.println("CRITICAL: error during sending phase, telemetries in queue will be lost");
 
-    telemetriesInQueue = 0;
+    cleanBucket();
   }
 
-  queue[telemetriesInQueue + 1] = telemetry;
-  telemetriesInQueue += 1;
-
-
-  Serial.print("telemetry: ");
-  Serial.println(queue[telemetriesInQueue-1]->getDeviceId());
+  bucket[telemetriesInBucket] = telemetry;
+  telemetriesInBucket += 1;
 
   Serial.print("new telemetry was correctly saved in queue (");
-  Serial.print(telemetriesInQueue);
+  Serial.print(telemetriesInBucket);
   Serial.print("/");
-  Serial.print(configuration.queueLength);
+  Serial.print(configuration.bucketLength);
   Serial.println(")");
+}
+
+void Bridge::cleanBucket() {
+  for(unsigned short i=0; i < telemetriesInBucket; i++) {
+    // delete bucket[i];
+  }
+
+  telemetriesInBucket = 0;
 }
 
 bool Bridge::send() {
@@ -119,11 +123,9 @@ bool Bridge::send() {
   Serial.println("sending telemetries...");
 
   String body = buildRequestBody();
-
-  return false;
-  httpClient->beginRequest();
-
+  
   Serial.print("opening POST connection to server... ");
+  httpClient->beginRequest();
 
   int connectionResult = httpClient->post("/graphql");
   if (connectionResult == 0) {
@@ -144,38 +146,44 @@ bool Bridge::send() {
   httpClient->print(body);
   httpClient->endRequest();
 
-  Serial.println("sent request having body: \n" + body);
+  Serial.println("request having body: \n" + body);    // too many characters... it should not be printed
+
+  Serial.print("sending... ");
 
   // read the status code and body of the response
   int statusCode = httpClient->responseStatusCode();
   String response = httpClient->responseBody();
 
-  Serial.print("response status code: ");
+  Serial.print("SENT status code: ");
   Serial.println(statusCode);
-  Serial.print("response: ");
-  Serial.println(response);
 
-  telemetriesInQueue = 0;
+  if(statusCode < 200 || statusCode > 299) {
+
+    Serial.println("telemetry NOT sent");
+
+    Serial.print("response: ");
+    Serial.println(response);
+
+    return false;
+  }
+
+  cleanBucket();
 
   Serial.println("telemetry sent!");
+
   return true;
 }
 
 String Bridge::buildRequestBody() const {
-  String body("{\"query\":\"mutation {");
+  String body("{\"query\":\"mutation{");
 
-  Serial.print("queue: ");
-  Serial.println(telemetriesInQueue);
-  Serial.println(queue[0]->getDeviceId());
-  Serial.println("post concat");
-
-  /*for(unsigned short i=0; i < telemetriesInQueue; i++) {
+  for(unsigned short i=0; i < telemetriesInBucket; i++) {
     body.concat("update");
     body.concat(i);
-    body.concat(": ");
-    // body.concat(queue[i]->toGraphqlMutationBody()); 
+    body.concat(":");
+    body.concat(bucket[i]->toGraphqlMutationBody()); 
     body.concat(",");
-  }*/
+  }
   
   body.concat("}\"}");
 

@@ -19,7 +19,7 @@ struct DeviceSign {
 };
 
 const DeviceSign deviceSign = {
-  .deviceId = "testId",
+  .deviceId = "6740fb2648b2c22e3b6970b9",
   .latitude = 42,
   .longitude = 42
 };
@@ -41,8 +41,8 @@ const DeviceConfiguration deviceConfiguration = {
   .delayBeforeSetupInMillis = 2 * 1000,
   .humidityTemperatureSensorPin = 2,
   .humidityTemperatureSensorType = DHT22,
-  .temperatureSamplingRateInMillis = 5 * 1000,
-  .humiditySamplingRateInMillis = 10 * 1000,
+  .temperatureSamplingRateInMillis = 3 * 1000,
+  .humiditySamplingRateInMillis = 4 * 1000,
 };
 
 

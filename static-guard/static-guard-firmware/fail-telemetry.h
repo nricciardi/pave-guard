@@ -13,14 +13,14 @@ class FailTelemetry: public Telemetry {
     String message;
 
   public:
-    FailTelemetry(char* deviceId, double latitude, double longitude, String code, String message): Telemetry(deviceId, latitude, longitude), code(code), message(message) {}
+    FailTelemetry(String deviceId, double latitude, double longitude, String code, String message): Telemetry(deviceId, latitude, longitude), code(code), message(message) {}
 
   String toGraphqlMutationBody() override {
 
-    String extraBody("code: \"" + code + "\",");
-    extraBody.concat("message: \"" + message + "\",");
+    String extraBody("code:\\\"" + code + "\\\",");
+    extraBody.concat("message:\\\"" + message + "\\\",");
 
-    return buildGraphqlMutationBody("createFailTelemetries", &extraBody);
+    return buildGraphqlMutationBody("createFailTelemetry", &extraBody);
   }
 };
 
