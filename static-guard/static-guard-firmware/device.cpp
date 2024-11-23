@@ -39,6 +39,8 @@ void Device::setup() {
 
   Serial.print("setupped device: ");
   Serial.println(sign.deviceId);
+
+  printOnLedMatrix("DEVICE OK", 50, configuration.ledLogEnabled);
 }
 
 // ========================== WORK ==========================

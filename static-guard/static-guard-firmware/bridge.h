@@ -5,9 +5,10 @@
 #include <WiFiS3.h>
 #include <HttpClient.h>
 #include "telemetry.h"
+#include "led-controller.h"
 
 
-#define BUCKET_LENGTH 10
+#define BUCKET_LENGTH 5      // MAX 30
 
 
 // ==== BRIDGE CONFIGURATION ====
@@ -24,6 +25,9 @@ struct BridgeConfiguration {
   unsigned int maxConnectionAttempts;
   unsigned int sendRetryDelayInMillis;
   unsigned int maxSendAttempts;
+
+  bool ledLogEnabled;
+  bool debug;
 };
 
 const BridgeConfiguration bridgeConfiguration = {
@@ -38,7 +42,10 @@ const BridgeConfiguration bridgeConfiguration = {
   .connectionRetryDelayInMillis = 2 * 1000,
   .maxConnectionAttempts = 500,
   .sendRetryDelayInMillis = 2 * 1000,
-  .maxSendAttempts = 3
+  .maxSendAttempts = 3,
+
+  .ledLogEnabled = true,
+  .debug = true,
 };
 
 class Bridge {

@@ -8,6 +8,7 @@
 #include "temperature-telemetry.h"
 #include "humidity-telemetry.h"
 #include "fail-telemetry.h"
+#include "led-controller.h"
 
 // ==== DEVICE SIGN ====
 // information about specific device, these information are unique for each device
@@ -35,6 +36,9 @@ struct DeviceConfiguration {
   int humidityTemperatureSensorType;
   unsigned int temperatureSamplingRateInMillis;
   unsigned int humiditySamplingRateInMillis;
+
+  bool ledLogEnabled;
+  bool debug;
 };
 
 const DeviceConfiguration deviceConfiguration = {
@@ -43,6 +47,9 @@ const DeviceConfiguration deviceConfiguration = {
   .humidityTemperatureSensorType = DHT22,
   .temperatureSamplingRateInMillis = 3 * 1000,
   .humiditySamplingRateInMillis = 4 * 1000,
+
+  .ledLogEnabled = true,
+  .debug = true,
 };
 
 

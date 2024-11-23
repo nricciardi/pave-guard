@@ -1,5 +1,12 @@
 # Static Guard
 
+## TODO
+
+- [ ] timestamp corretto
+- [ ] rilevamento traffico
+- [ ] rilevamento pioggia
+
+
 ## Arduino R4 WIFI
 
 Il wifi deve essere 2.4GHz, non è supportato 5GHz.

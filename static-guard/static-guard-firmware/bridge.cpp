@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include "api/Common.h"
 #include "bridge.h"
 
 Bridge* Bridge::instance = nullptr;
@@ -41,11 +40,15 @@ bool Bridge::setup() {
     if(status == WL_CONNECTED) {
       
       Serial.println("done!");
+
+      printOnLedMatrix("WIFI OK", 50);
       break;
 
     } else {
 
       Serial.print("FAILED");
+
+      printOnLedMatrix("WIFI FAILED", 50, configuration.ledLogEnabled);
     }
 
     attempts += 1;
@@ -68,6 +71,8 @@ bool Bridge::setup() {
   // initialize http client
   httpClient = new HttpClient(wifiClient, configuration.serverAddress, configuration.serverPort);
 
+  Serial.println("bridge setupped");
+  printOnLedMatrix("BRIDGE OK", 50, configuration.ledLogEnabled);
 
   return true;
 }
@@ -108,11 +113,19 @@ void Bridge::put(Telemetry* telemetry) {
   Serial.print("/");
   Serial.print(configuration.bucketLength);
   Serial.println(")");
+
+  if(configuration.debug) {
+
+    char msg[16];
+    sprintf(msg, "%d/%d", telemetriesInBucket, configuration.bucketLength);
+
+    printOnLedMatrix(msg, 20, configuration.ledLogEnabled && configuration.debug);
+  }
 }
 
 void Bridge::cleanBucket() {
   for(unsigned short i=0; i < telemetriesInBucket; i++) {
-    // delete bucket[i];
+    delete bucket[i];
   }
 
   telemetriesInBucket = 0;
@@ -135,6 +148,7 @@ bool Bridge::send() {
   } else {
 
     Serial.println("FAILED");
+    printOnLedMatrix("SEND FAILED", 80, configuration.ledLogEnabled && configuration.debug);
 
     return false;
   }
@@ -146,7 +160,7 @@ bool Bridge::send() {
   httpClient->print(body);
   httpClient->endRequest();
 
-  Serial.println("request having body: \n" + body);    // too many characters... it should not be printed
+  // Serial.println("request having body: \n" + body);    // too many characters... it should not be printed
 
   Serial.print("sending... ");
 
@@ -170,6 +184,8 @@ bool Bridge::send() {
   cleanBucket();
 
   Serial.println("telemetry sent!");
+
+  printOnLedMatrix("SEND OK", 20, configuration.ledLogEnabled && configuration.debug);
 
   return true;
 }
@@ -221,6 +237,23 @@ bool Bridge::sendWithRetry() {
 }
 
 void Bridge::printWifiStatus() {
+
+  Serial.print("WiFi status: ");
+  if(status == WL_CONNECTED) {
+
+    Serial.print(status);
+    Serial.println(" (connected)");
+
+    printOnLedMatrix("WiFi OK", 20, configuration.ledLogEnabled && configuration.debug);
+  
+  } else {
+
+    Serial.print(status);
+    Serial.println("(NOT connected)");
+
+    printOnLedMatrix("WiFi NOT CONNECTED!!", 100, configuration.ledLogEnabled);
+  } 
+
 
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
