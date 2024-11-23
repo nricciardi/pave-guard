@@ -32,6 +32,10 @@ export class TemperatureTelemetryResolver {
   async createTemperatureTelemetry(
     @Args() input: CreateTemperatureTelemetryDto,
   ) {
+    console.log("input");
+    console.log(input);
+    
+
     return this.temperatureTelemetryService.create(input);
   }
 }

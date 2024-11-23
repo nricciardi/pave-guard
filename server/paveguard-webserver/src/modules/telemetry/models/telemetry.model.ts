@@ -15,7 +15,9 @@ export class Telemetry extends Document {
   
   kind: string;
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+  })
   timestamp: Date;
 
   @Prop({ required: true })
@@ -23,13 +25,6 @@ export class Telemetry extends Document {
 
   @Prop({ required: true })
   longitude: number;
-
-  // @Prop({
-  //   type: Types.ObjectId,
-  //   ref: 'Device',
-  //   required: true,
-  // })
-  // deviceId: Types.ObjectId
 
   @Prop({
     required: true,

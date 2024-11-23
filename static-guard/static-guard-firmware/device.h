@@ -45,8 +45,8 @@ const DeviceConfiguration deviceConfiguration = {
   .delayBeforeSetupInMillis = 2 * 1000,
   .humidityTemperatureSensorPin = 2,
   .humidityTemperatureSensorType = DHT22,
-  .temperatureSamplingRateInMillis = 3 * 1000,
-  .humiditySamplingRateInMillis = 4 * 1000,
+  .temperatureSamplingRateInMillis = 8 * 60 * 1000,
+  .humiditySamplingRateInMillis = 8 * 60 * 1000,
 
   .ledLogEnabled = true,
   .debug = true,

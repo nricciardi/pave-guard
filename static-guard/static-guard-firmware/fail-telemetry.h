@@ -13,7 +13,7 @@ class FailTelemetry: public Telemetry {
     String message;
 
   public:
-    FailTelemetry(String deviceId, double latitude, double longitude, String code, String message): Telemetry(deviceId, latitude, longitude), code(code), message(message) {}
+    FailTelemetry(String deviceId, unsigned long timestampInSeconds, double latitude, double longitude, String code, String message): Telemetry(deviceId, timestampInSeconds, latitude, longitude), code(code), message(message) {}
 
   String toGraphqlMutationBody() override {
 

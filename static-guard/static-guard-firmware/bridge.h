@@ -4,11 +4,13 @@
 #include <Arduino.h>
 #include <WiFiS3.h>
 #include <HttpClient.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #include "telemetry.h"
 #include "led-controller.h"
 
 
-#define BUCKET_LENGTH 5      // MAX 30
+#define BUCKET_LENGTH 30      // MAX 30
 
 
 // ==== BRIDGE CONFIGURATION ====
@@ -20,6 +22,10 @@ struct BridgeConfiguration {
   char* wifiPassword;
   char* serverAddress;
   unsigned short serverPort;
+
+  char* ntpServerUrl;
+  int ntpTimeOffset;
+  unsigned int ntpTimeUpdateIntervalInMillis;
 
   unsigned int connectionRetryDelayInMillis;
   unsigned int maxConnectionAttempts;
@@ -38,6 +44,10 @@ const BridgeConfiguration bridgeConfiguration = {
   .wifiPassword = "M.L.King7",
   .serverAddress = "192.168.0.11",
   .serverPort = 3000,
+
+  .ntpServerUrl = "it.pool.ntp.org",
+  .ntpTimeOffset = 0,
+  .ntpTimeUpdateIntervalInMillis = 60 * 1000,
 
   .connectionRetryDelayInMillis = 2 * 1000,
   .maxConnectionAttempts = 500,
@@ -60,9 +70,11 @@ class Bridge {
     static Bridge* instance;
 
     WiFiClient wifiClient;
+    WiFiUDP wifiUdp;
     int status = WL_IDLE_STATUS;
 
     HttpClient* httpClient = nullptr;
+    NTPClient* ntpClient = nullptr;
 
     Bridge(): configuration(bridgeConfiguration) {
     }
@@ -111,6 +123,8 @@ class Bridge {
     * Actual send telemetries method
     */
     bool send();
+
+    unsigned long getEpochTimeFromNtpServerInSeconds(bool forceUpdate = false) const;
 };
 
 

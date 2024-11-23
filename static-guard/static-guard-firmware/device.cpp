@@ -37,7 +37,7 @@ void Device::setup() {
     while(true);
   }
 
-  Serial.print("setupped device: ");
+  Serial.print("device OK: ");
   Serial.println(sign.deviceId);
 
   printOnLedMatrix("DEVICE OK", 50, configuration.ledLogEnabled);
@@ -68,13 +68,16 @@ void Device::work() {
 void Device::handleHumidity() {
   
   float h = dht->readHumidity();
+  unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
   if(!isnan(h)) {
 
-    Serial.print("read humidity: ");
-    Serial.println(h);
+    if(configuration.debug) {
+      Serial.print("read humidity: ");
+      Serial.println(h);
+    }
 
-    HumidityTelemetry* humidityTelemetry = new HumidityTelemetry(sign.deviceId, sign.latitude, sign.longitude, h);
+    HumidityTelemetry* humidityTelemetry = new HumidityTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, h);
 
     bridge->put(humidityTelemetry);
 
@@ -82,7 +85,7 @@ void Device::handleHumidity() {
 
     Serial.println("ERROR: fail to read humidity");
     
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity"));
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity"));
 
     bridge->put(failTelemetry);
   }
@@ -93,13 +96,16 @@ void Device::handleTemperature() {
   
   // Read temperature as Celsius (the default)
   float t = dht->readTemperature();
+  unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
   if(!isnan(t)) {
 
-    Serial.print("read temperature: ");
-    Serial.println(t);
-
-    Telemetry* temperatureTelemetry = new TemperatureTelemetry(sign.deviceId, sign.latitude, sign.longitude, t);
+    if(configuration.debug) {
+      Serial.print("read temperature: ");
+      Serial.println(t);
+    }
+    
+    Telemetry* temperatureTelemetry = new TemperatureTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, t);
 
     bridge->put(temperatureTelemetry);
 
@@ -107,7 +113,7 @@ void Device::handleTemperature() {
 
     Serial.println("ERROR: fail to read temperature");
     
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, sign.latitude, sign.longitude, String("HT002"), String("Fail to read temperature"));
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("HT002"), String("Fail to read temperature"));
 
     bridge->put(failTelemetry);
   }

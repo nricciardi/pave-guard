@@ -10,7 +10,7 @@ class TemperatureTelemetry: public Telemetry {
     double temperature;
 
   public:
-    TemperatureTelemetry(String deviceId, double latitude, double longitude, float temperature): Telemetry(deviceId, latitude, longitude), temperature(temperature) {}
+    TemperatureTelemetry(String deviceId, unsigned long timestampInSeconds, double latitude, double longitude, float temperature): Telemetry(deviceId, timestampInSeconds, latitude, longitude), temperature(temperature) {}
 
     String toGraphqlMutationBody() override {
 

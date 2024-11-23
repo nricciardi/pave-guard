@@ -14,6 +14,12 @@ export class TrafficTelemetryService {
     }
 
     async create(data: CreateTrafficTelemetryDto): Promise<TrafficTelemetry> {
+
+        console.log("create");
+        
+        console.log(data);
+        
+
         return this.trafficTelemetryModel.create({ ...data });
     }
 }

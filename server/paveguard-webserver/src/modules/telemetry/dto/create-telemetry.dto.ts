@@ -1,6 +1,6 @@
 import { Field, ArgsType, ObjectType, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsDate, IsLatitude, IsLongitude, IsMongoId, IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-validator';
 
 
 @ObjectType()
@@ -8,6 +8,7 @@ import { IsDate, IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-va
 export class MetadataDto {
   @Field()
   @IsString()
+  @IsMongoId()
   deviceId: string;
 }
 
@@ -21,15 +22,15 @@ export class CreateTelemetryDto {
   @Field()
   @IsDate()
   @IsNotEmpty()
-  timestamp: Date;
+  timestamp: string;
 
   @Field()
-  @IsNumber()
+  @IsLatitude()
   @IsNotEmpty()
   latitude: number;
 
   @Field()
-  @IsNumber()
+  @IsLongitude()
   @IsNotEmpty()
   longitude: number;
 }

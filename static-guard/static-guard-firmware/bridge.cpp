@@ -48,7 +48,7 @@ bool Bridge::setup() {
 
       Serial.print("FAILED");
 
-      printOnLedMatrix("WIFI FAILED", 50, configuration.ledLogEnabled);
+      printOnLedMatrix("WIFI FAIL", 50, configuration.ledLogEnabled);
     }
 
     attempts += 1;
@@ -71,19 +71,33 @@ bool Bridge::setup() {
   // initialize http client
   httpClient = new HttpClient(wifiClient, configuration.serverAddress, configuration.serverPort);
 
-  Serial.println("bridge setupped");
+  // initialize ntp client
+  ntpClient = new NTPClient(wifiUdp, configuration.ntpServerUrl, configuration.ntpTimeOffset, configuration.ntpTimeUpdateIntervalInMillis);
+  ntpClient->begin();
+
+  Serial.println("bridge OK");
   printOnLedMatrix("BRIDGE OK", 50, configuration.ledLogEnabled);
 
   return true;
 }
 
 bool Bridge::work() {
-  
+
+  bool timeUpdateOutcome = ntpClient->update();
+
+  if(timeUpdateOutcome && configuration.debug) {
+    Serial.print("time updated: ");
+    Serial.println(ntpClient->getEpochTime());
+
+    printOnLedMatrix(ntpClient->getFormattedTime().c_str(), 40, configuration.ledLogEnabled && configuration.debug);
+  }
+
   if(telemetriesInBucket >= configuration.bucketSendingThreshold) {
 
     printWifiStatus();
 
-    Serial.println("telemetries will be sent before that queue reaches a critical state");
+    if(configuration.debug)
+      Serial.println("telemetries will be sent before that bucket reaches a critical state");
 
     sendWithRetry();   // ignore outcome, it will be retried later
   }
@@ -92,10 +106,13 @@ bool Bridge::work() {
 }
 
 void Bridge::put(Telemetry* telemetry) {
-  Serial.println("putting new telemetry...");
+
+  if(configuration.debug)
+    Serial.println("putting new telemetry...");
 
   if(telemetriesInBucket + 1 >= configuration.bucketLength) {
-    Serial.println("WARNING: queue is full, it will be empty before any other actions");
+
+    Serial.println("WARNING: bucket is full, it will be empty before any other actions");
 
     bool areSent = sendWithRetry();
     
@@ -108,13 +125,13 @@ void Bridge::put(Telemetry* telemetry) {
   bucket[telemetriesInBucket] = telemetry;
   telemetriesInBucket += 1;
 
-  Serial.print("new telemetry was correctly saved in queue (");
-  Serial.print(telemetriesInBucket);
-  Serial.print("/");
-  Serial.print(configuration.bucketLength);
-  Serial.println(")");
-
   if(configuration.debug) {
+
+    Serial.print("new telemetry was correctly saved in queue (");
+    Serial.print(telemetriesInBucket);
+    Serial.print("/");
+    Serial.print(configuration.bucketLength);
+    Serial.println(")");
 
     char msg[16];
     sprintf(msg, "%d/%d", telemetriesInBucket, configuration.bucketLength);
@@ -133,22 +150,27 @@ void Bridge::cleanBucket() {
 
 bool Bridge::send() {
 
-  Serial.println("sending telemetries...");
+  if(configuration.debug)
+    Serial.println("sending telemetries...");
 
   String body = buildRequestBody();
   
-  Serial.print("opening POST connection to server... ");
+  if(configuration.debug)
+    Serial.print("opening POST connection to server... ");
   httpClient->beginRequest();
 
   int connectionResult = httpClient->post("/graphql");
   if (connectionResult == 0) {
 
-    Serial.println("opened!");
+    if(configuration.debug)
+      Serial.println("opened!");
 
   } else {
 
-    Serial.println("FAILED");
-    printOnLedMatrix("SEND FAILED", 80, configuration.ledLogEnabled && configuration.debug);
+    if(configuration.debug)
+      Serial.println("FAILED");
+
+    printOnLedMatrix("SEND FAIL", 80, configuration.ledLogEnabled && configuration.debug);
 
     return false;
   }
@@ -162,7 +184,8 @@ bool Bridge::send() {
 
   // Serial.println("request having body: \n" + body);    // too many characters... it should not be printed
 
-  Serial.print("sending... ");
+  if(configuration.debug)
+    Serial.print("sending... ");
 
   // read the status code and body of the response
   int statusCode = httpClient->responseStatusCode();
@@ -175,15 +198,18 @@ bool Bridge::send() {
 
     Serial.println("telemetry NOT sent");
 
-    Serial.print("response: ");
-    Serial.println(response);
-
+    if(!configuration.debug) {
+      Serial.print("response: ");
+      Serial.println(response);
+    }
+    
     return false;
   }
 
   cleanBucket();
 
-  Serial.println("telemetry sent!");
+  if(configuration.debug)
+    Serial.println("telemetry sent!");
 
   printOnLedMatrix("SEND OK", 20, configuration.ledLogEnabled && configuration.debug);
 
@@ -207,7 +233,9 @@ String Bridge::buildRequestBody() const {
 }
 
 bool Bridge::sendWithRetry() {
-  Serial.println("sending telemetries (with retry system)...");
+
+  if(configuration.debug)
+    Serial.println("sending telemetries (with retry system)...");
 
   unsigned int attempts = 0;
   bool sendSuccess = false;
@@ -231,8 +259,6 @@ bool Bridge::sendWithRetry() {
     return false;
   }
 
-  Serial.println("telemetries sent successfully");
-
   return true;
 }
 
@@ -254,6 +280,8 @@ void Bridge::printWifiStatus() {
     printOnLedMatrix("WiFi NOT CONNECTED!!", 100, configuration.ledLogEnabled);
   } 
 
+  if(!configuration.debug)
+    return;
 
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
@@ -271,7 +299,21 @@ void Bridge::printWifiStatus() {
   Serial.println(" dBm");
 }
 
+unsigned long Bridge::getEpochTimeFromNtpServerInSeconds(bool forceUpdate) const {
+  if(forceUpdate) {
+    bool timeUpdateOutcome = ntpClient->update();
 
+    if(!timeUpdateOutcome) {
+
+      Serial.println("ERROR: time update failed");
+      printOnLedMatrix("NTP FAIL", 30, configuration.ledLogEnabled);
+      Serial.print("last valid time: ");
+      Serial.println(ntpClient->getEpochTime());
+    }
+  }
+
+  return ntpClient->getEpochTime();
+}
 
 
 
