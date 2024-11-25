@@ -101,7 +101,7 @@ void writeGyroscope(int16_t x, int16_t y, int16_t z){
   Serial.print(","); Serial.println(z);
 }
 
-const int buf_size = 110;
+const int buf_size = 100;
 const unsigned long interval = 20;
 
 TinyGPSPlus gps;
@@ -112,7 +112,7 @@ int16_t mAcX, mAcY, mAcZ;
 int16_t* pAcX,* pAcY,* pAcZ;
 char i;
 
-unsigned long previousTime;
+long long previousTime;
 
 int16_t getMedian(int16_t* list, int len){
 
@@ -174,7 +174,7 @@ void empty_buffer() {
 
 void loop(){
 
-  if(millis() - previousTime < interval) return;
+  if((millis() - previousTime) < interval) return;
   else previousTime = millis();
 
   if(i >= buf_size){
@@ -183,7 +183,7 @@ void loop(){
     readAccelerometer(&mAcX, &mAcY, &mAcZ);
     insertSorted(pAcX, i, mAcX); insertSorted(pAcY, i, mAcY); insertSorted(pAcZ, i, mAcZ);
     getLatAndLon(&pLat[i], &pLon[i], &gps); i++;
-    if(mAcX >= 13000 || mAcY >= 13000){ empty_buffer(); return; }
+    if(abs(mAcX) >= 13000 || abs(mAcY) >= 13000 || abs(mAcX) + abs(mAcY) >= 19000){ empty_buffer(); return; }
   }
 
 }
