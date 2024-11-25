@@ -280,7 +280,7 @@ class RoadCrackTelemetryQuery extends QueryAbstractManager {
     SendableData toSend = data as SendableData;
     return """mutation {
   	createRoadCrackTelemetry (
-      deviceId: ${toSend.deviceData.id},
+      metadata: {deviceId: "${toSend.deviceData.id}"},
       timestamp: ${DateTime.now().toString()},
       latitude: ${toSend.position.latitude.toStringAsFixed(8)},
       longitude: ${toSend.position.longitude.toStringAsFixed(8)},

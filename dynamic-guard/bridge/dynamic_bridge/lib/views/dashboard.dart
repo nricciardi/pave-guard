@@ -43,7 +43,10 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void initializeTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {await initializeChildren();});
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      await initializeChildren();
+      selfLogic!.collectAndSendTelemetries();
+    });
   }
 
   void delete(){

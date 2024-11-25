@@ -27,15 +27,20 @@ class SerialInterface {
   VibrationManager vibrationManager = VibrationManager();
   SettingsLogic settings = SettingsLogic();
 
+  // TODO: Remove it. For debug purposes.
+  MeQueryManager meQueryManager = MeQueryManager();
+
   Future<String> initialize() async {
 
     List<UsbDevice> devices = await UsbSerial.listDevices();
+    await meQueryManager.sendQuery("");
 
     if(EnvManager.isDebugAndroidMode()){
       log(devices.join(" "));
     }
 
     port = await devices[0].create();
+    
     UsbPort fixPort = port!;
     await fixPort.open();
 
@@ -62,7 +67,7 @@ class SerialInterface {
         GPSData data = parseGpsData(line);
         vibrationManager.addGpsData(data);
       } else {
-        Position currentPosition = await Geolocator.getCurrentPosition(timeLimit: const Duration(milliseconds: 10));
+        Position currentPosition = await Geolocator.getCurrentPosition(timeLimit: const Duration(milliseconds: 20));
         vibrationManager.addGpsData(
           GPSData(currentPosition.latitude, currentPosition.longitude)
         );
@@ -124,7 +129,7 @@ class SerialInterface {
 
   }
 
-  void sendData(DeviceData deviceData) async {
+  Future<void> sendData(DeviceData deviceData) async {
 
     Map<GPSData, int> data = vibrationManager.getDataToSend();
     GPSData gpsToSend = compressGPS(data.keys.toList());

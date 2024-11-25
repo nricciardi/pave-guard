@@ -16,7 +16,6 @@ import 'package:flutter_uvc_camera/flutter_uvc_camera.dart';
 import 'package:usb_serial/transaction.dart';
 
 class DashboardLogic {
-
   // If USB, it's a PhotoCollector
   // Else, it's a CameraController
   // Awful, but I don't know how to make it work otherwise
@@ -30,8 +29,7 @@ class DashboardLogic {
   DashboardLogic(this.deviceData);
 
   Future<XFile> takePicture() async {
-
-    if(cameraController is CameraController){
+    if (cameraController is CameraController) {
       // built-in
       CameraController toUse = cameraController as CameraController;
       await toUse.initialize();
@@ -42,147 +40,137 @@ class DashboardLogic {
       String? path = await toUse.getPhoto();
       return XFile(path!);
     }
-
   }
 
   void logout() {
-
     String loginFileName = EnvManager.getLoginFileName();
     FileManager fileManager = FileManager(loginFileName);
     fileManager.deleteFile();
-
   }
 
-  void collectAndSendTelemtries() async {
-
-    serialInterface = SerialInterface();
-    serialInterface!.initialize();
-    Transaction<String> transaction = Transaction.stringTerminated(serialInterface!.port!.inputStream!, Uint8List.fromList([10, 10]));
-
-    transaction.stream.listen( (String data) {
-      for(String line in data.split("\n")){
-          serialInterface!.manageSerialLine(line);
+  void collectAndSendTelemetries() async {
+    if(serialInterface != null){ return; }
+    try {
+      serialInterface = SerialInterface();
+      await serialInterface!.initialize();
+      Transaction<String> transaction = Transaction.stringTerminated(
+          serialInterface!.port!.inputStream!, Uint8List.fromList([10, 10])
+          );
+      transaction.stream.listen((String data) async {
+        for (String line in data.split("\n")) {
+          if(line != ""){
+            serialInterface!.manageSerialLine(line.trim());
+          }
         }
-        serialInterface!.sendData(deviceData);
-      }
-    );
-
+        await serialInterface!.sendData(deviceData);
+      });
+    } catch (e) {
+      serialInterface = null;
+    }
   }
 
   void collectPhotos() {
     int interval = EnvManager.getPhotoCollectionInterval();
-    if(!cameraWorking || interval == 0){
+    if (!cameraWorking || interval == 0) {
       return;
     }
     _timer = Timer.periodic(Duration(seconds: interval), (timer) async {
       // The photo collection
       XFile file = await takePicture();
-      if(HoleDetector.isHole(file)){
+      if (HoleDetector.isHole(file)) {
         // TODO: Send data
       }
-
     });
   }
 
-  Future<List<Widget>> dashboardCenterChildren() async{
-
+  Future<List<Widget>> dashboardCenterChildren() async {
     List<Widget> children = [];
     SettingsLogic settingsLogic = SettingsLogic();
     serialInterface = SerialInterface();
 
-    children.add(
-      const Text(
-              'Dashboard',
-              style: TextStyle(fontSize: 24),
-            )
-    );
+    children.add(const Text(
+      'Dashboard',
+      style: TextStyle(fontSize: 24),
+    ));
 
-    if(await settingsLogic.isCameraExt()){
+    if (await settingsLogic.isCameraExt()) {
       // The camera is external
       cameraController = PhotoCollector();
       try {
-        UVCCameraController uvcCameraController = await PhotoCollector.openExternalCamera();
+        UVCCameraController uvcCameraController =
+            await PhotoCollector.openExternalCamera();
         children.add(const Text(
-                'External Camera loaded and working.',
-                style: TextStyle(fontSize: 24, color: Colors.green),
-                textAlign: TextAlign.center,
-              )
-          );
-          uvcCameraController.msgCallback;
+          'External Camera loaded and working.',
+          style: TextStyle(fontSize: 24, color: Colors.green),
+          textAlign: TextAlign.center,
+        ));
+        uvcCameraController.msgCallback;
         cameraWorking = true;
-      } catch(e) {
-        children.add(
-          const Text(
-              'External Camera not loading!',
-              style: TextStyle(fontSize: 24, color: Colors.red),
-            )
-        );
+      } catch (e) {
+        children.add(const Text(
+          'External Camera not loading!',
+          style: TextStyle(fontSize: 24, color: Colors.red),
+        ));
       }
     } else {
       // The camera is internal
       List<CameraDescription> cameras = await availableCameras();
-      if(EnvManager.isDebugAndroidMode()){
+      if (EnvManager.isDebugAndroidMode()) {
         log(cameras.toString());
       }
-      try{
-        cameraController = CameraController(cameras.elementAt(1), ResolutionPreset.medium);
+      try {
+        cameraController =
+            CameraController(cameras.elementAt(1), ResolutionPreset.medium);
         await cameraController.initialize();
-        children.add(
-          const Text(
-              'Built-in camera loaded.',
-              style: TextStyle(fontSize: 24, color: Colors.green),
-            )
-        );
+        children.add(const Text(
+          'Built-in camera loaded.',
+          style: TextStyle(fontSize: 24, color: Colors.green),
+        ));
         cameraWorking = true;
-      } catch(e){
-        children.add(
-          const Text(
-              'Built-in camera not loaded!',
-              style: TextStyle(fontSize: 24, color: Colors.red),
-            )
-        );
+      } catch (e) {
+        children.add(const Text(
+          'Built-in camera not loaded!',
+          style: TextStyle(fontSize: 24, color: Colors.red),
+        ));
       }
     }
 
-    if(await settingsLogic.isGpsExt()){
+    if (await settingsLogic.isGpsExt()) {
       // External GPS
       String result = await GpsManager.isExternalGPSOn();
-      if(result == ""){
+      if (result == "") {
         children.add(const Text(
-                'Dynamic-Guard correctly loaded.',
-                style: TextStyle(fontSize: 24, color: Colors.green),
-              ));
-      }
-      else {
+          'Dynamic-Guard correctly loaded.',
+          style: TextStyle(fontSize: 24, color: Colors.green),
+        ));
+      } else {
         children.add(Text(
-                result,
-                style: TextStyle(fontSize: 24, color: result.contains("Connected") ? Colors.green : Colors.red),
-                textAlign: TextAlign.center,
-              ));
+          result,
+          style: const TextStyle(fontSize: 24, color: Colors.red),
+          textAlign: TextAlign.center,
+        ));
       }
     } else {
       // Internal GPS
-      if(await GpsManager.isBuiltInGPSOn()){
+      if (await GpsManager.isBuiltInGPSOn()) {
         children.add(const Text(
-              'Built-in GPS loaded.',
-              style: TextStyle(fontSize: 24, color: Colors.green),
-            ));
+          'Built-in GPS loaded.',
+          style: TextStyle(fontSize: 24, color: Colors.green),
+        ));
       } else {
         children.add(const Text(
-              'Built-in GPS not loaded!',
-              style: TextStyle(fontSize: 24, color: Colors.red),
-            ));
+          'Built-in GPS not loaded!',
+          style: TextStyle(fontSize: 24, color: Colors.red),
+        ));
       }
     }
 
     return children;
-
   }
 
-  void dispose(){
-    if(_timer != null){
+  void dispose() {
+    if (_timer != null) {
       _timer!.cancel();
     }
   }
-
 }

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:dynamic_bridge/logic/query_manager.dart';
+
 class GPSData {
   double latitude, longitude;
   GPSData(this.latitude, this.longitude);
@@ -41,6 +43,9 @@ class VibrationManager {
   // Latest measurements
   AccelerometerData? accelerometerData;
   GPSData? gpsData;
+
+  // TODO: Remove, only for debug purposes
+  MeQueryManager meQueryManager = MeQueryManager();
 
   bool isDataComplete() {
     if (accelerometerData == null || gpsData == null) {
@@ -96,6 +101,7 @@ class VibrationManager {
   }
 
   Map<GPSData, int> getDataToSend() {
+    meQueryManager.sendQuery("");
     Map<GPSData, int> toRet = {};
     int severity;
     for (int i = 0; i < lastAccData.length; i++) {

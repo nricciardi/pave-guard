@@ -16,7 +16,7 @@ class GpsManager {
     try{ await serialInterface.initialize(); } 
     catch(e) { return "No USB devices connected!"; }
 
-    return "Connected to Dynamic-Guard!";
+    return "";
 
   }
 
