@@ -101,10 +101,9 @@ class VibrationManager {
   }
 
   Map<GPSData, int> getDataToSend() {
-    meQueryManager.sendQuery("");
     Map<GPSData, int> toRet = {};
     int severity;
-    for (int i = 0; i < lastAccData.length; i++) {
+    for (int i = 0; i < min(lastAccData.length, lastGPSData.length); i++) {
       severity = measureSeverity(lastAccData[i]);
       if (severity >= severityThreshold) {
         toRet[lastGPSData[i]] = severity;
@@ -118,6 +117,7 @@ class VibrationManager {
   }
 
   int measureSeverity(AccelerometerData data) {
-    return min(max((data.x).round(), 0), 100);
+    double value = max(data.x, max(data.y, data.z)) - 490;
+    return min(max(value, 0), 100).round();
   }
 }

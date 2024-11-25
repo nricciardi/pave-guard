@@ -27,12 +27,14 @@ class SerialInterface {
   VibrationManager vibrationManager = VibrationManager();
   SettingsLogic settings = SettingsLogic();
   bool isInitialized = false;
+  bool isGpsExt = false;
 
   // TODO: Remove it. For debug purposes.
   MeQueryManager meQueryManager = MeQueryManager();
 
   Future<String> initialize() async {
 
+    isGpsExt = await settings.isGpsExt();
     List<UsbDevice> devices = await UsbSerial.listDevices();
 
     if(EnvManager.isDebugAndroidMode()){
@@ -57,14 +59,14 @@ class SerialInterface {
   }
 
   void manageSerialLine(String line) async {
-
+    
     if (line[0] == 'A'){
       // Accelerometer
       AccelerometerData data = parseAccelerometerData(line);
       vibrationManager.addAccelerometerData(data);
 
     } else if (line[0] == 'g'){
-      if(await settings.isGpsExt()){
+      if(isGpsExt){
         // GPS
         GPSData data = parseGpsData(line);
         vibrationManager.addGpsData(data);
@@ -95,7 +97,7 @@ class SerialInterface {
 
   static GPSData parseGpsData(String data){
 
-    RegExp regex = RegExp(r'^g\d+,\d+$');
+    RegExp regex = RegExp(r'^g\d+(\.\d+)?,\d+(\.\d+)?$');
 
     if(!regex.hasMatch(data)){
       if(EnvManager.isDebugAndroidMode()){
@@ -104,7 +106,6 @@ class SerialInterface {
       return GPSData(0, 0);
     }
 
-    regex = RegExp(r'^g(\d+),(\d+)$');
     final RegExpMatch match = regex.firstMatch(data)!;
     double latitude = double.parse(match.group(1)!);
     double longitude = double.parse(match.group(2)!);
@@ -134,8 +135,10 @@ class SerialInterface {
   Future<void> sendData(DeviceData deviceData) async {
 
     Map<GPSData, int> data = vibrationManager.getDataToSend();
+    if(data.isEmpty){ return; }
     GPSData gpsToSend = compressGPS(data.keys.toList());
     int severityToSend = compressSeverities(data.values.toList());
+    if(severityToSend <= 15){ return; }
 
     RoadCrackTelemetryQuery roadCrackTelemetry = RoadCrackTelemetryQuery();
     QueryResult queryResult = await roadCrackTelemetry.sendQuery(SendableData(

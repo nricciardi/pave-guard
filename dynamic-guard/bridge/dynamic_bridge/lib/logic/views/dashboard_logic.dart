@@ -59,7 +59,7 @@ class DashboardLogic {
           );
       transaction.stream.listen((String data) async {
         for (String line in data.split("\n")) {
-          if(line != ""){
+          if(line.isNotEmpty){
             serialInterface!.manageSerialLine(line.trim());
           }
         }
