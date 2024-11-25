@@ -281,11 +281,12 @@ class RoadCrackTelemetryQuery extends QueryAbstractManager {
     return """mutation {
   	createRoadCrackTelemetry (
       metadata: {deviceId: "${toSend.deviceData.id}"},
-      timestamp: ${DateTime.now().toString()},
+      timestamp: "${DateTime.now().toString()}",
       latitude: ${toSend.position.latitude.toStringAsFixed(8)},
       longitude: ${toSend.position.longitude.toStringAsFixed(8)},
       severity: ${toSend.severity}
-    ) { id } """;
+    ) { id }
+    } """;
   }
 }
 

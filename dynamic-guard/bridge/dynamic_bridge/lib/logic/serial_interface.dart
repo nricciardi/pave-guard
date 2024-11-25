@@ -58,7 +58,9 @@ class SerialInterface {
 
   }
 
-  void manageSerialLine(String line) async {
+  Future<void> manageSerialLine(String line) async {
+
+    if(line.length < 5){ return; }
     
     if (line[0] == 'A'){
       // Accelerometer
