@@ -9,12 +9,9 @@ class GpsManager {
 
   }
 
-  static Future<String> isExternalGPSOn() async {
+  static Future<String> isExternalGPSOn(SerialInterface? serialInterface) async {
 
-    SerialInterface serialInterface = SerialInterface();
-
-    try{ await serialInterface.initialize(); } 
-    catch(e) { return "No USB devices connected!"; }
+    if(serialInterface == null || !serialInterface.isInitialized){ return "No USB devices connected!"; }
 
     return "";
 

@@ -49,7 +49,8 @@ class DashboardLogic {
   }
 
   void collectAndSendTelemetries() async {
-    if(serialInterface != null){ return; }
+    serialInterface ??= SerialInterface();
+    if(serialInterface!.isInitialized == true){ return; }
     try {
       serialInterface = SerialInterface();
       await serialInterface!.initialize();
@@ -86,7 +87,6 @@ class DashboardLogic {
   Future<List<Widget>> dashboardCenterChildren() async {
     List<Widget> children = [];
     SettingsLogic settingsLogic = SettingsLogic();
-    serialInterface = SerialInterface();
 
     children.add(const Text(
       'Dashboard',
@@ -137,7 +137,7 @@ class DashboardLogic {
 
     if (await settingsLogic.isGpsExt()) {
       // External GPS
-      String result = await GpsManager.isExternalGPSOn();
+      String result = await GpsManager.isExternalGPSOn(serialInterface);
       if (result == "") {
         children.add(const Text(
           'Dynamic-Guard correctly loaded.',

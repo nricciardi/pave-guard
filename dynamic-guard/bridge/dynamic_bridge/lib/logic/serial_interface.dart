@@ -26,6 +26,7 @@ class SerialInterface {
   UsbPort? port;
   VibrationManager vibrationManager = VibrationManager();
   SettingsLogic settings = SettingsLogic();
+  bool isInitialized = false;
 
   // TODO: Remove it. For debug purposes.
   MeQueryManager meQueryManager = MeQueryManager();
@@ -33,7 +34,6 @@ class SerialInterface {
   Future<String> initialize() async {
 
     List<UsbDevice> devices = await UsbSerial.listDevices();
-    await meQueryManager.sendQuery("");
 
     if(EnvManager.isDebugAndroidMode()){
       log(devices.join(" "));
@@ -47,8 +47,10 @@ class SerialInterface {
     await fixPort.setDTR(true);
 	  await fixPort.setRTS(true);
 
-	  fixPort.setPortParameters(115200, UsbPort.DATABITS_8,
+	  fixPort.setPortParameters(9600, UsbPort.DATABITS_8,
 	              UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
+
+    isInitialized = true;
 
     return "";
 

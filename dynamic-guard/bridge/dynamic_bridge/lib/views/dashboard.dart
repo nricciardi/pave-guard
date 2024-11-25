@@ -35,7 +35,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> initializeChildren() async{
 
-    selfLogic = DashboardLogic(widget.selfDevice);
+    selfLogic ??= DashboardLogic(widget.selfDevice);
     children = await selfLogic!.dashboardCenterChildren();
     selfLogic!.collectPhotos();
     setState(() {});
