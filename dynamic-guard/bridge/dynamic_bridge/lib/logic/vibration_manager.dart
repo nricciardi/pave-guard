@@ -117,7 +117,7 @@ class VibrationManager {
   }
 
   int measureSeverity(AccelerometerData data) {
-    double value = max(data.x, max(data.y, data.z)) - 490;
+    double value = (data.z) / 300;
     return min(max(value, 0), 100).round();
   }
 }
