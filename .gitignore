@@ -1,3 +1,4 @@
 server/.env
 file.txt
 *.jpg
+dynamic-guard/bridge/dynamic_bridge/assets/model.tflite
