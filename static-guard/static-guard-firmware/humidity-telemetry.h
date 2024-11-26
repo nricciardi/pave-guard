@@ -7,7 +7,7 @@
 class HumidityTelemetry: public Telemetry {
 
   private:
-    double humidity;
+    float humidity;
 
   public:
     HumidityTelemetry(String deviceId, unsigned long timestampInSeconds, double latitude, double longitude, float humidity): Telemetry(deviceId, timestampInSeconds, latitude, longitude), humidity(humidity) {}

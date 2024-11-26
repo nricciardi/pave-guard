@@ -1,8 +1,8 @@
 #include "led-controller.h"
 
 ArduinoLEDMatrix matrix;
-bool matrixBegun = false;
-bool enablePrint = true;      // set to false to prevent print on Led Matrix
+bool matrixBegun = false;     // DO NOT TOUCH THIS! (it is used by internal logic)
+bool enablePrint = false;      // set to false to prevent print on Led Matrix
 
 void printOnLedMatrix(const char* text, unsigned long speed, bool print) {
 

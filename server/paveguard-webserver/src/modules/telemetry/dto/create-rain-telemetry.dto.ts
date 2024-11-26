@@ -3,10 +3,10 @@ import { IsNotEmpty, IsNumber, Min } from 'class-validator';
 import { CreateTelemetryDto } from './create-telemetry.dto';
 
 @ArgsType()
-export class CreateHumidityTelemetryDto extends CreateTelemetryDto {
+export class CreateRainTelemetryDto extends CreateTelemetryDto {
   @Field()
   @IsNumber()
   @IsNotEmpty()
   @Min(0)
-  humidity: number;
+  litres: number;
 }

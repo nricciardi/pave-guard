@@ -1,3 +1,4 @@
+#include <sys/_intsup.h>
 #ifndef DEVICE_H
 #define DEVICE_H
 
@@ -8,7 +9,12 @@
 #include "temperature-telemetry.h"
 #include "humidity-telemetry.h"
 #include "fail-telemetry.h"
+#include "rain-telemetry.h"
 #include "led-controller.h"
+
+
+#define TRAFFIC_TRIGGER_BUCKET_SIZE 48
+
 
 // ==== DEVICE SIGN ====
 // information about specific device, these information are unique for each device
@@ -20,7 +26,7 @@ struct DeviceSign {
 };
 
 const DeviceSign deviceSign = {
-  .deviceId = "6740fb2648b2c22e3b6970b9",
+  .deviceId = "67236c0933a3695fb68e81db",
   .latitude = 42,
   .longitude = 42
 };
@@ -32,10 +38,24 @@ const DeviceSign deviceSign = {
 struct DeviceConfiguration {
   unsigned short delayBeforeSetupInMillis; 
 
+  bool enableHumidityRead;
+  bool enableTemperatureRead;
   unsigned char humidityTemperatureSensorPin;
   int humidityTemperatureSensorType;
   unsigned int temperatureSamplingRateInMillis;
   unsigned int humiditySamplingRateInMillis;
+
+  bool enableTrafficTriggerRead;
+  unsigned char trafficTriggerLeftSensorPin;
+  unsigned char trafficTriggerRightSensorPin;
+  unsigned int distanceBetweenTriggersInMillimeters;
+  unsigned short trafficTriggerBucketSize;
+  unsigned short trafficTriggerBucketCleaningThreshold;
+
+  bool enableRainGaugeRead;
+  unsigned char rainGaugeSensorPin;
+  unsigned short rainTriggerMultiplierInLitre;
+  unsigned int rainSamplesElaborationRateInMillis;
 
   bool ledLogEnabled;
   bool debug;
@@ -43,15 +63,56 @@ struct DeviceConfiguration {
 
 const DeviceConfiguration deviceConfiguration = {
   .delayBeforeSetupInMillis = 2 * 1000,
-  .humidityTemperatureSensorPin = 2,
+
+  .enableHumidityRead = false,
+  .enableTemperatureRead = false,
+  .humidityTemperatureSensorPin = 7,
   .humidityTemperatureSensorType = DHT22,
-  .temperatureSamplingRateInMillis = 8 * 60 * 1000,
-  .humiditySamplingRateInMillis = 8 * 60 * 1000,
+  .temperatureSamplingRateInMillis = 8 * 1000,
+  .humiditySamplingRateInMillis = 8 * 1000,
+
+  .enableTrafficTriggerRead = true,
+  .trafficTriggerLeftSensorPin = 2,
+  .trafficTriggerRightSensorPin = 3,
+  .distanceBetweenTriggersInMillimeters = 180,
+  .trafficTriggerBucketSize = TRAFFIC_TRIGGER_BUCKET_SIZE,
+  .trafficTriggerBucketCleaningThreshold = 0.6 * TRAFFIC_TRIGGER_BUCKET_SIZE,
+
+  .enableRainGaugeRead = true,
+  .rainGaugeSensorPin = 8,
+  .rainTriggerMultiplierInLitre = 1,
+  .rainSamplesElaborationRateInMillis = 5 * 1000,
 
   .ledLogEnabled = true,
   .debug = true,
 };
 
+class UnsignedLongBucket {
+
+  public:
+    unsigned long* bucket;
+    unsigned short size;
+    unsigned short index;
+
+    UnsignedLongBucket(unsigned short size) {
+      this->size = size;
+      bucket = new unsigned long[size];
+      index = 0;
+
+      for(unsigned short i=0; i < size; i++) {
+        bucket[i] = 0;
+      }
+    }
+
+    void append(unsigned long item) {
+      bucket[index] = item;
+      index = (index + 1) % size;
+    }
+
+    unsigned long getLast() {
+      return bucket[max(index - 1, 0)];
+    }
+};
 
 class Device {
 
@@ -63,6 +124,12 @@ class Device {
 
     unsigned long lastTemperatureSamplingMillis = 0;
     unsigned long lastHumiditySamplingMillis = 0;
+
+    UnsignedLongBucket* trafficTriggerLeftBucket = new UnsignedLongBucket(deviceConfiguration.trafficTriggerBucketSize);
+    UnsignedLongBucket* trafficTriggerRightBucket = new UnsignedLongBucket(deviceConfiguration.trafficTriggerBucketSize);
+
+    unsigned int rainGaugeUnhandledTrigs = 0;
+    unsigned long lastRainGaugeSamplesElaborationMillis = 0;
 
     static Device* instance;
 
@@ -99,11 +166,17 @@ class Device {
     void handleTemperature();
 
     void handleHumidity();
+
+    void elaborateRainGaugeUnhandledSamples();
+
+
+    // === INTERRUPT CALLBACKs ===
+    static void onTrafficTriggerLeftTrig();
+
+    static void onTrafficTriggerRightTrig();
+
+    static void onRainGaugeTrig();
 };
-
-
-
-
 
 
 

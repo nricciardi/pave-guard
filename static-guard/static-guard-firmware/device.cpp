@@ -1,4 +1,21 @@
+#include <sys/_intsup.h>
+#include "Arduino.h"
+#include "api/Common.h"
 #include "device.h"
+
+// ==== INTERRUPTs ====
+void Device::onTrafficTriggerLeftTrig() {
+  Device::instance->trafficTriggerLeftBucket->append(millis());
+}
+
+void Device::onTrafficTriggerRightTrig() {
+  Device::instance->trafficTriggerRightBucket->append(millis());
+}
+
+void Device::onRainGaugeTrig() {
+  Device::instance->rainGaugeUnhandledTrigs += 1;
+}
+
 
 Device* Device::instance = nullptr;
 
@@ -22,10 +39,23 @@ void Device::setup() {
 
   Serial.println("setupping device...");
 
+
   // === HUMIDITY & TEMPERATURE ===
   dht = new DHT(configuration.humidityTemperatureSensorPin, configuration.humidityTemperatureSensorType);
   dht->begin();
+
+  // === TRAFFIC TRIGGERs ===
+  pinMode(configuration.trafficTriggerLeftSensorPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(configuration.trafficTriggerLeftSensorPin), Device::onTrafficTriggerLeftTrig, LOW);
+
+  pinMode(configuration.trafficTriggerRightSensorPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(configuration.trafficTriggerRightSensorPin), Device::onTrafficTriggerRightTrig, LOW);
+
+  // === RAIN GAUGE ===
+  pinMode(configuration.rainGaugeSensorPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(configuration.rainGaugeSensorPin), Device::onRainGaugeTrig, RISING);
   
+
   // === BRIDGE ===
   bool bridgeSetupOutcome = bridge->setup();
 
@@ -46,20 +76,33 @@ void Device::setup() {
 // ========================== WORK ==========================
 void Device::work() {
 
+  Serial.println(rainGaugeUnhandledTrigs);
+
+  delay(1000);
+
+  return;
+
   long currentMillis;
   
   currentMillis = millis();
-  if(currentMillis - lastTemperatureSamplingMillis > configuration.temperatureSamplingRateInMillis) {
+  if(configuration.enableTemperatureRead && (currentMillis - lastTemperatureSamplingMillis > configuration.temperatureSamplingRateInMillis)) {
     handleTemperature();
 
     lastTemperatureSamplingMillis = currentMillis;
   }
 
   currentMillis = millis();
-  if(currentMillis - lastHumiditySamplingMillis > configuration.humiditySamplingRateInMillis) {
+  if(configuration.enableHumidityRead && (currentMillis - lastHumiditySamplingMillis > configuration.humiditySamplingRateInMillis)) {
     handleHumidity();
 
     lastHumiditySamplingMillis = currentMillis;
+  }
+
+  currentMillis = millis();
+  if(configuration.enableRainGaugeRead && (currentMillis - lastRainGaugeSamplesElaborationMillis > configuration.rainSamplesElaborationRateInMillis)) {
+    elaborateRainGaugeUnhandledSamples();
+
+    lastRainGaugeSamplesElaborationMillis = currentMillis;
   }
   
   bridge->work();
@@ -120,14 +163,25 @@ void Device::handleTemperature() {
 
 }
 
+void Device::elaborateRainGaugeUnhandledSamples() {
 
+  if(rainGaugeUnhandledTrigs <= 0)
+    return;
 
+  unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
+  unsigned long totalLitres = rainGaugeUnhandledTrigs * configuration.rainTriggerMultiplierInLitre;
 
+  if(configuration.debug) {
+    Serial.print("elaborate rain gauge unhandled samples: ");
+    Serial.print(rainGaugeUnhandledTrigs);
+    Serial.print(" => ");
+    Serial.println(totalLitres);
+  }
+    
+  Telemetry* rainTelemetry = new RainTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, totalLitres);
 
-
-
-
-
+  bridge->put(rainTelemetry);
+}
 
 

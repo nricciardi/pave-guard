@@ -29,7 +29,7 @@ bool Bridge::setup() {
   unsigned int attempts = 0;
 
   // attempt to connect to WiFi network:
-  while (true) {
+  while (configuration.wifiConnectionNeeded) {
     Serial.print("attempting to connect to SSID: '");
     Serial.print(configuration.wifiSsid);
     Serial.print("'... ");
