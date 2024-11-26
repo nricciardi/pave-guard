@@ -102,7 +102,7 @@ void writeGyroscope(int16_t x, int16_t y, int16_t z){
 }
 
 const int buf_size = 100;
-const unsigned long interval = 20;
+const unsigned long interval = 10;
 
 TinyGPSPlus gps;
 double lat, lon;
@@ -112,7 +112,7 @@ int16_t mAcX, mAcY, mAcZ;
 int16_t* pAcX,* pAcY,* pAcZ;
 char i;
 
-long long previousTime;
+unsigned long previousTime;
 
 int16_t getMedian(int16_t* list, int len){
 
@@ -167,15 +167,14 @@ void empty_buffer() {
     for(int j = 0; j < i; j++){
       writeAccelerometer(pAcX[j] - mAcX, pAcY[j] - mAcY, pAcZ[j] - mAcZ);
       printLatAndLon(pLat[j], pLon[j]);
-    } i = 0;
+    } i = 1;
   Serial.print("\n\n");
 
 }
 
 void loop(){
 
-  if((millis() - previousTime) < interval) return;
-  else previousTime = millis();
+  if((millis() - previousTime) < interval)  return;                                    
 
   if(i >= buf_size){
     empty_buffer();   
@@ -183,7 +182,10 @@ void loop(){
     readAccelerometer(&mAcX, &mAcY, &mAcZ);
     insertSorted(pAcX, i, mAcX); insertSorted(pAcY, i, mAcY); insertSorted(pAcZ, i, mAcZ);
     getLatAndLon(&pLat[i], &pLon[i], &gps); i++;
-    if(abs(mAcX) >= 13000 || abs(mAcY) >= 13000 || abs(mAcX) + abs(mAcY) >= 19000){ empty_buffer(); return; }
+    if(abs(mAcX) >= 13000 || abs(mAcY) >= 13000 || abs(mAcX) + abs(mAcY) >= 18000)  
+      empty_buffer();
   }
+
+  previousTime = millis();
 
 }
