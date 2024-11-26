@@ -38,6 +38,10 @@ Dove un utente può registrarsi. In una prima schermata viene chiesto di inserir
 
 L'utente può effettuare il login nell'applicazione, fornendo la mail e la password usati al tempo di sign-up. Per un certo periodo, i dati vengono mantenuti in memoria affinchè l'utente possa rientrare senza inserire ancora i propri dati.
 
+#### Devices
+
+L'utente può visualizzare la lista corrente di dispositivi a cui collegarsi. Può inoltre aggiungere nuovi dispositivi, scansionado il codice QR presente sui Dynamic Guards.
+
 #### Dashboard
 
 Nella dashboard, l'utente può vedere due informazioni principali: lo stato di connessione ai sensori e la detrazione delle tasse fino a quel momento. Se vi è un errore nella connessione ai sensori così come scelti nelle impostazioni, questo viene mostrato.
