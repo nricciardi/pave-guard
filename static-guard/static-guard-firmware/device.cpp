@@ -76,12 +76,6 @@ void Device::setup() {
 // ========================== WORK ==========================
 void Device::work() {
 
-  Serial.println(rainGaugeUnhandledTrigs);
-
-  delay(1000);
-
-  return;
-
   long currentMillis;
   
   currentMillis = millis();
@@ -170,18 +164,20 @@ void Device::elaborateRainGaugeUnhandledSamples() {
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
-  unsigned long totalLitres = rainGaugeUnhandledTrigs * configuration.rainTriggerMultiplierInLitre;
+  unsigned long totalMm = (float) rainGaugeUnhandledTrigs * configuration.rainTriggerMultiplierInMm;
 
   if(configuration.debug) {
     Serial.print("elaborate rain gauge unhandled samples: ");
     Serial.print(rainGaugeUnhandledTrigs);
     Serial.print(" => ");
-    Serial.println(totalLitres);
+    Serial.println(totalMm);
   }
     
-  Telemetry* rainTelemetry = new RainTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, totalLitres);
+  Telemetry* rainTelemetry = new RainTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, totalMm);
 
   bridge->put(rainTelemetry);
+
+  rainGaugeUnhandledTrigs = 0;
 }
 
 

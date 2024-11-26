@@ -7,15 +7,15 @@
 class RainTelemetry: public Telemetry {
 
   private:
-    float litres;
+    float mm;
 
   public:
-    RainTelemetry(String deviceId, unsigned long timestampInSeconds, double latitude, double longitude, float litres): Telemetry(deviceId, timestampInSeconds, latitude, longitude), litres(litres) {}
+    RainTelemetry(String deviceId, unsigned long timestampInSeconds, double latitude, double longitude, float mm): Telemetry(deviceId, timestampInSeconds, latitude, longitude), mm(mm) {}
 
   String toGraphqlMutationBody() override {
 
-    String extraBody("litres:");
-    extraBody.concat(litres);
+    String extraBody("mm:");
+    extraBody.concat(mm);
 
     return buildGraphqlMutationBody("createRainTelemetry", &extraBody);
   }

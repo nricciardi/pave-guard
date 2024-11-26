@@ -8,7 +8,7 @@ import { Document } from 'mongoose';
 export class RainTelemetry extends Document {
 
   @Prop({ required: true })
-  litres: number;
+  mm: number;
 }
 
 export const RainTelemetrySchema = SchemaFactory.createForClass(RainTelemetry);

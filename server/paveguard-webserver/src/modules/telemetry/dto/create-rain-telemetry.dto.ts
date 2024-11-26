@@ -8,5 +8,5 @@ export class CreateRainTelemetryDto extends CreateTelemetryDto {
   @IsNumber()
   @IsNotEmpty()
   @Min(0)
-  litres: number;
+  mm: number;
 }

@@ -12,7 +12,7 @@ import { CreateRainTelemetryDto } from '../dto/create-rain-telemetry.dto';
 export class RainTelemetryQuery extends TelemetryQuery {
 
   @Field()
-  litres: number;
+  mm: number;
 }
 
 

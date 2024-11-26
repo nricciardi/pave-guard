@@ -10,7 +10,7 @@
 #include "led-controller.h"
 
 
-#define BUCKET_LENGTH 10      // MAX 30
+#define BUCKET_LENGTH 5      // MAX 30
 
 
 // ==== BRIDGE CONFIGURATION ====
@@ -39,7 +39,7 @@ struct BridgeConfiguration {
 };
 
 const BridgeConfiguration bridgeConfiguration = {
-  .wifiConnectionNeeded = false,
+  .wifiConnectionNeeded = true,
 
   .bucketLength = BUCKET_LENGTH,
   .bucketSendingThreshold = (unsigned short) (BUCKET_LENGTH * 0.6),
@@ -47,7 +47,7 @@ const BridgeConfiguration bridgeConfiguration = {
   .wifiSsid = "Not eduroam",
   .wifiPassword = "celestecarbone",
   .serverAddress = "192.168.91.3",
-  .serverPort = 3001,
+  .serverPort = 3000,
 
   .ntpServerUrl = "it.pool.ntp.org",
   .ntpTimeOffset = 0,

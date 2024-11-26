@@ -54,7 +54,7 @@ struct DeviceConfiguration {
 
   bool enableRainGaugeRead;
   unsigned char rainGaugeSensorPin;
-  unsigned short rainTriggerMultiplierInLitre;
+  float rainTriggerMultiplierInMm;
   unsigned int rainSamplesElaborationRateInMillis;
 
   bool ledLogEnabled;
@@ -80,8 +80,8 @@ const DeviceConfiguration deviceConfiguration = {
 
   .enableRainGaugeRead = true,
   .rainGaugeSensorPin = 8,
-  .rainTriggerMultiplierInLitre = 1,
-  .rainSamplesElaborationRateInMillis = 5 * 1000,
+  .rainTriggerMultiplierInMm = 1.0,
+  .rainSamplesElaborationRateInMillis = 2 * 1000,
 
   .ledLogEnabled = true,
   .debug = true,
