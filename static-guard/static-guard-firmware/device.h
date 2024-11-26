@@ -169,6 +169,7 @@ class Device {
 
     void elaborateRainGaugeUnhandledSamples();
 
+    void elaborateTrafficTriggersUnhandledSamples();
 
     // === INTERRUPT CALLBACKs ===
     static void onTrafficTriggerLeftTrig();

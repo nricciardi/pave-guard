@@ -180,4 +180,7 @@ void Device::elaborateRainGaugeUnhandledSamples() {
   rainGaugeUnhandledTrigs = 0;
 }
 
+void Device::elaborateTrafficTriggersUnhandledSamples() {
+  
+}
 
