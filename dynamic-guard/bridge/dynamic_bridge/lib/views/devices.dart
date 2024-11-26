@@ -95,23 +95,35 @@ class DevicesLinkedState extends State<Devices> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Scan Device QR Code"),
-            content: Scaffold(
-                body: QRCodeDartScanView(
-              scanInvertedQRCode: true,
-              typeScan: TypeScan.live,
-              onCapture: (value) async {
-                if (EnvManager.isDebugAndroidMode()) {
-                  log(value.text);
-                }
-                await addDevice(value.text);
-                // ignore: use_build_context_synchronously
-                Navigator.of(context).pop();
-                setState(() {});
-              },
-            )),
-          );
+          return Center(
+              child: SizedBox(
+                height: 500,
+                width: 500,
+                  child: AlertDialog(
+                      title: const Text("Scan Device QR Code"),
+                      content: Scaffold(
+                          body: QRCodeDartScanView(
+                        widthPreview: 300,
+                        heightPreview: 300,
+                        scanInvertedQRCode: true,
+                        typeScan: TypeScan.live,
+                        onCapture: (value) async {
+                          if (EnvManager.isDebugAndroidMode()) {
+                            log(value.text);
+                          }
+                          await addDevice(value.text);
+                          // ignore: use_build_context_synchronously
+                          Navigator.of(context).pop();
+                          setState(() {});
+                        },
+                      )),
+                      actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Close"))
+              ])));
         });
   }
 
