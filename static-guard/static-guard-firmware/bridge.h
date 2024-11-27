@@ -44,9 +44,9 @@ const BridgeConfiguration bridgeConfiguration = {
   .bucketLength = BUCKET_LENGTH,
   .bucketSendingThreshold = (unsigned short) (BUCKET_LENGTH * 0.6),
 
-  .wifiSsid = "Not eduroam",
-  .wifiPassword = "celestecarbone",
-  .serverAddress = "192.168.91.3",
+  .wifiSsid = "Martin Router King 2.4GHz",
+  .wifiPassword = "M.L.King7",
+  .serverAddress = "192.168.0.11",
   .serverPort = 3000,
 
   .ntpServerUrl = "it.pool.ntp.org",
@@ -125,6 +125,11 @@ class Bridge {
 
     /**
     * Actual send telemetries method
+    */
+    bool internalSend();
+
+    /**
+    * Send wrapper to handle interrupts
     */
     bool send();
 

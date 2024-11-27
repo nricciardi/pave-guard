@@ -10,9 +10,9 @@ import { HumidityTelemetryService } from './services/humidity-telemetry/humidity
 import { HumidityTelemetry, HumidityTelemetrySchema } from './models/humidity-telemetry.model';
 import { HumidityTelemetryResolver } from './resolvers/humidity-telemetry.resolver';
 import { UserModule } from '../user/user.module';
-import { TrafficTelemetry, TrafficTelemetrySchema } from './models/traffic-telemetry.model';
-import { TrafficTelemetryService } from './services/traffic-telemetry/traffic-telemetry.service';
-import { TrafficTelemetryResolver } from './resolvers/traffic-telemetry.resolver';
+import { TransitTelemetry, TransitTelemetrySchema } from './models/transit-telemetry.model';
+import { TrafficTelemetryService } from './services/transit-telemetry/transit-telemetry.service';
+import { TransitTelemetryResolver } from './resolvers/transit-telemetry.resolver';
 import { RoadCrackService } from './services/road-crack/road-crack.service';
 import { RoadPotholeService } from './services/road-pothole/road-pothole.service';
 import { RoadCrackTelemetryResolver } from './resolvers/road-crack-telemetry.resolver';
@@ -44,7 +44,7 @@ import { RainTelemetryResolver } from './resolvers/rain-telemetry.resolver';
         TelemetryResolver,
         TemperatureTelemetryResolver,
         HumidityTelemetryResolver,
-        TrafficTelemetryResolver,
+        TransitTelemetryResolver,
         RoadCrackTelemetryResolver,
         RoadPotholeTelemetryResolver,
         FailTelemetryResolver,
@@ -65,8 +65,8 @@ import { RainTelemetryResolver } from './resolvers/rain-telemetry.resolver';
                         schema: HumidityTelemetrySchema
                     },
                     {
-                        name: TrafficTelemetry.name,
-                        schema: TrafficTelemetrySchema
+                        name: TransitTelemetry.name,
+                        schema: TransitTelemetrySchema
                     },
                     {
                         name: RoadCrackTelemetry.name,
