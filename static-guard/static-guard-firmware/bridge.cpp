@@ -149,17 +149,6 @@ void Bridge::cleanBucket() {
 }
 
 bool Bridge::send() {
-  
-  noInterrupts();
-
-  bool outcome = internalSend();
-
-  interrupts();
-
-  return outcome;
-}
-
-bool Bridge::internalSend() {
 
   if(configuration.debug)
     Serial.println("sending telemetries...");

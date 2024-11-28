@@ -17,7 +17,7 @@ class TransitTelemetry: public Telemetry {
 
     String extraBody("length:");
     extraBody.concat(length);
-    extraBody.concat("velocity: ");
+    extraBody.concat(",velocity:");
     extraBody.concat(velocity);
 
     return buildGraphqlMutationBody("createTransitTelemetry", &extraBody);

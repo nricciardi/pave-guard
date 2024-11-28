@@ -10,7 +10,7 @@
 #include "led-controller.h"
 
 
-#define BUCKET_LENGTH 5      // MAX 30
+#define BUCKET_LENGTH 20      // MAX 30
 
 
 // ==== BRIDGE CONFIGURATION ====
@@ -125,11 +125,6 @@ class Bridge {
 
     /**
     * Actual send telemetries method
-    */
-    bool internalSend();
-
-    /**
-    * Send wrapper to handle interrupts
     */
     bool send();
 

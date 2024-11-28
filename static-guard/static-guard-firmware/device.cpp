@@ -87,11 +87,7 @@ void Device::work() {
   currentMillis = millis();
   if(configuration.enableTemperatureSensor && (currentMillis - lastTemperatureSamplingMillis > configuration.temperatureSamplingRateInMillis)) {
 
-    noInterrupts();
-
     handleTemperature();
-
-    interrupts();
 
     lastTemperatureSamplingMillis = currentMillis;
   }
@@ -99,11 +95,7 @@ void Device::work() {
   currentMillis = millis();
   if(configuration.enableHumiditySensor && (currentMillis - lastHumiditySamplingMillis > configuration.humiditySamplingRateInMillis)) {
 
-    noInterrupts();
-
     handleHumidity();
-
-    interrupts();
 
     lastHumiditySamplingMillis = currentMillis;
   }
@@ -111,11 +103,7 @@ void Device::work() {
   currentMillis = millis();
   if(configuration.enableRainGaugeSensor && (currentMillis - lastRainGaugeSamplesElaborationMillis > configuration.rainSamplesElaborationRateInMillis)) {
 
-    noInterrupts();
-
     elaborateRainGaugeUnhandledSamples();
-
-    interrupts();
 
     lastRainGaugeSamplesElaborationMillis = currentMillis;
   }
@@ -158,9 +146,7 @@ void Device::handleTemperature() {
   
   // Read temperature as Celsius (the default)
   float t = dht->readTemperature();
-
-  interrupts();
-
+  
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
   if(!isnan(t)) {
@@ -218,45 +204,60 @@ void Device::elaborateTrafficTriggersUnhandledSamples() {
     unsigned long millisOfLeftTrig2 = trafficTriggerLeftBucket->get(i);
     unsigned long millisOfRightTrig2 = trafficTriggerRightBucket->get(i);
 
-    double velocity1 = configuration.trafficTriggersdistanceInMeters / (double) (millisOfRightTrig1 - millisOfLeftTrig1);
-    double velocity2 = configuration.trafficTriggersdistanceInMeters / (double) (millisOfRightTrig2 - millisOfLeftTrig2);
+    double velocity1 = configuration.trafficTriggersdistanceInMeters / (double) (millisOfRightTrig1 - millisOfLeftTrig1);   // m/ms
+    double velocity2 = configuration.trafficTriggersdistanceInMeters / (double) (millisOfRightTrig2 - millisOfLeftTrig2);   // m/ms
 
-    if(velocity1 <= 0 || velocity2 <= 0) {
+    if(velocity1 <= 0 || isnan(velocity1) || velocity2 <= 0 || isnan(velocity2)) {
 
       Serial.println("ERROR: trouble during velocity computation");
 
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT001"), String("Computed velocity is less or equal to zero"));
+      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT001"), String("Computed velocities is less or equal to zero"));
 
       bridge->put(failTelemetry);
       
       continue;
     }
 
-    double meanVelocity = (velocity1 + velocity2) / 2.0 * 1000.0;  // m/s
+    double meanVelocity = ((velocity1 + velocity2) / 2.0) * 1000.0;  // m/s
 
-    double transitTimeInSeconds = (millisOfRightTrig2 - millisOfLeftTrig1) / 1000.0;
+    double transitTimeInSeconds = (millisOfRightTrig2 - millisOfLeftTrig1) / 1000.0;  // s
 
-    if(transitTimeInSeconds <= 0) {
+    if(transitTimeInSeconds <= 0 || isnan(transitTimeInSeconds)) {
 
       Serial.println("ERROR: trouble during transit time computation");
 
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT001"), String("Transit time is less or equal to zero"));
+      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT002"), String("Transit time is less or equal to zero"));
 
       bridge->put(failTelemetry);
       
       continue;
     }
 
-    double vehicleLength = meanVelocity * transitTimeInSeconds;
+    double vehicleLength = meanVelocity * transitTimeInSeconds;   // m/s * s = m
+    meanVelocity = meanVelocity * 3.6;    // m/s * 3.6 = km/h
 
     if(configuration.debug) {
       Serial.print("transit: length -> ");
       Serial.print(vehicleLength);
       Serial.print("m; velocity -> ");
       Serial.print(meanVelocity);
-      Serial.print("m/s = ");
-      Serial.print(meanVelocity * 3.6);
-      Serial.println("km/s");
+      Serial.println("km/h");
+    }
+
+    if(vehicleLength <= 0 || isnan(vehicleLength) || meanVelocity <= 0 || isnan(meanVelocity)) {
+
+      Serial.println("ERROR: trouble during transit computation");
+
+      String msg("Vehicle length or velocity is less or equal to zero or inf. Length: ");
+      msg.concat(vehicleLength);
+      msg.concat("; velocity: ");
+      msg.concat(meanVelocity);
+
+      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), msg);
+
+      bridge->put(failTelemetry);
+      
+      continue;
     }
 
     Telemetry* transitTelemetry = new TransitTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, vehicleLength, meanVelocity);
