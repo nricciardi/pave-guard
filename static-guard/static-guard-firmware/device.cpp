@@ -4,12 +4,12 @@
 #include "device.h"
 
 // ==== INTERRUPTs ====
-void Device::onTrafficTriggerLeftTrig() {
-  Device::instance->trafficTriggerLeftBucket->appendIfGreaterThanLast(millis(), Device::instance->configuration.trafficTriggerTrigThresholdInMillis);
+void Device::onTransitTriggerLeftTrig() {
+  Device::instance->transitTriggerLeftQueue->pushIfGreaterThanLast(micros(), Device::instance->configuration.transitTriggerTrigThresholdInMicros);
 }
 
-void Device::onTrafficTriggerRightTrig() {
-  Device::instance->trafficTriggerRightBucket->appendIfGreaterThanLast(millis(), Device::instance->configuration.trafficTriggerTrigThresholdInMillis);
+void Device::onTransitTriggerRightTrig() {
+  Device::instance->transitTriggerRightQueue->pushIfGreaterThanLast(micros(), Device::instance->configuration.transitTriggerTrigThresholdInMicros);
 }
 
 void Device::onRainGaugeTrig() {
@@ -61,11 +61,11 @@ void Device::setup() {
   dht->begin();
 
   // === TRAFFIC TRIGGERs ===
-  pinMode(configuration.trafficTriggerLeftSensorPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(configuration.trafficTriggerLeftSensorPin), Device::onTrafficTriggerLeftTrig, CHANGE);
+  pinMode(configuration.transitTriggerLeftSensorPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(configuration.transitTriggerLeftSensorPin), Device::onTransitTriggerLeftTrig, CHANGE);
 
-  pinMode(configuration.trafficTriggerRightSensorPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(configuration.trafficTriggerRightSensorPin), Device::onTrafficTriggerRightTrig, CHANGE);
+  pinMode(configuration.transitTriggerRightSensorPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(configuration.transitTriggerRightSensorPin), Device::onTransitTriggerRightTrig, CHANGE);
 
   // === RAIN GAUGE ===
   pinMode(configuration.rainGaugeSensorPin, INPUT_PULLUP);
@@ -108,9 +108,15 @@ void Device::work() {
     lastRainGaugeSamplesElaborationMillis = currentMillis;
   }
 
-  if(configuration.enableTrafficTriggerSensor && (trafficTriggerLeftBucket->index > configuration.trafficTriggerBucketCleaningThreshold) && (trafficTriggerRightBucket->index > configuration.trafficTriggerBucketCleaningThreshold)) {
-    elaborateTrafficTriggersUnhandledSamples();
+  if(configuration.enableTransitTriggerSensor && (transitTriggerLeftQueue->head > configuration.transitTriggerQueueElaborationThreshold) && (transitTriggerRightQueue->head > configuration.transitTriggerQueueElaborationThreshold)) {
+    elaborateTransitTriggersUnhandledSamples();
+
+    Serial.println("stop");
+    while(true);
   }
+
+  Serial.println(transitTriggerLeftQueue->head);
+  transitTriggerLeftQueue->push(8);
   
   bridge->work();
 }
@@ -146,7 +152,7 @@ void Device::handleTemperature() {
   
   // Read temperature as Celsius (the default)
   float t = dht->readTemperature();
-  
+
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
   if(!isnan(t)) {
@@ -193,40 +199,59 @@ void Device::elaborateRainGaugeUnhandledSamples() {
   rainGaugeUnhandledTrigs = 0;
 }
 
-void Device::elaborateTrafficTriggersUnhandledSamples() {
+void Device::elaborateTransitTriggersUnhandledSamples() {
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
-  for(unsigned short i = 1; (i < trafficTriggerLeftBucket->index) && (i < trafficTriggerRightBucket->index); i += 2) {
+  for(unsigned short i = 1; (i < transitTriggerLeftQueue->head) && (i < transitTriggerRightQueue->head); i += 2) {
 
-    unsigned long millisOfLeftTrig1 = trafficTriggerLeftBucket->get(i-1);
-    unsigned long millisOfRightTrig1 = trafficTriggerRightBucket->get(i-1);
-    unsigned long millisOfLeftTrig2 = trafficTriggerLeftBucket->get(i);
-    unsigned long millisOfRightTrig2 = trafficTriggerRightBucket->get(i);
+    // transit is supposed: RIGHT ==> LEFT
 
-    double velocity1 = configuration.trafficTriggersdistanceInMeters / (double) (millisOfRightTrig1 - millisOfLeftTrig1);   // m/ms
-    double velocity2 = configuration.trafficTriggersdistanceInMeters / (double) (millisOfRightTrig2 - millisOfLeftTrig2);   // m/ms
+    unsigned long microsOfRightTrig2 = transitTriggerRightQueue->popLast();
+    unsigned long microsOfLeftTrig2 = transitTriggerLeftQueue->popLast();
+    unsigned long microsOfRightTrig1 = transitTriggerRightQueue->popLast();
+    unsigned long microsOfLeftTrig1 = transitTriggerLeftQueue->popLast();
 
-    if(velocity1 <= 0 || isnan(velocity1) || velocity2 <= 0 || isnan(velocity2)) {
+    if(microsOfRightTrig1 > microsOfLeftTrig1 || microsOfLeftTrig1 > microsOfRightTrig2 || microsOfRightTrig2 > microsOfLeftTrig2) {
 
-      Serial.println("ERROR: trouble during velocity computation");
+      Serial.println("ERROR: invalid trig samples");
 
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT001"), String("Computed velocities is less or equal to zero"));
+      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT001"), String("Invalid trig samples"));
 
       bridge->put(failTelemetry);
       
       continue;
     }
 
-    double meanVelocity = ((velocity1 + velocity2) / 2.0) * 1000.0;  // m/s
+    double velocity1 = configuration.transitTriggersdistanceInMeters / (double) (configuration.transitTriggerInterruptOffsetInMicros + microsOfLeftTrig1 - microsOfRightTrig1);   // m/us
+    double velocity2 = configuration.transitTriggersdistanceInMeters / (double) (configuration.transitTriggerInterruptOffsetInMicros * 2 + microsOfLeftTrig2 - microsOfRightTrig2);   // m/us
 
-    double transitTimeInSeconds = (millisOfRightTrig2 - millisOfLeftTrig1) / 1000.0;  // s
+    if(velocity1 <= 0 || isnan(velocity1) || velocity2 <= 0 || isnan(velocity2)) {
+
+      Serial.println("ERROR: trouble during velocity computation");
+      Serial.println("WARNING: queues will be cleared");
+      transitTriggerRightQueue->clear();
+      transitTriggerLeftQueue->clear();
+
+      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT002"), String("Computed velocities is less or equal to zero"));
+
+      bridge->put(failTelemetry);
+      
+      continue;
+    }
+
+    velocity1 = velocity1 * 1000000.0;  // m/us -> m/s
+    velocity2 = velocity2 * 1000000.0;  // m/us -> m/s
+
+    double meanVelocity = (velocity1 + velocity2) / 2.0;  // m/s
+
+    double transitTimeInSeconds = (configuration.transitTriggerInterruptOffsetInMicros * 2 + microsOfLeftTrig2 - microsOfRightTrig1) / 1000000.0; // us -> s
 
     if(transitTimeInSeconds <= 0 || isnan(transitTimeInSeconds)) {
 
       Serial.println("ERROR: trouble during transit time computation");
 
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT002"), String("Transit time is less or equal to zero"));
+      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), String("Transit time is less or equal to zero"));
 
       bridge->put(failTelemetry);
       
@@ -241,7 +266,9 @@ void Device::elaborateTrafficTriggersUnhandledSamples() {
       Serial.print(vehicleLength);
       Serial.print("m; velocity -> ");
       Serial.print(meanVelocity);
-      Serial.println("km/h");
+      Serial.print("km/h (");
+      Serial.print(meanVelocity / 3.6);
+      Serial.println("m/s)");
     }
 
     if(vehicleLength <= 0 || isnan(vehicleLength) || meanVelocity <= 0 || isnan(meanVelocity)) {
@@ -253,7 +280,7 @@ void Device::elaborateTrafficTriggersUnhandledSamples() {
       msg.concat("; velocity: ");
       msg.concat(meanVelocity);
 
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), msg);
+      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT004"), msg);
 
       bridge->put(failTelemetry);
       
@@ -264,9 +291,6 @@ void Device::elaborateTrafficTriggersUnhandledSamples() {
 
     bridge->put(transitTelemetry);
   }
-
-  trafficTriggerLeftBucket->clear();
-  trafficTriggerRightBucket->clear();
 }
 
 

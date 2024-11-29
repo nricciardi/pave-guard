@@ -12,10 +12,11 @@
 #include "rain-telemetry.h"
 #include "transit-telemetry.h"
 #include "led-controller.h"
+#include "queue.h"
 
 
-#define TRANSIT_TRIGGER_BUCKET_SIZE 12  // must be even (e.g. 40)
-#define TRANSIT_TRIGGER_BUCKET_CLEANING_THRESHOLD 6   // must be even (e.g. 20)
+#define TRANSIT_TRIGGER_QUEUE_SIZE 12  // must be even (e.g. 40)
+#define TRANSIT_TRIGGER_QUEUE_ELABORATION_THRESHOLD 2   // must be >= 2
 
 
 // ==== DEVICE SIGN ====
@@ -47,13 +48,14 @@ struct DeviceConfiguration {
   unsigned int temperatureSamplingRateInMillis;
   unsigned int humiditySamplingRateInMillis;
 
-  bool enableTrafficTriggerSensor;
-  unsigned char trafficTriggerLeftSensorPin;
-  unsigned char trafficTriggerRightSensorPin;
-  double trafficTriggersdistanceInMeters;
-  unsigned short trafficTriggerBucketSize;
-  unsigned short trafficTriggerBucketCleaningThreshold;
-  unsigned long trafficTriggerTrigThresholdInMillis;
+  bool enableTransitTriggerSensor;
+  unsigned char transitTriggerLeftSensorPin;
+  unsigned char transitTriggerRightSensorPin;
+  double transitTriggersdistanceInMeters;
+  unsigned short transitTriggerQueueSize;
+  unsigned short transitTriggerQueueElaborationThreshold;
+  unsigned long transitTriggerTrigThresholdInMicros;
+  unsigned long transitTriggerInterruptOffsetInMicros;      // fix miss increment of timer during interrupt
 
   bool enableRainGaugeSensor;
   unsigned char rainGaugeSensorPin;
@@ -75,17 +77,18 @@ const DeviceConfiguration deviceConfiguration = {
   .temperatureSamplingRateInMillis = 8 * 1000,
   .humiditySamplingRateInMillis = 9 * 1000,
 
-  .enableTrafficTriggerSensor = true,
-  .trafficTriggerLeftSensorPin = 2,
-  .trafficTriggerRightSensorPin = 3,
-  .trafficTriggersdistanceInMeters = 0.185,
-  .trafficTriggerBucketSize = TRANSIT_TRIGGER_BUCKET_SIZE,
-  .trafficTriggerBucketCleaningThreshold = TRANSIT_TRIGGER_BUCKET_CLEANING_THRESHOLD,
-  .trafficTriggerTrigThresholdInMillis = 10,
+  .enableTransitTriggerSensor = true,
+  .transitTriggerLeftSensorPin = 2,
+  .transitTriggerRightSensorPin = 3,
+  .transitTriggersdistanceInMeters = 0.186,
+  .transitTriggerQueueSize = TRANSIT_TRIGGER_QUEUE_SIZE,
+  .transitTriggerQueueElaborationThreshold = TRANSIT_TRIGGER_QUEUE_ELABORATION_THRESHOLD,
+  .transitTriggerTrigThresholdInMicros = 50 * 1000,
+  .transitTriggerInterruptOffsetInMicros = 0,
 
   .enableRainGaugeSensor = true,
   .rainGaugeSensorPin = 8,
-  .rainTriggerMultiplierInMm = 1.0,
+  .rainTriggerMultiplierInMm = 0.3,
   .rainSamplesElaborationRateInMillis = 2 * 1000,
   .rainGaugeTrigThresholdInMillis = 50,
 
@@ -93,58 +96,6 @@ const DeviceConfiguration deviceConfiguration = {
   .debug = true,
 };
 
-class UnsignedLongBucket {
-
-  public:
-    unsigned long* bucket;
-    unsigned short size;
-    unsigned short index;
-
-    UnsignedLongBucket(unsigned short size) {
-      this->size = size;
-      bucket = new unsigned long[size];
-      index = 0;
-
-      for(unsigned short i=0; i < size; i++) {
-        bucket[i] = 0;
-      }
-    }
-
-    void append(unsigned long item) {
-      bucket[index] = item;
-      index = (index + 1) % size;
-    }
-
-    void appendIfGreaterThanLast(unsigned long item, unsigned long threshold) {
-
-      if(abs(getLast() - item) > threshold)
-        append(item);
-      
-    }
-
-    unsigned long getLast() {
-      return bucket[max(index - 1, 0)];
-    }
-
-    unsigned long get(unsigned short i) {
-      return bucket[i];
-    }
-
-    void print() {
-      Serial.print("(");
-      Serial.print(index);
-      Serial.print(") [ ");
-      for(unsigned short i=0; i < index; i++) {
-        Serial.print(bucket[i]);
-        Serial.print(" ");
-      }
-      Serial.println("]");
-    }
-
-    void clear() {
-      index = 0;
-    }
-};
 
 class Device {
 
@@ -157,8 +108,8 @@ class Device {
     unsigned long lastTemperatureSamplingMillis = 0;
     unsigned long lastHumiditySamplingMillis = 0;
 
-    UnsignedLongBucket* trafficTriggerLeftBucket = new UnsignedLongBucket(deviceConfiguration.trafficTriggerBucketSize);
-    UnsignedLongBucket* trafficTriggerRightBucket = new UnsignedLongBucket(deviceConfiguration.trafficTriggerBucketSize);
+    UnsignedLongQueue* transitTriggerLeftQueue = new UnsignedLongQueue(deviceConfiguration.transitTriggerQueueSize);
+    UnsignedLongQueue* transitTriggerRightQueue = new UnsignedLongQueue(deviceConfiguration.transitTriggerQueueSize);
 
     unsigned int rainGaugeUnhandledTrigs = 0;
     unsigned int lastRainGaugeTrig = 0;
@@ -202,12 +153,12 @@ class Device {
 
     void elaborateRainGaugeUnhandledSamples();
 
-    void elaborateTrafficTriggersUnhandledSamples();
+    void elaborateTransitTriggersUnhandledSamples();
 
     // === INTERRUPT CALLBACKs ===
-    static void onTrafficTriggerLeftTrig();
+    static void onTransitTriggerLeftTrig();
 
-    static void onTrafficTriggerRightTrig();
+    static void onTransitTriggerRightTrig();
 
     static void onRainGaugeTrig();
 };
