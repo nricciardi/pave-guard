@@ -15,8 +15,7 @@
 #include "queue.h"
 
 
-#define TRANSIT_TRIGGER_QUEUE_SIZE 12  // must be even (e.g. 40)
-#define TRANSIT_TRIGGER_QUEUE_ELABORATION_THRESHOLD 2   // must be >= 2
+#define TRANSIT_TRIGGER_QUEUE_SIZE 40  // must be even (e.g. 40)
 
 
 // ==== DEVICE SIGN ====
@@ -53,7 +52,6 @@ struct DeviceConfiguration {
   unsigned char transitTriggerRightSensorPin;
   double transitTriggersdistanceInMeters;
   unsigned short transitTriggerQueueSize;
-  unsigned short transitTriggerQueueElaborationThreshold;
   unsigned long transitTriggerTrigThresholdInMicros;
   unsigned long transitTriggerInterruptOffsetInMicros;      // fix miss increment of timer during interrupt
 
@@ -70,21 +68,20 @@ struct DeviceConfiguration {
 const DeviceConfiguration deviceConfiguration = {
   .delayBeforeSetupInMillis = 2 * 1000,
 
-  .enableHumiditySensor = false,
-  .enableTemperatureSensor = false,
+  .enableHumiditySensor = true,
+  .enableTemperatureSensor = true,
   .humidityTemperatureSensorPin = 7,
   .humidityTemperatureSensorType = DHT22,
-  .temperatureSamplingRateInMillis = 8 * 1000,
-  .humiditySamplingRateInMillis = 9 * 1000,
+  .temperatureSamplingRateInMillis = 60 * 1000,
+  .humiditySamplingRateInMillis = 60 * 1000,
 
   .enableTransitTriggerSensor = true,
   .transitTriggerLeftSensorPin = 2,
   .transitTriggerRightSensorPin = 3,
   .transitTriggersdistanceInMeters = 0.186,
   .transitTriggerQueueSize = TRANSIT_TRIGGER_QUEUE_SIZE,
-  .transitTriggerQueueElaborationThreshold = TRANSIT_TRIGGER_QUEUE_ELABORATION_THRESHOLD,
   .transitTriggerTrigThresholdInMicros = 50 * 1000,
-  .transitTriggerInterruptOffsetInMicros = 0,
+  .transitTriggerInterruptOffsetInMicros = 100,
 
   .enableRainGaugeSensor = true,
   .rainGaugeSensorPin = 8,

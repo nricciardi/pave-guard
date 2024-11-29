@@ -15,4 +15,10 @@ export class CreateTransitTelemetryDto extends CreateTelemetryDto {
   @IsNotEmpty()
   @Min(0)
   velocity: number;
+
+  @Field()
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  transitTime: number;
 }

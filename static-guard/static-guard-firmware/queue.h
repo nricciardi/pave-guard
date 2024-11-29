@@ -1,63 +1,56 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#include <Arduino.h>
 
 class UnsignedLongQueue {
 
   public:
     unsigned long* queue;
-    unsigned short size;
-    unsigned short head;   // next index of head item
+    unsigned int size;
+    int nextIndex = 0;
 
-    UnsignedLongQueue(unsigned short size) {
+    UnsignedLongQueue(unsigned int size) {
       this->size = size;
       queue = new unsigned long[size];
-      head = 0;
 
       clear();
     }
 
-    unsigned long shift() {
+    ~UnsignedLongQueue() {
+      delete[] queue;
+    }
 
-      unsigned long poppedItem = queue[size-1];
+    void push(unsigned long item) {
 
-      for(unsigned short i=size-1; i >= 1; i++) {
-        queue[i] = queue[i-1];
+      for(int i=nextIndex; i >= 1; i -= 1) {
+        queue[nextIndex] = queue[nextIndex - 1];
       }
 
-      queue[0] = nullValue();   // clear first item
-      
-      head = min(head + 1, size);
-
-      return poppedItem;
-    }
-
-    unsigned long push(unsigned long item) {
-
-      unsigned long poppedItem = shift();
-
       queue[0] = item;
-
-      return poppedItem;
+      nextIndex = min(nextIndex + 1, size);
     }
 
-    unsigned long pushIfGreaterThanLast(unsigned long item, unsigned long threshold) {
+    void pushIfGreaterThanLast(unsigned long item, unsigned long threshold) {
 
-      if(item - getLast() > threshold)
-        return push(item);
-      
-      return nullValue();
+      if(item - getLastInserted() > threshold)
+        push(item);
     }
 
-    unsigned long getLast() {
-      return queue[max(head - 1, 0)];
+    unsigned long getFirstInserted() {
+      return queue[max(nextIndex - 1, 0)];
     }
 
-    unsigned long popLast() {
-      unsigned long item = getLast();
+    unsigned long getLastInserted() {
+      return queue[0];
+    }
 
-      head = max(head - 1, 0);
-      queue[head] = nullValue();
+    unsigned long pop() {
+
+      unsigned long item = getFirstInserted();
+
+      queue[max(nextIndex - 1, 0)] = nullValue();
+      nextIndex = max(nextIndex - 1, 0);
 
       return item;
     }
@@ -68,9 +61,9 @@ class UnsignedLongQueue {
 
     void print() {
       Serial.print("(");
-      Serial.print(head - 1);
+      Serial.print(nItems());
       Serial.print(") [ ");
-      for(unsigned short i=0; i < size; i++) {
+      for(unsigned short i=0; i < nextIndex; i++) {
         Serial.print(queue[i]);
         Serial.print(" ");
       }
@@ -82,15 +75,19 @@ class UnsignedLongQueue {
         queue[i] = nullValue();
       }
 
-      head = 0;
+      nextIndex = 0;
     }
 
     bool isFull() {
-      return head == size;
+      return nextIndex == size;
     }
-
+  
     unsigned long nullValue() {
       return 0;
+    }
+
+    unsigned short nItems() {
+      return nextIndex;
     }
 };
 

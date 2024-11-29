@@ -12,6 +12,9 @@ export class TransitTelemetry extends Document {
 
     @Prop({ required: true })
     velocity: number;
+
+    @Prop({ required: true })
+    transitTime: number;
 }
 
 export const TransitTelemetrySchema = SchemaFactory.createForClass(TransitTelemetry);

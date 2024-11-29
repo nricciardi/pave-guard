@@ -110,7 +110,7 @@ void Bridge::put(Telemetry* telemetry) {
   if(configuration.debug)
     Serial.println("putting new telemetry...");
 
-  if(telemetriesInBucket + 1 >= configuration.bucketLength) {
+  if(telemetriesInBucket + 1 >= configuration.bucketSize) {
 
     Serial.println("WARNING: bucket is full, it will be empty before any other actions");
 
@@ -130,11 +130,11 @@ void Bridge::put(Telemetry* telemetry) {
     Serial.print("new telemetry was correctly saved in queue (");
     Serial.print(telemetriesInBucket);
     Serial.print("/");
-    Serial.print(configuration.bucketLength);
+    Serial.print(configuration.bucketSize);
     Serial.println(")");
 
     char msg[16];
-    sprintf(msg, "%d/%d", telemetriesInBucket, configuration.bucketLength);
+    sprintf(msg, "%d/%d", telemetriesInBucket, configuration.bucketSize);
 
     printOnLedMatrix(msg, 20, configuration.ledLogEnabled && configuration.debug);
   }

@@ -72,7 +72,6 @@ void Device::setup() {
   attachInterrupt(digitalPinToInterrupt(configuration.rainGaugeSensorPin), Device::onRainGaugeTrig, RISING);
   
 
-
   Serial.print("device OK: ");
   Serial.println(sign.deviceId);
 
@@ -108,16 +107,10 @@ void Device::work() {
     lastRainGaugeSamplesElaborationMillis = currentMillis;
   }
 
-  if(configuration.enableTransitTriggerSensor && (transitTriggerLeftQueue->head > configuration.transitTriggerQueueElaborationThreshold) && (transitTriggerRightQueue->head > configuration.transitTriggerQueueElaborationThreshold)) {
+  if(configuration.enableTransitTriggerSensor) {
     elaborateTransitTriggersUnhandledSamples();
-
-    Serial.println("stop");
-    while(true);
   }
 
-  Serial.println(transitTriggerLeftQueue->head);
-  transitTriggerLeftQueue->push(8);
-  
   bridge->work();
 }
 
@@ -203,94 +196,156 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
-  for(unsigned short i = 1; (i < transitTriggerLeftQueue->head) && (i < transitTriggerRightQueue->head); i += 2) {
+  if(abs(transitTriggerLeftQueue->nItems() - transitTriggerRightQueue->nItems()) > 1) {
 
-    // transit is supposed: RIGHT ==> LEFT
+    Serial.println("ERROR: inconsistent queues");
 
-    unsigned long microsOfRightTrig2 = transitTriggerRightQueue->popLast();
-    unsigned long microsOfLeftTrig2 = transitTriggerLeftQueue->popLast();
-    unsigned long microsOfRightTrig1 = transitTriggerRightQueue->popLast();
-    unsigned long microsOfLeftTrig1 = transitTriggerLeftQueue->popLast();
+    Serial.println("WARNING: queues will be cleared");
+    transitTriggerRightQueue->clear();
+    transitTriggerLeftQueue->clear();
 
-    if(microsOfRightTrig1 > microsOfLeftTrig1 || microsOfLeftTrig1 > microsOfRightTrig2 || microsOfRightTrig2 > microsOfLeftTrig2) {
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), String("Inconsistent queues"));
 
-      Serial.println("ERROR: invalid trig samples");
-
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT001"), String("Invalid trig samples"));
-
-      bridge->put(failTelemetry);
-      
-      continue;
-    }
-
-    double velocity1 = configuration.transitTriggersdistanceInMeters / (double) (configuration.transitTriggerInterruptOffsetInMicros + microsOfLeftTrig1 - microsOfRightTrig1);   // m/us
-    double velocity2 = configuration.transitTriggersdistanceInMeters / (double) (configuration.transitTriggerInterruptOffsetInMicros * 2 + microsOfLeftTrig2 - microsOfRightTrig2);   // m/us
-
-    if(velocity1 <= 0 || isnan(velocity1) || velocity2 <= 0 || isnan(velocity2)) {
-
-      Serial.println("ERROR: trouble during velocity computation");
-      Serial.println("WARNING: queues will be cleared");
-      transitTriggerRightQueue->clear();
-      transitTriggerLeftQueue->clear();
-
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT002"), String("Computed velocities is less or equal to zero"));
-
-      bridge->put(failTelemetry);
-      
-      continue;
-    }
-
-    velocity1 = velocity1 * 1000000.0;  // m/us -> m/s
-    velocity2 = velocity2 * 1000000.0;  // m/us -> m/s
-
-    double meanVelocity = (velocity1 + velocity2) / 2.0;  // m/s
-
-    double transitTimeInSeconds = (configuration.transitTriggerInterruptOffsetInMicros * 2 + microsOfLeftTrig2 - microsOfRightTrig1) / 1000000.0; // us -> s
-
-    if(transitTimeInSeconds <= 0 || isnan(transitTimeInSeconds)) {
-
-      Serial.println("ERROR: trouble during transit time computation");
-
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), String("Transit time is less or equal to zero"));
-
-      bridge->put(failTelemetry);
-      
-      continue;
-    }
-
-    double vehicleLength = meanVelocity * transitTimeInSeconds;   // m/s * s = m
-    meanVelocity = meanVelocity * 3.6;    // m/s * 3.6 = km/h
-
-    if(configuration.debug) {
-      Serial.print("transit: length -> ");
-      Serial.print(vehicleLength);
-      Serial.print("m; velocity -> ");
-      Serial.print(meanVelocity);
-      Serial.print("km/h (");
-      Serial.print(meanVelocity / 3.6);
-      Serial.println("m/s)");
-    }
-
-    if(vehicleLength <= 0 || isnan(vehicleLength) || meanVelocity <= 0 || isnan(meanVelocity)) {
-
-      Serial.println("ERROR: trouble during transit computation");
-
-      String msg("Vehicle length or velocity is less or equal to zero or inf. Length: ");
-      msg.concat(vehicleLength);
-      msg.concat("; velocity: ");
-      msg.concat(meanVelocity);
-
-      FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT004"), msg);
-
-      bridge->put(failTelemetry);
-      
-      continue;
-    }
-
-    Telemetry* transitTelemetry = new TransitTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, vehicleLength, meanVelocity);
-
-    bridge->put(transitTelemetry);
+    bridge->put(failTelemetry);
+    
+    return;
   }
+
+  if((transitTriggerLeftQueue->nItems() < 2) || (transitTriggerRightQueue->nItems() < 2))
+    return;
+
+  
+  if(configuration.debug) {
+    Serial.println("transit samples:");
+    Serial.print("left: ");
+    transitTriggerLeftQueue->print();
+    Serial.print("right: ");
+    transitTriggerRightQueue->print();
+  }
+
+  noInterrupts();
+  
+  unsigned long microsOfRightTrig1 = transitTriggerRightQueue->pop();
+  unsigned long microsOfLeftTrig1 = transitTriggerLeftQueue->pop();
+  unsigned long microsOfRightTrig2 = transitTriggerRightQueue->pop();
+  unsigned long microsOfLeftTrig2 = transitTriggerLeftQueue->pop();
+
+  interrupts();
+
+  if(microsOfRightTrig1 == microsOfLeftTrig1 || microsOfRightTrig2 == microsOfLeftTrig2) {
+
+    Serial.println("ERROR: same time in transit samples");
+
+    Serial.println("WARNING: queues will be cleared");
+    transitTriggerRightQueue->clear();
+    transitTriggerLeftQueue->clear();
+
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), String("Same time in transit samples"));
+
+    bridge->put(failTelemetry);
+    
+    return;
+  }
+
+  unsigned long deltaTime1InMicros = configuration.transitTriggerInterruptOffsetInMicros;
+
+  if(microsOfRightTrig1 > microsOfLeftTrig1)
+    deltaTime1InMicros += microsOfRightTrig1 - microsOfLeftTrig1;
+  else
+    deltaTime1InMicros += microsOfLeftTrig1 - microsOfRightTrig1;
+
+  unsigned long deltaTime2InMicros = configuration.transitTriggerInterruptOffsetInMicros;   // 3 offset - 2 offset
+
+  if(microsOfRightTrig2 > microsOfLeftTrig2)
+    deltaTime2InMicros += microsOfRightTrig2 - microsOfLeftTrig2;
+  else
+    deltaTime2InMicros += microsOfLeftTrig2 - microsOfRightTrig2;
+
+  double transitTimeInMicros = configuration.transitTriggerInterruptOffsetInMicros * 3; // us
+
+  if(microsOfLeftTrig2 > microsOfRightTrig1)
+    transitTimeInMicros += microsOfLeftTrig2 - microsOfRightTrig1;
+  else
+    transitTimeInMicros += microsOfRightTrig2 - microsOfLeftTrig1;
+
+  double partialTransitTimeInMicros = configuration.transitTriggerInterruptOffsetInMicros * 2 + min(microsOfRightTrig2 - microsOfRightTrig1, microsOfLeftTrig2 - microsOfLeftTrig1); // us
+
+  double transitTimeInSeconds = transitTimeInMicros / 1000000.0; // us -> s
+  double partialTransitTimeInSeconds = partialTransitTimeInMicros / 1000000.0; // us -> s
+
+
+  double velocity1 = configuration.transitTriggersdistanceInMeters / ((double) deltaTime1InMicros);   // m/us
+  double velocity2 = configuration.transitTriggersdistanceInMeters / ((double) deltaTime2InMicros);   // m/us
+
+  if(velocity1 <= 0 || isnan(velocity1) || velocity2 <= 0 || isnan(velocity2)) {
+
+    Serial.println("ERROR: trouble during velocity computation");
+    
+    Serial.println("WARNING: queues will be cleared");
+    transitTriggerRightQueue->clear();
+    transitTriggerLeftQueue->clear();
+
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT002"), String("Computed velocities is less or equal to zero"));
+
+    bridge->put(failTelemetry);
+    
+    return;
+  }
+
+  double meanVelocity = (double) (velocity1 + velocity2) / 2.0;  // m/s
+  meanVelocity *= 1000000.0;  // m/us -> m/s
+
+  if(transitTimeInSeconds <= 0 || isnan(transitTimeInSeconds) || partialTransitTimeInSeconds <= 0 || isnan(partialTransitTimeInSeconds) ) {
+
+    Serial.println("ERROR: trouble during transit time computation");
+
+    Serial.println("WARNING: queues will be cleared");
+    transitTriggerRightQueue->clear();
+    transitTriggerLeftQueue->clear();
+
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), String("Transit time is less or equal to zero"));
+
+    bridge->put(failTelemetry);
+    
+    return;
+  }
+
+  double vehicleLength = meanVelocity * partialTransitTimeInSeconds;   // m/s * s = m
+  meanVelocity *= 3.6;    // m/s * 3.6 = km/h
+
+  if(configuration.debug) {
+    Serial.print("transit: length -> ");
+    Serial.print(vehicleLength, 3);
+    Serial.print("m; velocity -> ");
+    Serial.print(meanVelocity, 3);
+    Serial.print("km/h (");
+    Serial.print(meanVelocity / 3.6, 3);
+    Serial.println("m/s)");
+  }
+
+  if(vehicleLength <= 0 || isnan(vehicleLength) || meanVelocity <= 0 || isnan(meanVelocity)) {
+
+    Serial.println("ERROR: trouble during transit computation");
+
+    String msg("Vehicle length or velocity is less or equal to zero or inf. Length: ");
+    msg.concat(vehicleLength);
+    msg.concat("; velocity: ");
+    msg.concat(meanVelocity);
+
+    Serial.println("WARNING: queues will be cleared");
+    transitTriggerRightQueue->clear();
+    transitTriggerLeftQueue->clear();
+
+    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT004"), msg);
+
+    bridge->put(failTelemetry);
+    
+    return;
+  }
+
+  Telemetry* transitTelemetry = new TransitTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, vehicleLength, meanVelocity, transitTimeInSeconds);
+
+  bridge->put(transitTelemetry);
 }
 
 

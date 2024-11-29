@@ -14,6 +14,9 @@ export class TransitTelemetryQuery extends TelemetryQuery {
 
   @Field()
   velocity: number;
+
+  @Field()
+  transitTime: number;
 }
 
 

@@ -15,7 +15,7 @@ class RainTelemetry: public Telemetry {
   String toGraphqlMutationBody() override {
 
     String extraBody("mm:");
-    extraBody.concat(mm);
+    extraBody.concat(String(mm, 4));
 
     return buildGraphqlMutationBody("createRainTelemetry", &extraBody);
   }

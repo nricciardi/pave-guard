@@ -10,14 +10,15 @@
 #include "led-controller.h"
 
 
-#define BUCKET_LENGTH 20      // MAX 30
+#define BUCKET_SIZE 30      // MAX 30
+#define BUCKET_THRESHOLD 18
 
 
 // ==== BRIDGE CONFIGURATION ====
 struct BridgeConfiguration {
   bool wifiConnectionNeeded;
 
-  unsigned short bucketLength;
+  unsigned short bucketSize;
   unsigned short bucketSendingThreshold;
 
   char* wifiSsid;
@@ -41,8 +42,8 @@ struct BridgeConfiguration {
 const BridgeConfiguration bridgeConfiguration = {
   .wifiConnectionNeeded = true,
 
-  .bucketLength = BUCKET_LENGTH,
-  .bucketSendingThreshold = (unsigned short) (BUCKET_LENGTH * 0.6),
+  .bucketSize = BUCKET_SIZE,
+  .bucketSendingThreshold = BUCKET_THRESHOLD,
 
   .wifiSsid = "Martin Router King 2.4GHz",
   .wifiPassword = "M.L.King7",
@@ -68,7 +69,7 @@ class Bridge {
 
     const BridgeConfiguration configuration;
 
-    Telemetry** bucket = new Telemetry*[bridgeConfiguration.bucketLength];
+    Telemetry** bucket = new Telemetry*[bridgeConfiguration.bucketSize];
     unsigned short telemetriesInBucket = 0;
 
     static Bridge* instance;
