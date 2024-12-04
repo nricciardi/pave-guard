@@ -32,7 +32,10 @@ Installa i moduli node in locale:
 # build util image
 docker image build -t nestjs-cli -f nestjs-cli.dockerfile .
 
+# Linux:
 docker run -u $(id -u ${USER}):$(id -g ${USER}) --rm -it -v $(pwd)/paveguard-webserver:/usr/src/app nestjs-cli npm install
+# Windows:
+docker run --rm -it -v .\paveguard-webserver:/usr/src/app nestjs-cli npm install
 ```
 
 > [!TIP]
