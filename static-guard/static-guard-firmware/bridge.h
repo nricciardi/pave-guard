@@ -11,7 +11,7 @@
 
 
 #define BUCKET_SIZE 30      // MAX 30
-#define BUCKET_THRESHOLD 18
+#define BUCKET_THRESHOLD 4
 
 
 // ==== BRIDGE CONFIGURATION ====
@@ -45,9 +45,9 @@ const BridgeConfiguration bridgeConfiguration = {
   .bucketSize = BUCKET_SIZE,
   .bucketSendingThreshold = BUCKET_THRESHOLD,
 
-  .wifiSsid = "Martin Router King 2.4GHz",
-  .wifiPassword = "M.L.King7",
-  .serverAddress = "192.168.0.11",
+  .wifiSsid = "ncla",
+  .wifiPassword = "Omegone!",
+  .serverAddress = "192.168.137.178",
   .serverPort = 3000,
 
   .ntpServerUrl = "it.pool.ntp.org",
