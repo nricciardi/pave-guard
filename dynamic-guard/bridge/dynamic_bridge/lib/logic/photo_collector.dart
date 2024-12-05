@@ -32,7 +32,7 @@ class PhotoCollector {
   Future<String?> getPhoto() async {
 
     if(camera == null){
-      throw Exception("The camera isn't loaded!");
+      return "";
     }
 
     return camera!.takePicture();

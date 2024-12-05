@@ -1,9 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:camera/camera.dart';
 import 'package:flutter_vision/flutter_vision.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 
 class HoleDetector {
 
   FlutterVision flutterVision = FlutterVision();
+  static const double confidenceValue = 0.4;
+  static const double classThreshold = 0.3;
 
   Future<void> initialize() async {
     await flutterVision.loadYoloModel(
@@ -16,11 +21,19 @@ class HoleDetector {
       );
   }
 
-  static bool isHole(XFile file){
+  Future<bool> isHole(XFile file) async {
 
-    // TODO: Check if it's a hole
+    Uint8List bytes = await file.readAsBytes();
+    Size size = ImageSizeGetter.getSize(MemoryInput(bytes));
+    List<Map<String, dynamic>> result = await flutterVision.yoloOnImage(
+      bytesList: bytes, 
+      imageHeight: size.height, imageWidth: size.width,
+      confThreshold: confidenceValue,
+      classThreshold: classThreshold,
+    );
 
-    return false;
+    if(result.isEmpty){ return false; }
+    else              { return true;  }
 
   }
 

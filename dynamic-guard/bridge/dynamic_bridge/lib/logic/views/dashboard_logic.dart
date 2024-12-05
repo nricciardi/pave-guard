@@ -25,19 +25,25 @@ class DashboardLogic {
   Timer? _timer;
 
   SerialInterface? serialInterface;
+  HoleDetector? holeDetector;
+  
   DeviceData deviceData;
   DashboardLogic(this.deviceData);
 
-  Future<XFile> takePicture() async {
+  Future<XFile?> takePicture() async {
     if (cameraController is CameraController) {
       // built-in
       CameraController toUse = cameraController as CameraController;
-      await toUse.initialize();
-      return await toUse.takePicture();
+      try{
+        return await toUse.takePicture();
+        }catch(e){
+          return null;
+        }
     } else {
       // USB cam
       PhotoCollector toUse = cameraController as PhotoCollector;
       String? path = await toUse.getPhoto();
+      // TODO: ritorna davvero un percorso?
       return XFile(path!);
     }
   }
@@ -77,9 +83,10 @@ class DashboardLogic {
     }
     _timer = Timer.periodic(Duration(seconds: interval), (timer) async {
       // The photo collection
-      XFile file = await takePicture();
-      if (HoleDetector.isHole(file)) {
-        // TODO: Send data
+      XFile? file = await takePicture();
+      if(file == null){return;}
+      if (await holeDetector!.isHole(file)) {
+        log("HOLE!!!!");
       }
     });
   }
@@ -87,6 +94,10 @@ class DashboardLogic {
   Future<List<Widget>> dashboardCenterChildren() async {
     List<Widget> children = [];
     SettingsLogic settingsLogic = SettingsLogic();
+    if(holeDetector == null){
+      holeDetector = HoleDetector();
+      await holeDetector!.initialize();
+    }
 
     children.add(const Text(
       'Dashboard',
@@ -99,6 +110,10 @@ class DashboardLogic {
       try {
         UVCCameraController uvcCameraController =
             await PhotoCollector.openExternalCamera();
+        children.add(UVCCameraView(
+          cameraController: uvcCameraController,
+          width: 480, height: 480
+        ));
         children.add(const Text(
           'External Camera loaded and working.',
           style: TextStyle(fontSize: 24, color: Colors.green),
@@ -120,13 +135,14 @@ class DashboardLogic {
       }
       try {
         cameraController =
-            CameraController(cameras.elementAt(1), ResolutionPreset.medium);
+            CameraController(cameras.elementAt(0), ResolutionPreset.medium);
         await cameraController.initialize();
         children.add(const Text(
           'Built-in camera loaded.',
           style: TextStyle(fontSize: 24, color: Colors.green),
         ));
         cameraWorking = true;
+        children.add(CameraPreview(cameraController));
       } catch (e) {
         children.add(const Text(
           'Built-in camera not loaded!',

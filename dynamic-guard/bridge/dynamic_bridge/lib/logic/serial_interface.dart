@@ -29,9 +29,6 @@ class SerialInterface {
   bool isInitialized = false;
   bool isGpsExt = false;
 
-  // TODO: Remove it. For debug purposes.
-  MeQueryManager meQueryManager = MeQueryManager();
-
   Future<String> initialize() async {
 
     isGpsExt = await settings.isGpsExt();
