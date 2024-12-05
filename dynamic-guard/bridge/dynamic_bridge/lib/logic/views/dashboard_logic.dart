@@ -8,7 +8,10 @@ import 'package:dynamic_bridge/logic/file_manager.dart';
 import 'package:dynamic_bridge/logic/gps_manager.dart';
 import 'package:dynamic_bridge/logic/hole_detector.dart';
 import 'package:dynamic_bridge/logic/photo_collector.dart';
+import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:dynamic_bridge/logic/serial_interface.dart';
+import 'package:dynamic_bridge/logic/token_manager.dart';
+import 'package:dynamic_bridge/logic/vibration_manager.dart';
 import 'package:dynamic_bridge/logic/views/settings_logic.dart';
 import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter/material.dart';
@@ -85,8 +88,19 @@ class DashboardLogic {
       // The photo collection
       XFile? file = await takePicture();
       if(file == null){return;}
-      if (await holeDetector!.isHole(file)) {
-        log("HOLE!!!!");
+      int holeSeverity = await holeDetector!.isHole(file);
+      if (holeSeverity > 0) {
+        RoadPotholeTelemetryQuery telemetryQuery = RoadPotholeTelemetryQuery();
+        GPSData? gpsData;
+        try{ 
+          gpsData = serialInterface!.vibrationManager.getGpsData();
+        } catch (e) {
+          return;
+        }
+        telemetryQuery.sendQuery( 
+          HoleSendableData(holeSeverity, deviceData, gpsData.latitude, gpsData.longitude), 
+          token: await TokenManager.getToken()
+        );
       }
     });
   }

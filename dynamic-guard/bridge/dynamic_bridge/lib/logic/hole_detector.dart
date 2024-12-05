@@ -1,8 +1,19 @@
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
+import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+
+class HoleSendableData{
+
+  int severity;
+  DeviceData deviceData;
+  double latitude;
+  double longitude;
+  HoleSendableData(this.severity, this.deviceData, this.latitude, this.longitude);
+
+}
 
 class HoleDetector {
 
@@ -21,7 +32,7 @@ class HoleDetector {
       );
   }
 
-  Future<bool> isHole(XFile file) async {
+  Future<int> isHole(XFile file) async {
 
     Uint8List bytes = await file.readAsBytes();
     Size size = ImageSizeGetter.getSize(MemoryInput(bytes));
@@ -32,8 +43,14 @@ class HoleDetector {
       classThreshold: classThreshold,
     );
 
-    if(result.isEmpty){ return false; }
-    else              { return true;  }
+    if(result.isEmpty){ return 0; }
+    else { 
+      Float32List array = result[0]["box"];
+      double severity = (array[0] - array[1]).abs() + (array[2] - array[3]).abs();
+      severity /= (720 * 2);
+      severity *= (array[4] * 100);
+      return severity.toInt();
+    }
 
   }
 

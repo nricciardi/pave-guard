@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:dynamic_bridge/logic/hole_detector.dart';
 import 'package:dynamic_bridge/logic/serial_interface.dart';
 import 'package:dynamic_bridge/logic/user_data_manager.dart';
 import 'package:dynamic_bridge/views/devices.dart';
@@ -288,6 +289,36 @@ class RoadCrackTelemetryQuery extends QueryAbstractManager {
     ) { id }
     } """;
   }
+
 }
 
-// TODO: class RoadPotholeTelemtry extends QueryAbstractManager
+class RoadPotholeTelemetryQuery extends QueryAbstractManager {
+
+  @override
+  bool checkData(data, {String token = ""}) {
+    return (token != "" && data is HoleSendableData);
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try{
+      queryResult.data!["data"]["createRoadPotholeTelemetry"]["id"];
+    } catch(e) { return false; }
+    return true; 
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    HoleSendableData toSend = data as HoleSendableData;
+    return """mutation {
+  	createRoadPotholeTelemetry (
+      metadata: {deviceId: "${toSend.deviceData.id}"},
+      timestamp: "${DateTime.now().toString()}",
+      latitude: ${toSend.latitude.toStringAsFixed(8)},
+      longitude: ${toSend.longitude.toStringAsFixed(8)},
+      severity: ${toSend.severity}
+    ) { id }
+    } """;
+  }
+
+}

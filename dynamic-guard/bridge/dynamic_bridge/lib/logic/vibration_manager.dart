@@ -88,6 +88,12 @@ class VibrationManager {
     return gpsData as GPSData;
   }
 
+  GPSData getLastGpsData(){
+    if (gpsData != null){ return gpsData!; }
+    if (lastGPSData.isNotEmpty){ return lastGPSData.last; }
+    return GPSData(0, 0);
+  }
+
   AccelerometerData getAccelerometerData() {
     if (accelerometerData == null) {
       return AccelerometerData(0, 0, 0);
