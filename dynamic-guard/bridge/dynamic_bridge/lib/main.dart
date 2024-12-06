@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 Future main() async {
   await dotenv.load();
 
-  var status = await Permission.manageExternalStorage.status;
+  PermissionStatus status = await Permission.manageExternalStorage.status;
   if (!status.isGranted) {
       await Permission.manageExternalStorage.request();
   }

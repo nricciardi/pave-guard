@@ -47,6 +47,8 @@ dependencies:
   usb_serial: ^0.5.2
   qr_code_dart_scan: ^0.9.3
   flutter_vision: ^1.1.4
+  image: ^4.3.0
+  image_size_getter: ^2.2.0
 
 dev_dependencies:
   flutter_test:

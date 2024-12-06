@@ -1,9 +1,25 @@
+import 'dart:typed_data';
+
 import 'package:camera/camera.dart';
+import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter_vision/flutter_vision.dart';
+import 'package:image_size_getter/image_size_getter.dart';
+
+class HoleSendableData{
+
+  int severity;
+  DeviceData deviceData;
+  double latitude;
+  double longitude;
+  HoleSendableData(this.severity, this.deviceData, this.latitude, this.longitude);
+
+}
 
 class HoleDetector {
 
   FlutterVision flutterVision = FlutterVision();
+  static const double confidenceValue = 0.4;
+  static const double classThreshold = 0.3;
 
   Future<void> initialize() async {
     await flutterVision.loadYoloModel(
@@ -16,11 +32,25 @@ class HoleDetector {
       );
   }
 
-  static bool isHole(XFile file){
+  Future<int> isHole(XFile file) async {
 
-    // TODO: Check if it's a hole
+    Uint8List bytes = await file.readAsBytes();
+    Size size = ImageSizeGetter.getSize(MemoryInput(bytes));
+    List<Map<String, dynamic>> result = await flutterVision.yoloOnImage(
+      bytesList: bytes, 
+      imageHeight: size.height, imageWidth: size.width,
+      confThreshold: confidenceValue,
+      classThreshold: classThreshold,
+    );
 
-    return false;
+    if(result.isEmpty){ return 0; }
+    else { 
+      Float32List array = result[0]["box"];
+      double severity = (array[0] - array[1]).abs() + (array[2] - array[3]).abs();
+      severity /= (720 * 2);
+      severity *= (array[4] * 100);
+      return severity.toInt();
+    }
 
   }
 
