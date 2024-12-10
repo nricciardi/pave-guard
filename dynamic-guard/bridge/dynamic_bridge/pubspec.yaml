@@ -49,6 +49,8 @@ dependencies:
   flutter_vision: ^1.1.4
   image: ^4.3.0
   image_size_getter: ^2.2.0
+  http: ^1.2.2
+  xml: ^6.5.0
 
 dev_dependencies:
   flutter_test:

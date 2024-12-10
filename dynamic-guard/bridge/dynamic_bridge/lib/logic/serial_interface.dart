@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:dynamic_bridge/global/env_manager.dart';
+import 'package:dynamic_bridge/logic/nominatim_manager.dart';
 import 'package:dynamic_bridge/logic/query_manager.dart';
 import 'package:dynamic_bridge/logic/token_manager.dart';
 import 'package:dynamic_bridge/logic/vibration_manager.dart';
@@ -17,7 +18,8 @@ class SendableData {
   GPSData position;
   int severity;
   DeviceData deviceData;
-  SendableData(this.position, this.severity, this.deviceData);
+  String road;
+  SendableData(this.position, this.severity, this.deviceData, this.road);
 
 }
 
@@ -25,6 +27,7 @@ class SerialInterface {
 
   UsbPort? port;
   VibrationManager vibrationManager = VibrationManager();
+  NominatimManager nominatimManager = NominatimManager();
   SettingsLogic settings = SettingsLogic();
   bool isInitialized = false;
   bool isGpsExt = false;
@@ -139,9 +142,10 @@ class SerialInterface {
     int severityToSend = compressSeverities(data.values.toList());
     if(severityToSend <= 15){ return; }
 
+    String road = await nominatimManager.sendQuery(gpsToSend);
     RoadCrackTelemetryQuery roadCrackTelemetry = RoadCrackTelemetryQuery();
     QueryResult queryResult = await roadCrackTelemetry.sendQuery(SendableData(
-        gpsToSend, severityToSend, deviceData
+        gpsToSend, severityToSend, deviceData, road
       ), token: await TokenManager.getToken()); 
     if(EnvManager.isDebugAndroidMode()){
       log(queryResult.toString());

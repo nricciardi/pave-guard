@@ -33,7 +33,7 @@ class _DashboardPageState extends State<DashboardPage> {
     initializeTimer();
   }
 
-  Future<void> initializeChildren() async{
+  Future<void> initializeChildren() async {
 
     selfLogic ??= DashboardLogic(widget.selfDevice);
     children = await selfLogic!.dashboardCenterChildren();
