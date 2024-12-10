@@ -8,6 +8,15 @@ export class StaticGuard extends Device {
   road: string;
 
   @Prop({ required: true })
+  city: string;
+
+  @Prop({ required: true })
+  county: string;
+
+  @Prop({ required: true })
+  state: string;
+
+  @Prop({ required: true })
   latitude: number;
 
   @Prop({ required: true })

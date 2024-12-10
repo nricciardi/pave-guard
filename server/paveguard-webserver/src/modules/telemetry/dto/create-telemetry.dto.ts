@@ -15,6 +15,18 @@ export class CreateDynamicTelemetryDto {
   road: string;
 
   @Field()
+  @IsString()
+  city: string;
+
+  @Field()
+  @IsString()
+  county: string;
+
+  @Field()
+  @IsString()
+  state: string;
+
+  @Field()
   @IsDate()
   @IsNotEmpty()
   timestamp: string;

@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Telemetry } from '../../models/telemetry.model';
 import { StaticGuardService } from 'src/modules/device/services/static-guard/static-guard.service';
+import { CreateDynamicTelemetryDto } from '../../dto/create-telemetry.dto';
 
 @Injectable()
 export class TelemetryService {
@@ -22,9 +23,24 @@ export class TelemetryService {
             metadata: {
                 deviceId: deviceId,
                 road: device.road,
+                city: device.city,
+                county: device.county,
+                state: device.state
             },
             latitude: device.latitude,
             longitude: device.longitude,
         }   
+    }
+
+    buildDynamicMetadata(data: CreateDynamicTelemetryDto): object {
+        return {
+            metadata: {
+                deviceId: data.deviceId,
+                road: data.road,
+                city: data.city,
+                county: data.county,
+                state: data.state
+            }
+        }
     }
 }
