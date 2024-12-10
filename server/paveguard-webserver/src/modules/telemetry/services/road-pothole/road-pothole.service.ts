@@ -13,7 +13,7 @@ export class RoadPotholeService {
         return this.roadPotholeTelemetryModel.find().exec()
     }
 
-    async create(data: CreateRoadPotholeTelemetryDto): Promise<RoadPotholeTelemetry> {
-        return this.roadPotholeTelemetryModel.create({ ...data });
+    async create(data: RoadPotholeTelemetry): Promise<RoadPotholeTelemetry> {
+        return this.roadPotholeTelemetryModel.create(data);
     }
 }

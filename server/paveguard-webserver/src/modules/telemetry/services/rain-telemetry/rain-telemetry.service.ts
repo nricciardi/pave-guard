@@ -14,8 +14,8 @@ export class RainTelemetryService {
         return this.rainTelemetryModel.find().exec()
     }
 
-    async create(data: CreateRainTelemetryDto): Promise<RainTelemetry> {
+    async create(data: RainTelemetry): Promise<RainTelemetry> {
 
-        return this.rainTelemetryModel.create({ ...data });
+        return this.rainTelemetryModel.create(data);
     }
 }

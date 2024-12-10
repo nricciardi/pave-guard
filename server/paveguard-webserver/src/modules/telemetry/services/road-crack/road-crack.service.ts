@@ -13,7 +13,7 @@ export class RoadCrackService {
         return this.roadCrackTelemetryModel.find().exec()
     }
 
-    async create(data: CreateRoadCrackTelemetryDto): Promise<RoadCrackTelemetry> {
-        return this.roadCrackTelemetryModel.create({ ...data });
+    async create(data: RoadCrackTelemetry): Promise<RoadCrackTelemetry> {
+        return this.roadCrackTelemetryModel.create(data);
     }
 }

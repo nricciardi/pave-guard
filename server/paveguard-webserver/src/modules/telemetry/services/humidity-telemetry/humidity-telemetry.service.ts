@@ -13,7 +13,7 @@ export class HumidityTelemetryService {
         return this.humidityTelemetryModel.find().exec()
     }
 
-    async create(data: CreateHumidityTelemetryDto): Promise<HumidityTelemetry> {
-        return this.humidityTelemetryModel.create({ ...data });
+    async create(data: HumidityTelemetry): Promise<HumidityTelemetry> {
+        return this.humidityTelemetryModel.create(data);
     }
 }

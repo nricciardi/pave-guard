@@ -1,7 +1,8 @@
-import { Resolver, Query, Field, ID, ObjectType } from '@nestjs/graphql';
+import { Resolver, Query, Field, ID, ObjectType, ArgsType, InputType } from '@nestjs/graphql';
 import { TelemetryService } from '../services/telemetry/telemetry.service';
 import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
+import { IsString, IsMongoId, IsNotEmpty, ValidateNested, IsDate, IsLatitude, IsLongitude } from 'class-validator';
 
 @ObjectType()
 export class TelemetryQuery {
@@ -18,6 +19,31 @@ export class TelemetryQuery {
   latitude: number;
 
   @Field()
+  longitude: number;
+}
+
+
+@ArgsType()
+export class TelemetryCreateMutation {
+  
+  @Field()
+  @IsString()
+  @IsMongoId()
+  deviceId: string;
+
+  @Field()
+  @IsDate()
+  @IsNotEmpty()
+  timestamp: string;
+
+  @Field()
+  @IsLatitude()
+  @IsNotEmpty()
+  latitude: number;
+
+  @Field()
+  @IsLongitude()
+  @IsNotEmpty()
   longitude: number;
 }
 

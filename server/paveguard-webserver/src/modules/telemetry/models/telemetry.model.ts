@@ -36,6 +36,7 @@ export class Telemetry extends Document {
   metadata: {
     deviceId: Types.ObjectId;
     kind: string;
+    road: string;
   };
 }
 

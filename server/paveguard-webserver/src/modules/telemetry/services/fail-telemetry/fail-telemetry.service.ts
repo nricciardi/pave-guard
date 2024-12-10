@@ -13,7 +13,7 @@ export class FailTelemetryService {
         return this.failTelemetryModel.find().exec()
     }
 
-    async create(data: CreateFailTelemetryDto): Promise<FailTelemetry> {
-        return this.failTelemetryModel.create({ ...data });
+    async create(data: FailTelemetry): Promise<FailTelemetry> {
+        return this.failTelemetryModel.create(data);
     }
 }

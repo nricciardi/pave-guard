@@ -1,16 +1,24 @@
-import { Resolver, Query, Args, Mutation, Field, ObjectType } from '@nestjs/graphql';
-import { CreateTemperatureTelemetryDto } from '../dto/create-temperature-telemetry.dto';
+import { Resolver, Query, Args, Mutation, Field, ObjectType, ArgsType } from '@nestjs/graphql';
 import { TemperatureTelemetryService } from '../services/temperature-telemetry/temperature-telemetry.service';
-import { TelemetryQuery } from './telemetry.resolver';
+import { TelemetryCreateMutation, TelemetryQuery } from './telemetry.resolver';
 import { JwtAuthenticationGuard } from 'src/modules/user/guards/jwt-authentication/jwt-authentication.guard';
 import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
+import { IsNumber, IsNotEmpty } from 'class-validator';
 
 
 @ObjectType()
 export class TemperatureTelemetryQuery extends TelemetryQuery {
 
   @Field()
+  temperature: number;
+}
+
+@ArgsType()
+export class TemperatureTelemetryCreateMutation extends TelemetryCreateMutation {
+  @Field()
+  @IsNumber()
+  @IsNotEmpty()
   temperature: number;
 }
 
@@ -30,7 +38,7 @@ export class TemperatureTelemetryResolver {
   @Mutation(() => TemperatureTelemetryQuery)
   @UseGuards(JwtAuthenticationGuard)
   async createTemperatureTelemetry(
-    @Args() input: CreateTemperatureTelemetryDto,
+    @Args() input: TemperatureTelemetryCreateMutation,
   ) {
     
     return this.temperatureTelemetryService.create(input);
