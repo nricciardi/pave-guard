@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_admin_dashboard/controllers/controller.dart';
-import 'package:responsive_admin_dashboard/screens/dash_board_screen.dart';
+import 'package:responsive_admin_dashboard/screens/login_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (context) => Controller(),)
         ],
-        child: DashBoardScreen(),
+        child: LoginScreen(),
       ),
     );
   }
