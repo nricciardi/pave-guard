@@ -17,6 +17,7 @@ SEVERITY_BUCHE = "SEV_BUCHE"
 
 PIOGGIA = "pioggia"
 TEMPERATURE = "temperatures"
+BUCHE = "buche"
 
 '''
     Aggiungi dati che servono a priori da tutto :)
@@ -27,6 +28,7 @@ HELPFUL_DATA: list[str] = [
     MEDIA_UMIDITA,
     PIOGGIA,
     TEMPERATURE,
+    BUCHE,
 ]
 
 '''
@@ -53,7 +55,8 @@ class Generator:
 
     def __init__(self, output_filename: str, min_days: int = 1, max_days: int = 100, temperature_min: int = -10, temperature_max: int = 30,
                     humidity_min: int = 0, humidity_max: int = 100, rain_min: float = 0.1, rain_max: float = 10.0,
-                    threshold_storm: float = 7.0, temperature_in_a_day: int = 48, min_transiti: int = 0, max_transiti: int = 50):
+                    threshold_storm: float = 7.0, temperature_in_a_day: int = 48, min_transiti: int = 0, max_transiti: int = 50,
+                    hole_detect_probability: float = 0.8, hole_formation_probability: float = 0.003):
         
         self.output_filename: str = output_filename
         self.column_names: list[str] = FEATURES
@@ -74,16 +77,19 @@ class Generator:
         self.min_transiti = min_transiti
         self.max_transiti = max_transiti
 
+        self.hole_detect_probability = hole_detect_probability
+        self.hole_formation_probability = hole_formation_probability
+
         '''
             Funzione che crea una generica sequenza, tenendo conto che le cose non
                 possono cambiare enormemenete da una misurazione ad un'altra
         '''
-        def fake_sequences(num: int, min: float, max: float, max_change: float = 5) -> list[float]:
-            temperatures = [random.uniform(min, max)]
+        def fake_sequences(num: int, min_n: float, max_n: float, max_change: float = 5) -> list[float]:
+            temperatures = [random.uniform(min_n, max_n)]
             for _ in range(0, num - 1):
                 next_temp = temperatures[-1] + random.uniform(-max_change, max_change)
                 temperatures.append(
-                    max(min(next_temp, max), min)
+                    max(min(next_temp, max_n), min_n)
                 )
             return temperatures
         
@@ -98,6 +104,15 @@ class Generator:
                     random.uniform(min_rain, max_rain) if random.uniform(0.0, 1.0) < rain_prob else 0.0
                 )
             return daily_rainfall
+
+        def generate_holes(days: int, hole_formation_probability: float = 0.003, initial_holes: int = 0) -> list[list[int]]:
+            holes = [[random.uniform(0, 100) for _ in range(0, initial_holes)]]
+            for _ in range(1, days):
+                new_holes = holes[-1]
+                if random.uniform(0, 1) < 0.003:
+                    new_holes.append(random.uniform(0, 100))
+                holes.append(new_holes)
+            return holes
 
         '''
             Associa il nome di una feature con il rispettivo generatore
@@ -125,6 +140,9 @@ class Generator:
             PIOGGIA:
                 lambda data: generate_rainfall(data[NUMERO_GIORNI], self.min_rain, self.max_rain, data[MEDIA_UMIDITA]),
 
+            BUCHE:
+                lambda data: generate_holes(data[NUMERO_GIORNI], self.hole_formation_probability),
+
             QTA_PIOGGIA:
                 lambda data: sum(data["pioggia"]) / data[NUMERO_GIORNI],
 
@@ -151,7 +169,15 @@ class Generator:
                 lambda data: random.randint(self.min_transiti, min(data[NUMERO_MEZZI_PESANTI], data[NUMERO_TRANSITI_PIOGGIA])),
 
             SEVERITY_BUCHE:
-                lambda data: sum([random.uniform(0, 100) * random.randint(0, 4) for _ in range(0, data[NUMERO_GIORNI]) if random.uniform(0, 1) < 0.4]),
+                lambda data: sum(
+                    [sum(
+                        # Lista di somme delle severity rilevate
+                        [sum(
+                            # Lista di transiti che rilevano la buca
+                            [severity for _ in range(0, int(data[NUMERO_TRANSITI_TOTALE] / data[NUMERO_GIORNI])) if random.uniform(0, 1) < self.hole_detect_probability]
+                            ) for severity in severities]
+                        ) for severities in data[BUCHE]]
+                    ),
 
             SEVERITY_VIBRAZIONI:
                 lambda data: random.uniform(0, 100)
@@ -163,11 +189,13 @@ class Generator:
 
         rows = numero di righe del file
     '''
-    def generate(self, rows: int) -> None:
+    def generate(self, rows: int) -> bool:
 
-        data = [self.get_fake_row() for i in range(0, rows)]
+        data = [self.get_fake_row() for _ in range(0, rows)]
         df = pd.DataFrame(data)
-        df.to_csv(self.output_filename, index=False, columns=self.column_names)
+        if df.to_csv(self.output_filename, index=False, columns=self.column_names):
+            return True
+        return False
 
 
     '''
@@ -194,4 +222,5 @@ if __name__ == '__main__':
 
     # Crea un file .csv con 10 righe
     generator = Generator("./output.csv")
-    generator.generate(10)
+    if generator.generate(100):
+        print("Salvato!")
