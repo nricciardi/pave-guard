@@ -1,6 +1,8 @@
 import pandas as pd
 import random
 
+from basedatagenerator import *
+
 MEDIA_TEMPERATURA_SOTTOZERO = "MEDIA_TEMPERATURA_SOTTOZERO"
 MEDIA_TEMPERATURA = "MEDIA_TEMPERATURA"
 MEDIA_UMIDITA = "MEDIA_UMIDITA"
@@ -18,18 +20,7 @@ SEVERITY_BUCHE = "SEV_BUCHE"
 PIOGGIA = "pioggia"
 TEMPERATURE = "temperatures"
 BUCHE = "buche"
-
-'''
-    Aggiungi dati che servono a priori da tutto :)
-    Se non li vuoi poi nel .csv, cavali da FEATURES
-'''
-HELPFUL_DATA: list[str] = [
-    NUMERO_GIORNI,
-    MEDIA_UMIDITA,
-    PIOGGIA,
-    TEMPERATURE,
-    BUCHE,
-]
+UMIDITA = "umidità"
 
 '''
     Tutti i nomi di features che vuoi nel .csv
@@ -79,51 +70,15 @@ class Generator:
 
         self.hole_detect_probability = hole_detect_probability
         self.hole_formation_probability = hole_formation_probability
-
-        '''
-            Funzione che crea una generica sequenza, tenendo conto che le cose non
-                possono cambiare enormemenete da una misurazione ad un'altra
-        '''
-        def fake_sequences(num: int, min_n: float, max_n: float, max_change: float = 5) -> list[float]:
-            temperatures = [random.uniform(min_n, max_n)]
-            for _ in range(0, num - 1):
-                next_temp = temperatures[-1] + random.uniform(-max_change, max_change)
-                temperatures.append(
-                    max(min(next_temp, max_n), min_n)
-                )
-            return temperatures
         
-        '''
-            Genera una sequenza di pioggia
-        '''
-        def generate_rainfall(days: int, min_rain: float, max_rain: float, average_humidity: float) -> list[float]:
-            daily_rainfall = []
-            rain_prob = min(0.0, average_humidity / self.humidity_max)
-            for _ in range(days):
-                daily_rainfall.append(
-                    random.uniform(min_rain, max_rain) if random.uniform(0.0, 1.0) < rain_prob else 0.0
-                )
-            return daily_rainfall
-
-        def generate_holes(days: int, hole_formation_probability: float = 0.003, initial_holes: int = 0) -> list[list[int]]:
-            holes = [[random.uniform(0, 100) for _ in range(0, initial_holes)]]
-            for _ in range(1, days):
-                new_holes = holes[-1]
-                if random.uniform(0, 1) < 0.003:
-                    new_holes.append(random.uniform(0, 100))
-                holes.append(new_holes)
-            return holes
+        self.basedata_generator = BaseDataGenerator(self.min_days, self.max_days, self.temperature_in_a_day, self.temperature_min,
+                                                    self.temperature_max, self.humidity_min, self.humidity_max, self.min_rain,
+                                                    self.max_rain, self.hole_formation_probability)
 
         '''
             Associa il nome di una feature con il rispettivo generatore
         '''
         self.feature_handler: map[str, function[[map], any]] = {
-
-            NUMERO_GIORNI:
-                lambda data: random.randint(self.min_days, self.max_days),
-
-            TEMPERATURE:
-                lambda data: fake_sequences(data[NUMERO_GIORNI] * self.temperature_in_a_day, self.temperature_min, self.temperature_max),
 
             MEDIA_TEMPERATURA_SOTTOZERO: 
                 lambda data: sum([temp for temp in
@@ -135,13 +90,7 @@ class Generator:
                 lambda data: sum(data["temperatures"]) / (self.temperature_in_a_day * data[NUMERO_GIORNI]),
 
             MEDIA_UMIDITA:
-                lambda data: sum(fake_sequences(data[NUMERO_GIORNI], self.humidity_min, self.humidity_max)) / data[NUMERO_GIORNI],
-
-            PIOGGIA:
-                lambda data: generate_rainfall(data[NUMERO_GIORNI], self.min_rain, self.max_rain, data[MEDIA_UMIDITA]),
-
-            BUCHE:
-                lambda data: generate_holes(data[NUMERO_GIORNI], self.hole_formation_probability),
+                lambda data: sum(data[UMIDITA]) / data[NUMERO_GIORNI],
 
             QTA_PIOGGIA:
                 lambda data: sum(data["pioggia"]) / data[NUMERO_GIORNI],
@@ -202,10 +151,8 @@ class Generator:
         Crea una riga fake per il dataframe
     '''
     def get_fake_row(self) -> map:
-        data = {}
-
-        for helpful in HELPFUL_DATA:
-            data[helpful] = self.feature_handler[helpful](data)
+        
+        data = self.basedata_generator.generate()
 
         for feature in self.column_names:
             if feature in data.keys():
@@ -222,5 +169,4 @@ if __name__ == '__main__':
 
     # Crea un file .csv con 10 righe
     generator = Generator("./output.csv")
-    if generator.generate(100):
-        print("Salvato!")
+    generator.generate(100)
