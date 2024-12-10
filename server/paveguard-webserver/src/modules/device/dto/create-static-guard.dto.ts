@@ -9,7 +9,7 @@ export class CreateStaticGuardDto {
 
   @Field()
   @IsString()
-  street: string;
+  road: string;
 
   @Field()
   @IsNumber()

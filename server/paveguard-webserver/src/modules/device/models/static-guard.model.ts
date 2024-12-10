@@ -5,7 +5,7 @@ import { Device } from "./device.model";
 @Schema()
 export class StaticGuard extends Device {
   @Prop({ required: true })
-  street: string;
+  road: string;
 
   @Prop({ required: true })
   latitude: number;

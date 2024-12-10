@@ -14,6 +14,12 @@ export class RoadCrackService {
     }
 
     async create(data: CreateRoadCrackTelemetryDto): Promise<RoadCrackTelemetry> {
-        return this.roadCrackTelemetryModel.create({ ...data });
+        return this.roadCrackTelemetryModel.create({
+            metadata: {
+                deviceId: data.deviceId,
+                road: data.road
+            },
+            ...data
+        });
     }
 }

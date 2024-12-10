@@ -37,6 +37,11 @@ import { DynamicGuardResolver } from './resolvers/dynamic-guard.resolver';
         // === RESOLVERs ===
         StaticGuardResolver,
         DynamicGuardResolver,
+    ],
+    exports: [
+        // === SERVICEs ===
+        StaticGuardService,
+        DynamicGuardService,
     ]
 })
 export class DeviceModule {}

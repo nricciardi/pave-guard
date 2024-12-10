@@ -1,9 +1,9 @@
 import { Field, ArgsType } from '@nestjs/graphql';
 import { IsNotEmpty, IsNumber } from 'class-validator';
-import { CreateTelemetryDto } from './create-telemetry.dto';
+import { CreateStaticTelemetryDto } from './create-telemetry.dto';
 
 @ArgsType()
-export class CreateTemperatureTelemetryDto extends CreateTelemetryDto {
+export class CreateTemperatureTelemetryDto extends CreateStaticTelemetryDto {
   @Field()
   @IsNumber()
   @IsNotEmpty()

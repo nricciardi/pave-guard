@@ -9,6 +9,10 @@ export class StaticGuardService {
 
     constructor(@InjectModel(StaticGuard.name) private staticGuardModel: Model<StaticGuard>) {}
 
+    async findById(deviceId: string): Promise<StaticGuard> {
+        return this.staticGuardModel.findById(deviceId).exec();
+    }
+
     async findAll(): Promise<StaticGuard[]> {
         return this.staticGuardModel.find().exec()
     }

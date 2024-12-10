@@ -11,7 +11,7 @@ import { CreateStaticGuardDto } from '../dto/create-static-guard.dto';
 export class StaticGuardQuery extends DeviceQuery {
 
   @Field()
-  street: string;
+  road: string;
 
   @Field()
   latitude: number;

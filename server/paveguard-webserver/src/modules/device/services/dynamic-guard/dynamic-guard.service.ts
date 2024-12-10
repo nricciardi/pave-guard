@@ -8,6 +8,10 @@ import { CreateDynamicGuardDto } from '../../dto/create-dynamic-guard.dto';
 export class DynamicGuardService {
     constructor(@InjectModel(DynamicGuard.name) private dynamicGuardModel: Model<DynamicGuard>) {}
 
+    async findById(deviceId: string): Promise<DynamicGuard> {
+        return this.dynamicGuardModel.findById(deviceId).exec();
+    }
+
     async findAll(): Promise<DynamicGuard[]> {
         return this.dynamicGuardModel.find().exec()
     }
