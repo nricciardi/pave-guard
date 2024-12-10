@@ -1,6 +1,10 @@
+import math
+
 import pandas as pd
 from typing import Callable
 import random
+
+from dask.array import arctan
 
 from basedatagenerator import *
 
@@ -111,7 +115,12 @@ class Generator:
                     ),
 
             SEVERITY_VIBRAZIONI:
-                lambda data: random.uniform(0, 100)
+                lambda data: (
+                    abs(data[MEDIA_TEMPERATURA_SOTTOZERO] * 20 / -self.temperature_min)                 # Conta un 20%
+                    + data[NUMERO_TRANSITI_PESANTI_PIOGGIA] * 40 / data[NUMERO_TRANSITI_TOTALE]         # Conta un 40%
+                    + data[MEDIA_SBALZO_TERMICO] * 20 / (self.temperature_max - self.temperature_min)   # Conta un 20%
+                    + arctan(data[SEVERITY_BUCHE]) * (2 / math.pi) * 20                                 # Conta un 20%
+                )
 
         }
 
