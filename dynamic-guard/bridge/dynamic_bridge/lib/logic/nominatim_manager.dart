@@ -11,6 +11,15 @@ class NominatimManager {
 
     Uri request = getQuery(gpsData);
     http.Response response = await http.get(request);
+    int statusCode = response.statusCode;
+
+    // Simil-coda ;)
+    while(statusCode != 200){
+      await Future.delayed(const Duration(seconds: 2));
+      http.Response response = await http.get(request);
+      statusCode = response.statusCode;
+    }
+
     Map<String, String> data = parseResult(response);
     return data[toGet]!;
 
