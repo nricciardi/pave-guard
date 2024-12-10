@@ -1,26 +1,8 @@
 import pandas as pd
+from typing import Callable
 import random
 
 from basedatagenerator import *
-
-MEDIA_TEMPERATURA_SOTTOZERO = "MEDIA_TEMPERATURA_SOTTOZERO"
-MEDIA_TEMPERATURA = "MEDIA_TEMPERATURA"
-MEDIA_UMIDITA = "MEDIA_UMIDITA"
-QTA_PIOGGIA = "PIOGGIA"
-NUMERO_TEMPORALI = "NUM_TEMPORALI"
-MEDIA_SBALZO_TERMICO = "MEDIA_SBALZO_TERMICO"
-NUMERO_TRANSITI_TOTALE = "NUM_TRANSITI_TOT"
-NUMERO_MEZZI_PESANTI = "NUM_MEZZI_PESANTI"
-NUMERO_TRANSITI_PIOGGIA = "NUM_TRANSITI_PIOGGIA"
-NUMERO_TRANSITI_PESANTI_PIOGGIA = "NUM_TRANSIT_PESANTI_PIOGGIA"
-NUMERO_GIORNI = "NUM_GIORNI"
-SEVERITY_VIBRAZIONI = "SEV_VIBR"
-SEVERITY_BUCHE = "SEV_BUCHE"
-
-PIOGGIA = "pioggia"
-TEMPERATURE = "temperatures"
-BUCHE = "buche"
-UMIDITA = "umidità"
 
 '''
     Tutti i nomi di features che vuoi nel .csv
@@ -78,7 +60,7 @@ class Generator:
         '''
             Associa il nome di una feature con il rispettivo generatore
         '''
-        self.feature_handler: map[str, function[[map], any]] = {
+        self.feature_handler: dict[str, Callable[[dict[str, any]], any]] = {
 
             MEDIA_TEMPERATURA_SOTTOZERO: 
                 lambda data: sum([temp for temp in
@@ -140,7 +122,7 @@ class Generator:
     '''
     def generate(self, rows: int) -> bool:
 
-        data = [self.get_fake_row() for _ in range(0, rows)]
+        data: list[dict[str, any]] = [self.get_fake_row() for _ in range(0, rows)]
         df = pd.DataFrame(data)
         if df.to_csv(self.output_filename, index=False, columns=self.column_names):
             return True
@@ -150,7 +132,7 @@ class Generator:
     '''
         Crea una riga fake per il dataframe
     '''
-    def get_fake_row(self) -> map:
+    def get_fake_row(self) -> dict[str, any]:
         
         data = self.basedata_generator.generate()
 
@@ -167,6 +149,6 @@ class Generator:
 
 if __name__ == '__main__':
 
-    # Crea un file .csv con 10 righe
+    # Crea un file .csv con 100 righe
     generator = Generator("./output.csv")
     generator.generate(100)

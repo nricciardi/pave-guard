@@ -32,7 +32,7 @@ HELPFUL_DATA: list[str] = [
     BUCHE,
 ]
 
-class BaseDataGenerator():
+class BaseDataGenerator:
 
     def __init__(self, min_days: int = 1, max_days: int = 100, temperature_in_a_day: int = 48, temperature_min: float = -10., 
                  temperature_max: float = 35, humidity_min: float = 0, humidity_max: float = 100, min_rain: float = 0.0,
@@ -95,7 +95,7 @@ class BaseDataGenerator():
     def generate_rainfall(self, days: int, min_rain: float, max_rain: float, humidities: list, humidity_max: float) -> list[float]:
         daily_rainfall = []
         average_humidity = sum(humidities) / days
-        rain_prob = min(0.0, average_humidity / humidity_max)
+        rain_prob = average_humidity / humidity_max
         for _ in range(days):
             daily_rainfall.append(
                 random.uniform(min_rain, max_rain) if random.uniform(0.0, 1.0) < rain_prob else 0.0
