@@ -11,7 +11,8 @@ class HoleSendableData{
   DeviceData deviceData;
   double latitude;
   double longitude;
-  HoleSendableData(this.severity, this.deviceData, this.latitude, this.longitude);
+  String road;
+  HoleSendableData(this.severity, this.deviceData, this.latitude, this.longitude, this.road);
 
 }
 

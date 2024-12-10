@@ -281,11 +281,12 @@ class RoadCrackTelemetryQuery extends QueryAbstractManager {
     SendableData toSend = data as SendableData;
     return """mutation {
   	createRoadCrackTelemetry (
-      metadata: {deviceId: "${toSend.deviceData.id}"},
+      deviceId: "${toSend.deviceData.id}",
       timestamp: "${DateTime.now().toString()}",
       latitude: ${toSend.position.latitude.toStringAsFixed(8)},
       longitude: ${toSend.position.longitude.toStringAsFixed(8)},
-      severity: ${toSend.severity}
+      severity: ${toSend.severity},
+      road: "${toSend.road}"
     ) { id }
     } """;
   }
@@ -312,11 +313,12 @@ class RoadPotholeTelemetryQuery extends QueryAbstractManager {
     HoleSendableData toSend = data as HoleSendableData;
     return """mutation {
   	createRoadPotholeTelemetry (
-      metadata: {deviceId: "${toSend.deviceData.id}"},
+      deviceId: "${toSend.deviceData.id}",
       timestamp: "${DateTime.now().toString()}",
       latitude: ${toSend.latitude.toStringAsFixed(8)},
       longitude: ${toSend.longitude.toStringAsFixed(8)},
-      severity: ${toSend.severity}
+      severity: ${toSend.severity},
+      road: ${toSend.road}
     ) { id }
     } """;
   }
