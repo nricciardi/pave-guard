@@ -28,7 +28,7 @@ class Generator:
 
     def __init__(self, output_filename: str, min_days: int = 1, max_days: int = 100, temperature_min: int = -10, temperature_max: int = 30,
                     humidity_min: int = 0, humidity_max: int = 100, rain_min: float = 0.1, rain_max: float = 10.0,
-                    threshold_storm: float = 7.0, temperature_in_a_day: int = 48, min_transiti: int = 0, max_transiti: int = 50,
+                    threshold_storm: float = 7.0, temperature_in_a_day: int = 48, min_transits: int = 0, max_transits: int = 10000,
                     hole_detect_probability: float = 0.8, hole_formation_probability: float = 0.003):
         
         self.output_filename: str = output_filename
@@ -47,8 +47,8 @@ class Generator:
         self.max_rain = rain_max
         self.threshold_storm = threshold_storm
 
-        self.min_transiti = min_transiti
-        self.max_transiti = max_transiti
+        self.min_transits = min_transits
+        self.max_transits = max_transits
 
         self.hole_detect_probability = hole_detect_probability
         self.hole_formation_probability = hole_formation_probability
@@ -88,16 +88,16 @@ class Generator:
                         ]) / data[NUMERO_GIORNI],
 
             NUMERO_TRANSITI_TOTALE:
-                lambda data: sum([random.randint(self.min_transiti, self.max_transiti) for _ in range(0, data[NUMERO_GIORNI])]),
+                lambda data: sum([int(random.gauss((self.max_transits - self.min_transits) / 2, self.max_transits / 2)) for _ in range(0, data[NUMERO_GIORNI])]),
 
             NUMERO_MEZZI_PESANTI:
-                lambda data: random.randint(self.min_transiti, data[NUMERO_TRANSITI_TOTALE]),
+                lambda data: random.randint(self.min_transits, data[NUMERO_TRANSITI_TOTALE]),
 
             NUMERO_TRANSITI_PIOGGIA:
-                lambda data: 0 if data[QTA_PIOGGIA] == 0 else random.randint(self.min_transiti, data[NUMERO_TRANSITI_TOTALE]),
+                lambda data: 0 if data[QTA_PIOGGIA] == 0 else random.randint(self.min_transits, data[NUMERO_TRANSITI_TOTALE]),
 
             NUMERO_TRANSITI_PESANTI_PIOGGIA:
-                lambda data: random.randint(self.min_transiti, min(data[NUMERO_MEZZI_PESANTI], data[NUMERO_TRANSITI_PIOGGIA])),
+                lambda data: random.randint(self.min_transits, min(data[NUMERO_MEZZI_PESANTI], data[NUMERO_TRANSITI_PIOGGIA])),
 
             SEVERITY_BUCHE:
                 lambda data: sum(
