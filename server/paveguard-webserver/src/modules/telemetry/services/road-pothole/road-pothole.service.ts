@@ -14,6 +14,12 @@ export class RoadPotholeService {
     }
 
     async create(data: CreateRoadPotholeTelemetryDto): Promise<RoadPotholeTelemetry> {
-        return this.roadPotholeTelemetryModel.create({ ...data });
+        return this.roadPotholeTelemetryModel.create({
+            metadata: {
+                deviceId: data.deviceId,
+                road: data.road
+            },
+            ...data
+        });
     }
 }

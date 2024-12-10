@@ -3,11 +3,12 @@ import { RainTelemetry } from '../../models/rain-telemetry.model';
 import { CreateRainTelemetryDto } from '../../dto/create-rain-telemetry.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { TelemetryService } from '../telemetry/telemetry.service';
 
 @Injectable()
 export class RainTelemetryService {
 
-    constructor(@InjectModel(RainTelemetry.name) private rainTelemetryModel: Model<RainTelemetry>) {
+    constructor(private telemetryService: TelemetryService, @InjectModel(RainTelemetry.name) private rainTelemetryModel: Model<RainTelemetry>) {
     }
 
     async findAll(): Promise<RainTelemetry[]> {
@@ -16,6 +17,9 @@ export class RainTelemetryService {
 
     async create(data: CreateRainTelemetryDto): Promise<RainTelemetry> {
 
-        return this.rainTelemetryModel.create({ ...data });
+        return this.rainTelemetryModel.create({
+            ...await this.telemetryService.buildStaticFieldsByDeviceId(data.deviceId),
+            ...data
+        });
     }
 }

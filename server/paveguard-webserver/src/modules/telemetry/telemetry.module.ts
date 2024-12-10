@@ -19,12 +19,13 @@ import { RoadCrackTelemetryResolver } from './resolvers/road-crack-telemetry.res
 import { RoadPotholeTelemetryResolver } from './resolvers/road-pothole-telemetry.resolver';
 import { RoadCrackTelemetry, RoadCrackTelemetrySchema } from './models/road-crack-telemetry.model';
 import { RoadPotholeTelemetry, RoadPotholeTelemetrySchema } from './models/road-pothole-telemetry.model';
-import { FailTelemetry, FailTelemetrySchema } from './models/fail-telemetry.model';
+import { FailAlert, FailAlertSchema } from './models/fail-alert.model';
 import { FailTelemetryService } from './services/fail-telemetry/fail-telemetry.service';
 import { FailTelemetryResolver } from './resolvers/fail-telemetry.resolver';
 import { RainTelemetry, RainTelemetrySchema } from './models/rain-telemetry.model';
 import { RainTelemetryService } from './services/rain-telemetry/rain-telemetry.service';
 import { RainTelemetryResolver } from './resolvers/rain-telemetry.resolver';
+import { DeviceModule } from '../device/device.module';
 
 @Module({
     controllers: [
@@ -77,17 +78,18 @@ import { RainTelemetryResolver } from './resolvers/rain-telemetry.resolver';
                         schema: RoadPotholeTelemetrySchema
                     },
                     {
-                        name: FailTelemetry.name,
-                        schema: FailTelemetrySchema
-                    },
-                    {
                         name: RainTelemetry.name,
                         schema: RainTelemetrySchema
                     },
                 ]
             },
+            {
+                name: FailAlert.name,
+                schema: FailAlertSchema
+            },
         ]),
         UserModule,
+        DeviceModule,
     ],
     exports: [
     ],

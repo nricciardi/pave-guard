@@ -1,23 +1,18 @@
-import { Field, ArgsType, ObjectType, InputType } from '@nestjs/graphql';
-import { Type } from 'class-transformer';
-import { IsDate, IsLatitude, IsLongitude, IsMongoId, IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { Field, ArgsType } from '@nestjs/graphql';
+import { IsDate, IsLatitude, IsLongitude, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
 
-@ObjectType()
-@InputType()
-export class MetadataDto {
+@ArgsType()
+export class CreateDynamicTelemetryDto {
+  
   @Field()
   @IsString()
   @IsMongoId()
   deviceId: string;
-}
 
-@ArgsType()
-export class CreateTelemetryDto {
-  
   @Field()
-  @ValidateNested()
-  metadata: MetadataDto;
+  @IsString()
+  road: string;
 
   @Field()
   @IsDate()
@@ -34,3 +29,21 @@ export class CreateTelemetryDto {
   @IsNotEmpty()
   longitude: number;
 }
+
+
+@ArgsType()
+export class CreateStaticTelemetryDto {
+  
+  @Field()
+  @IsString()
+  @IsMongoId()
+  deviceId: string;
+
+  @Field()
+  @IsDate()
+  @IsNotEmpty()
+  timestamp: string;
+}
+
+
+
