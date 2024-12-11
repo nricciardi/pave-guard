@@ -1,6 +1,10 @@
 import 'dart:async';
 
+import 'package:dynamic_bridge/logic/nominatim_manager.dart';
+import 'package:dynamic_bridge/logic/query_manager.dart';
+import 'package:dynamic_bridge/logic/serial_interface.dart';
 import 'package:dynamic_bridge/logic/user_data_manager.dart';
+import 'package:dynamic_bridge/logic/vibration_manager.dart';
 import 'package:dynamic_bridge/logic/views/dashboard_logic.dart';
 import 'package:dynamic_bridge/views/devices.dart';
 import 'package:dynamic_bridge/views/login.dart';
@@ -34,6 +38,11 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> initializeChildren() async {
+
+    // TODO: Remove, test feature
+    RoadCrackTelemetryQuery roadCrackTelemetryQuery = RoadCrackTelemetryQuery();
+    NominatimManager nominatimManager = NominatimManager();
+    await roadCrackTelemetryQuery.sendQuery(SendableData(GPSData(41.0, 40.0), 45, widget.selfDevice, await nominatimManager.sendQuery(GPSData(41.0, 40.0))));
 
     selfLogic ??= DashboardLogic(widget.selfDevice);
     children = await selfLogic!.dashboardCenterChildren();

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
+import 'package:dynamic_bridge/logic/nominatim_manager.dart';
 import 'package:dynamic_bridge/views/devices.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 import 'package:image_size_getter/image_size_getter.dart';
@@ -11,8 +12,8 @@ class HoleSendableData{
   DeviceData deviceData;
   double latitude;
   double longitude;
-  String road;
-  HoleSendableData(this.severity, this.deviceData, this.latitude, this.longitude, this.road);
+  MapData mapData;
+  HoleSendableData(this.severity, this.deviceData, this.latitude, this.longitude, this.mapData);
 
 }
 

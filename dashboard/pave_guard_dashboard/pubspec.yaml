@@ -34,6 +34,7 @@ dependencies:
   flutter_login: ^2.2.1
   graphql_flutter: ^5.1.2
   flutter_dotenv: ^5.2.1
+  flutter_lints: ^5.0.0
 
 dev_dependencies:
   flutter_test:

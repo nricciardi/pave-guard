@@ -286,7 +286,10 @@ class RoadCrackTelemetryQuery extends QueryAbstractManager {
       latitude: ${toSend.position.latitude.toStringAsFixed(8)},
       longitude: ${toSend.position.longitude.toStringAsFixed(8)},
       severity: ${toSend.severity},
-      road: "${toSend.road}"
+      road: "${toSend.mapData.road}",
+      city: "${toSend.mapData.city}",
+      county: "${toSend.mapData.county}",
+      state: "${toSend.mapData.state}"
     ) { id }
     } """;
   }
@@ -318,7 +321,10 @@ class RoadPotholeTelemetryQuery extends QueryAbstractManager {
       latitude: ${toSend.latitude.toStringAsFixed(8)},
       longitude: ${toSend.longitude.toStringAsFixed(8)},
       severity: ${toSend.severity},
-      road: ${toSend.road}
+      road: "${toSend.mapData.road}",
+      city: "${toSend.mapData.city}",
+      county: "${toSend.mapData.county}",
+      state: "${toSend.mapData.state}"
     ) { id }
     } """;
   }

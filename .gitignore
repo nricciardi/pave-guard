@@ -3,3 +3,5 @@ file.txt
 *.jpg
 dynamic-guard/bridge/dynamic_bridge/assets/model.tflite
 *.csv
+*.csv
+model/dataset/output.csv

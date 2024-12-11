@@ -18,8 +18,8 @@ class SendableData {
   GPSData position;
   int severity;
   DeviceData deviceData;
-  String road;
-  SendableData(this.position, this.severity, this.deviceData, this.road);
+  MapData mapData;
+  SendableData(this.position, this.severity, this.deviceData, this.mapData);
 
 }
 
@@ -142,10 +142,10 @@ class SerialInterface {
     int severityToSend = compressSeverities(data.values.toList());
     if(severityToSend <= 15){ return; }
 
-    String road = await nominatimManager.sendQuery(gpsToSend);
+    MapData mapData = await nominatimManager.sendQuery(gpsToSend);
     RoadCrackTelemetryQuery roadCrackTelemetry = RoadCrackTelemetryQuery();
     QueryResult queryResult = await roadCrackTelemetry.sendQuery(SendableData(
-        gpsToSend, severityToSend, deviceData, road
+        gpsToSend, severityToSend, deviceData, mapData
       ), token: await TokenManager.getToken()); 
     if(EnvManager.isDebugAndroidMode()){
       log(queryResult.toString());

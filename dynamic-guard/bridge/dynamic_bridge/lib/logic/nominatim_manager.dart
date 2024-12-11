@@ -2,12 +2,22 @@ import 'package:dynamic_bridge/logic/vibration_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
+class MapData {
+
+  String road;
+  String city;
+  String county;
+  String state;
+
+  MapData(this.road, this.city, this.county, this.state);
+
+}
+
 class NominatimManager {
 
   String url = "https://nominatim.openstreetmap.org/reverse?";
-  String toGet = "road";
 
-  Future<String> sendQuery(GPSData gpsData) async {
+  Future<MapData> sendQuery(GPSData gpsData) async {
 
     Uri request = getQuery(gpsData);
     http.Response response = await http.get(request);
@@ -20,12 +30,12 @@ class NominatimManager {
       statusCode = response.statusCode;
     }
 
-    Map<String, String> data = parseResult(response);
-    return data[toGet]!;
+    MapData data = parseResult(response);
+    return data;
 
   }
 
-  Map<String, String> parseResult(http.Response response) {
+  MapData parseResult(http.Response response) {
 
     xml.XmlDocument document = xml.XmlDocument.parse(response.body);
     xml.XmlElement element = document.firstElementChild!.lastElementChild!;
@@ -35,12 +45,19 @@ class NominatimManager {
       toRet[child.name.toString()] = child.innerText;
     }
     */
+    Map<String, String> data = {};
     for(xml.XmlElement child in element.childElements){
-      if(child.name.toString() == "road"){
-        return {child.name.toString(): child.innerText};
+      if(child.name.toString() == "road" || child.name.toString() == "county" || child.name.toString() == "city" || child.name.toString() == "state"){
+        data[child.name.toString()] = child.innerText;
       }
     }
-    return {};
+
+    return MapData(
+      data["road"] ?? "",
+      data["city"] ?? "",
+      data["county"] ?? "",
+      data["state"] ?? ""
+    );
 
   }
 
