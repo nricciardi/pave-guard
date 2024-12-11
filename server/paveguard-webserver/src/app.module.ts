@@ -10,6 +10,7 @@ import { TelemetryModule } from './modules/telemetry/telemetry.module';
 import { UserModule } from './modules/user/user.module';
 import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
 import { DeviceModule } from './modules/device/device.module';
+import { ModelModule } from './modules/model/model/model.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { DeviceModule } from './modules/device/device.module';
     TelemetryModule,
     UserModule,
     DeviceModule,
+    ModelModule,
   ],
   controllers: [
     AppController,
