@@ -14,6 +14,15 @@ export class StaticGuardQuery extends DeviceQuery {
   road: string;
 
   @Field()
+  city: string;
+
+  @Field()
+  county?: string;
+
+  @Field()
+  state: string;
+
+  @Field()
   latitude: number;
 
   @Field()
