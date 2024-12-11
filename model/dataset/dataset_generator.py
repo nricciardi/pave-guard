@@ -5,7 +5,8 @@ import os
 import pandas as pd
 
 from dataset.generator import Generator
-from dataset.uniform_generator import IndependentSeasonalitySingleValueGenerator
+from dataset.ind_generator import IndependentGenerator
+from dataset.seasonal_generator import SeasonalGenerator
 
 
 class DatasetGenerator:
@@ -24,9 +25,9 @@ if __name__ == '__main__':
     from_date = date.today()
     to_date = date.today() + timedelta(days=30)
     generators = {
-        "temperature": IndependentSeasonalitySingleValueGenerator(min_value=-10),
-        "humidity": IndependentSeasonalitySingleValueGenerator(),
-        "rainfall": IndependentSeasonalitySingleValueGenerator(max_value=1000),
+        "temperature": SeasonalGenerator(magnitude=25, min_value=-20, max_value=40, mean_value=18, seed_value=10),
+        "humidity": SeasonalGenerator(mean_value=50, magnitude=50),
+        "rainfall": SeasonalGenerator(magnitude=500, max_value=2000, mean_value=500),
         # "transit": TODO,
         # "crack": TODO,
         # "photole": TODO,

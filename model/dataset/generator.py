@@ -6,16 +6,23 @@ import pandas as pd
 
 class Generator(ABC):
 
+    def __init__(self, seed_value = None):
+        self.seed_value = seed_value
+
     @abstractmethod
     def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.Series:
         raise NotImplemented
 
-    def generate(self, from_date: date, to_date: date, **kwargs) -> pd.Series:
+    def generate(self, from_date: date, to_date: date, seed_value = None, **kwargs) -> pd.Series:
 
         data = pd.Series([])
 
         current_date = from_date
-        previous_day_data = None
+        previous_day_data = seed_value if self.seed_value is None else self.seed_value
+
+        if previous_day_data is not None:
+            previous_day_data = pd.Series(previous_day_data)
+
         while current_date <= to_date:
 
             day_data = self.generate_day_data(day=current_date, previous_day_data=previous_day_data, **kwargs)
