@@ -8,7 +8,7 @@
 #include "bridge.h"
 #include "temperature-telemetry.h"
 #include "humidity-telemetry.h"
-#include "fail-telemetry.h"
+#include "fail-alert.h"
 #include "rain-telemetry.h"
 #include "transit-telemetry.h"
 #include "led-controller.h"

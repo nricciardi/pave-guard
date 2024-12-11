@@ -20,8 +20,8 @@ import { RoadPotholeTelemetryResolver } from './resolvers/road-pothole-telemetry
 import { RoadCrackTelemetry, RoadCrackTelemetrySchema } from './models/road-crack-telemetry.model';
 import { RoadPotholeTelemetry, RoadPotholeTelemetrySchema } from './models/road-pothole-telemetry.model';
 import { FailAlert, FailAlertSchema } from './models/fail-alert.model';
-import { FailTelemetryService } from './services/fail-telemetry/fail-telemetry.service';
-import { FailTelemetryResolver } from './resolvers/fail-telemetry.resolver';
+import { FailAlertService } from './services/fail-alert/fail-alert.service';
+import { FailTelemetryResolver } from './resolvers/fail-alert.resolver';
 import { RainTelemetry, RainTelemetrySchema } from './models/rain-telemetry.model';
 import { RainTelemetryService } from './services/rain-telemetry/rain-telemetry.service';
 import { RainTelemetryResolver } from './resolvers/rain-telemetry.resolver';
@@ -38,7 +38,7 @@ import { DeviceModule } from '../device/device.module';
         TrafficTelemetryService,
         RoadCrackService,
         RoadPotholeService,
-        FailTelemetryService,
+        FailAlertService,
         RainTelemetryService,
 
         // === RESOLVERs ===

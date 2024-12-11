@@ -10,7 +10,7 @@ class RainTelemetry: public Telemetry {
     float mm;
 
   public:
-    RainTelemetry(String deviceId, unsigned long timestampInSeconds, double latitude, double longitude, float mm): Telemetry(deviceId, timestampInSeconds, latitude, longitude), mm(mm) {}
+    RainTelemetry(String deviceId, unsigned long timestampInSeconds, float mm): Telemetry(deviceId, timestampInSeconds), mm(mm) {}
 
   String toGraphqlMutationBody() override {
 

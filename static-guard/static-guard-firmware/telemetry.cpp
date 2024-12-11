@@ -7,11 +7,7 @@ String Telemetry::buildGraphqlMutationBody(char* mutationRef, String* extraBody)
   body.concat(deviceId);
   body.concat("\\\"},timestamp:\\\"");
   body.concat(timestampInSeconds);
-  body.concat("000\\\",");    // timestamp in millis
-  body.concat("latitude:");
-  body.concat(latitude);
-  body.concat(",longitude:");
-  body.concat(longitude);
+  body.concat("000\\\"");    // timestamp in millis
   
   if(!extraBody->isEmpty())
     body.concat(",");

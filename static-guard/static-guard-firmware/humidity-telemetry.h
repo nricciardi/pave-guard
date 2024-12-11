@@ -10,7 +10,7 @@ class HumidityTelemetry: public Telemetry {
     float humidity;
 
   public:
-    HumidityTelemetry(String deviceId, unsigned long timestampInSeconds, double latitude, double longitude, float humidity): Telemetry(deviceId, timestampInSeconds, latitude, longitude), humidity(humidity) {}
+    HumidityTelemetry(String deviceId, unsigned long timestampInSeconds, float humidity): Telemetry(deviceId, timestampInSeconds), humidity(humidity) {}
 
   String toGraphqlMutationBody() override {
 

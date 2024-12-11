@@ -127,7 +127,7 @@ void Device::handleHumidity() {
       Serial.println(h);
     }
 
-    HumidityTelemetry* humidityTelemetry = new HumidityTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, h);
+    HumidityTelemetry* humidityTelemetry = new HumidityTelemetry(sign.deviceId, timestamp, h);
 
     bridge->put(humidityTelemetry);
 
@@ -135,9 +135,9 @@ void Device::handleHumidity() {
 
     Serial.println("ERROR: fail to read humidity");
     
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("HT001"), String("Fail to read humidity"));
+    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("HT001"), String("Fail to read humidity"));
 
-    bridge->put(failTelemetry);
+    bridge->put(failAlert);
   }
 }
 
@@ -155,7 +155,7 @@ void Device::handleTemperature() {
       Serial.println(t);
     }
     
-    Telemetry* temperatureTelemetry = new TemperatureTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, t);
+    Telemetry* temperatureTelemetry = new TemperatureTelemetry(sign.deviceId, timestamp, t);
 
     bridge->put(temperatureTelemetry);
 
@@ -163,9 +163,9 @@ void Device::handleTemperature() {
 
     Serial.println("ERROR: fail to read temperature");
     
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("HT002"), String("Fail to read temperature"));
+    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("HT002"), String("Fail to read temperature"));
 
-    bridge->put(failTelemetry);
+    bridge->put(failAlert);
   }
 }
 
@@ -185,7 +185,7 @@ void Device::elaborateRainGaugeUnhandledSamples() {
     Serial.println(totalMm);
   }
     
-  Telemetry* rainTelemetry = new RainTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, totalMm);
+  Telemetry* rainTelemetry = new RainTelemetry(sign.deviceId, timestamp, totalMm);
 
   bridge->put(rainTelemetry);
 
@@ -204,9 +204,9 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), String("Inconsistent queues"));
+    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT003"), String("Inconsistent queues"));
 
-    bridge->put(failTelemetry);
+    bridge->put(failAlert);
     
     return;
   }
@@ -240,9 +240,9 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), String("Same time in transit samples"));
+    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT003"), String("Same time in transit samples"));
 
-    bridge->put(failTelemetry);
+    bridge->put(failAlert);
     
     return;
   }
@@ -285,9 +285,9 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT002"), String("Computed velocities is less or equal to zero"));
+    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT002"), String("Computed velocities is less or equal to zero"));
 
-    bridge->put(failTelemetry);
+    bridge->put(failAlert);
     
     return;
   }
@@ -303,9 +303,9 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT003"), String("Transit time is less or equal to zero"));
+    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT003"), String("Transit time is less or equal to zero"));
 
-    bridge->put(failTelemetry);
+    bridge->put(failAlert);
     
     return;
   }
@@ -336,14 +336,14 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailTelemetry* failTelemetry = new FailTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, String("TT004"), msg);
+    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT004"), msg);
 
-    bridge->put(failTelemetry);
+    bridge->put(failAlert);
     
     return;
   }
 
-  Telemetry* transitTelemetry = new TransitTelemetry(sign.deviceId, timestamp, sign.latitude, sign.longitude, vehicleLength, meanVelocity, transitTimeInSeconds);
+  Telemetry* transitTelemetry = new TransitTelemetry(sign.deviceId, timestamp, vehicleLength, meanVelocity, transitTimeInSeconds);
 
   bridge->put(transitTelemetry);
 }
