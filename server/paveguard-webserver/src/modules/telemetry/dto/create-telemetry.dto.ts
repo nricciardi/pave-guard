@@ -60,7 +60,9 @@ export class CreateStaticTelemetryDto {
   @IsNotEmpty()
   deviceId: string;
 
-  @Field()
+  @Field({
+    description: "can be either timestamp or datetime"
+  })
   @IsDate()
   @IsNotEmpty()
   @IsNotEmpty()
