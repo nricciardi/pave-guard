@@ -7,7 +7,11 @@ import { Document } from 'mongoose';
 @Schema()
 export class HumidityTelemetry extends Document {
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    min: 0,
+    max: 100
+  })
   humidity: number;
 }
 

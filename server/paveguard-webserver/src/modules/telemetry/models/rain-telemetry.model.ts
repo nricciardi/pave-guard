@@ -7,7 +7,10 @@ import { Document } from 'mongoose';
 @Schema()
 export class RainTelemetry extends Document {
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    min: 0
+  })
   mm: number;
 }
 

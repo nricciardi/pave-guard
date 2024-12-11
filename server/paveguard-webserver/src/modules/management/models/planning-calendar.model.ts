@@ -16,16 +16,6 @@ export class PlanningCalendar extends Document {
         required: false,
     })
     description?: string;
-
-    @Prop({
-        required: true,
-        isInteger: true,
-        min: 0,
-        max: 100,
-        default: 50
-    })
-    priority: number;
-
     
     @Prop({ required: true })
     road: string;

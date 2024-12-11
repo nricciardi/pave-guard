@@ -7,7 +7,9 @@ import { Document } from 'mongoose';
 @Schema()
 export class TemperatureTelemetry extends Document {
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+  })
   temperature: number;
 }
 

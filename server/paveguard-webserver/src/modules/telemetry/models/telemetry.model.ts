@@ -20,10 +20,18 @@ export class Telemetry extends Document {
   })
   timestamp: Date;
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    min: -90,
+    max: 90,
+  })
   latitude: number;
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    min: -180,
+    max: 180,
+  })
   longitude: number;
 
   @Prop({

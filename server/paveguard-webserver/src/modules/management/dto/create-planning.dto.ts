@@ -4,14 +4,6 @@ import { IsDate, IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validato
 @ArgsType()
 export class CreatePlanningDto {
 
-    @Field({
-        nullable: true
-    })
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    priority?: number;
-
     @Field()
     @IsDate()
     @IsNotEmpty()

@@ -7,13 +7,22 @@ import { Document } from 'mongoose';
 @Schema()
 export class TransitTelemetry extends Document {
 
-    @Prop({ required: true })
+    @Prop({
+        required: true,
+        min: 0
+    })
     length: number;
 
-    @Prop({ required: true })
+    @Prop({
+        required: true,
+        min: 0
+    })
     velocity: number;
 
-    @Prop({ required: true })
+    @Prop({
+        required: true,
+        min: 0
+    })
     transitTime: number;
 }
 

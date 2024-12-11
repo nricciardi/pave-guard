@@ -22,6 +22,9 @@ export class PlanningCalendarQuery {
 
   @Field()
   state: string;
+
+  @Field()
+  date: Date
 }
 
 
