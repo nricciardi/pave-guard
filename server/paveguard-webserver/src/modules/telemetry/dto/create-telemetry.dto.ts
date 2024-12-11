@@ -3,7 +3,7 @@ import { IsDate, IsLatitude, IsLongitude, IsMongoId, IsNotEmpty, IsString } from
 
 
 @ArgsType()
-export class CreateDynamicTelemetryDto {
+export class CreateStaticTelemetryDto {
   
   @Field()
   @IsString()
@@ -11,6 +11,18 @@ export class CreateDynamicTelemetryDto {
   @IsNotEmpty()
   deviceId: string;
 
+  @Field({
+    description: "can be either timestamp or datetime"
+  })
+  @IsDate()
+  @IsNotEmpty()
+  @IsNotEmpty()
+  timestamp: string;
+}
+
+@ArgsType()
+export class CreateDynamicTelemetryDto extends CreateStaticTelemetryDto {
+  
   @Field()
   @IsString()
   @IsNotEmpty()
@@ -32,13 +44,6 @@ export class CreateDynamicTelemetryDto {
   @IsNotEmpty()
   state: string;
 
-  @Field({
-    description: "can be either timestamp or datetime"
-  })
-  @IsDate()
-  @IsNotEmpty()
-  timestamp: string;
-
   @Field()
   @IsLatitude()
   @IsNotEmpty()
@@ -48,25 +53,6 @@ export class CreateDynamicTelemetryDto {
   @IsLongitude()
   @IsNotEmpty()
   longitude: number;
-}
-
-
-@ArgsType()
-export class CreateStaticTelemetryDto {
-  
-  @Field()
-  @IsString()
-  @IsMongoId()
-  @IsNotEmpty()
-  deviceId: string;
-
-  @Field({
-    description: "can be either timestamp or datetime"
-  })
-  @IsDate()
-  @IsNotEmpty()
-  @IsNotEmpty()
-  timestamp: string;
 }
 
 
