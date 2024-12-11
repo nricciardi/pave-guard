@@ -16,7 +16,9 @@ export class UserQuery {
     @Field()
     email: string;
 
-    @Field()
+    @Field({
+      description: "aka 'Codice fiscale'"
+    })
     userCode: string;
 
     @Field()

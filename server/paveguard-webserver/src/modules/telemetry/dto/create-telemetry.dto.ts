@@ -32,7 +32,9 @@ export class CreateDynamicTelemetryDto {
   @IsNotEmpty()
   state: string;
 
-  @Field()
+  @Field({
+    description: "can be either timestamp or datetime"
+  })
   @IsDate()
   @IsNotEmpty()
   timestamp: string;
