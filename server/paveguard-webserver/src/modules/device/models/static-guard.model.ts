@@ -10,7 +10,7 @@ export class StaticGuard extends Device {
   @Prop({ required: true })
   city: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   county: string;
 
   @Prop({ required: true })

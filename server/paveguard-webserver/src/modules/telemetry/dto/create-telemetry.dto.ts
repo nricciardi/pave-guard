@@ -8,22 +8,28 @@ export class CreateDynamicTelemetryDto {
   @Field()
   @IsString()
   @IsMongoId()
+  @IsNotEmpty()
   deviceId: string;
 
   @Field()
   @IsString()
+  @IsNotEmpty()
   road: string;
 
   @Field()
   @IsString()
+  @IsNotEmpty()
   city: string;
 
-  @Field()
+  @Field({
+    nullable: true
+  })
   @IsString()
-  county: string;
+  county?: string;
 
   @Field()
   @IsString()
+  @IsNotEmpty()
   state: string;
 
   @Field()
@@ -49,10 +55,12 @@ export class CreateStaticTelemetryDto {
   @Field()
   @IsString()
   @IsMongoId()
+  @IsNotEmpty()
   deviceId: string;
 
   @Field()
   @IsDate()
+  @IsNotEmpty()
   @IsNotEmpty()
   timestamp: string;
 }
