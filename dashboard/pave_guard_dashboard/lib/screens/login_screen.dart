@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:responsive_admin_dashboard/database/query_manager.dart';
-import 'package:responsive_admin_dashboard/screens/dash_board_screen.dart';
+import 'package:responsive_admin_dashboard/screens/dashboard/dashboard_screen.dart';
 
 class LoginScreen extends StatelessWidget {
 
-  LoginScreen({super.key});
+  LoginScreen({Key? key}) : super(key: key);
 
   final LoginManager loginManager = LoginManager();
   Duration get loginTime => const Duration(milliseconds: 2250);
@@ -28,12 +28,11 @@ class LoginScreen extends StatelessWidget {
       onSignup: (_) => Future.delayed(loginTime),
       onSubmitAnimationCompleted: () {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => DashBoardScreen(token: loginManager.getToken()),
+          builder: (context) => DashboardScreen(token: loginManager.getToken()),
         ));
       },
       onRecoverPassword: (_) => Future.delayed(loginTime),
       hideForgotPasswordButton: true,
-      hideSignUpButton: true,
     );
   }
 }
