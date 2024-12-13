@@ -1,7 +1,7 @@
+import 'package:responsive_admin_dashboard/controllers/menu_app_controller.dart';
+import 'package:responsive_admin_dashboard/responsive.dart';
 import 'package:responsive_admin_dashboard/screens/login_screen.dart';
 
-import '/controllers/menu_app_controller.dart';
-import '/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

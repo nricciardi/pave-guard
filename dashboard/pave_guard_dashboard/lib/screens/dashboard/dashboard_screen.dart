@@ -1,10 +1,10 @@
+import 'package:responsive_admin_dashboard/constants.dart';
+import 'package:responsive_admin_dashboard/responsive.dart';
 import 'package:responsive_admin_dashboard/screens/main/components/side_menu.dart';
 
-import '/responsive.dart';
 import 'components/my_fields.dart';
 import 'package:flutter/material.dart';
 
-import '../../constants.dart';
 import 'components/header.dart';
 
 import 'components/recent_files.dart';
