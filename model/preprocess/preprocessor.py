@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from constants import FeatureName, RawFeatureName
+from model.constants import FeatureName, RawFeatureName
 
 
 class Preprocessor:

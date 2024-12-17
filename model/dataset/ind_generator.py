@@ -2,7 +2,7 @@ from datetime import date
 from typing import Callable
 import pandas as pd
 import numpy as np
-from dataset.generator import Generator
+from model.dataset.generator import Generator
 from abc import ABC, abstractmethod
 
 
