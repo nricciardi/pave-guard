@@ -6,40 +6,43 @@ import numpy as np
 import pandas as pd
 
 
-def generate_aggregate_timespace(day: date, rain_probability: float,
-                                 rain_aggressivity: float,
-                                 rain_duration_average_minutes: float = 80,
-                                 rain_duration_variance: float = 50,
+def generate_aggregate_timespace(day: date, phenomenon_probability: float,
+                                 phenomenon_aggressivity: float,
+                                 phenomenon_duration_average_minutes: float = 80,
+                                 phenomenon_duration_variance: float = 50,
                                  alpha: float = 0.9) -> np.ndarray:
 
     i = 0
     timestamps_total = None
+    start_datetime = datetime.combine(day, datetime.min.time())
 
-    while rain_probability * (alpha ** i) >= np.random.uniform(0, 1):
+    while phenomenon_probability * (alpha ** i) >= np.random.uniform(0, 1):
 
-        if rain_probability >= np.random.uniform(0, 1):
+        if phenomenon_probability >= np.random.uniform(0, 1):
             i += 1
             continue
 
-        duration = np.random.normal(loc=rain_duration_average_minutes * (1 + rain_aggressivity),
-                                    scale=rain_duration_variance)
+        duration = np.random.normal(loc=phenomenon_duration_average_minutes * (1 + phenomenon_aggressivity),
+                                    scale=phenomenon_duration_variance)
         duration = duration if duration >= 0 else 0
         if duration == 0:
             i += 1
             continue
 
-        start_time = datetime.combine(day, datetime.min.time()) + timedelta(minutes=np.random.uniform(0, 24 * 60 - duration))
+        start_time = start_datetime + timedelta(minutes=np.random.uniform(0, 24 * 60 - duration))
         end_time = start_time + timedelta(minutes=duration)
 
         n_points = 10
-        while rain_aggressivity >= np.random.uniform(0, 1):
+        while phenomenon_aggressivity >= np.random.uniform(0, 1):
             n_points += 10
 
         timestamps = np.linspace(start_time.timestamp(), end_time.timestamp(), n_points)
         timestamps = pd.to_datetime(timestamps, unit='s')
         timestamps = timestamps.floor("s")
         timestamps_total = np.concatenate((timestamps_total, timestamps)) if timestamps_total is not None else timestamps
+
         i += 1
+        start_datetime = start_time
 
     return pd.Series() if timestamps_total is None else timestamps_total
 

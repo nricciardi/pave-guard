@@ -10,6 +10,7 @@ from model.dataset.rainfall_generator import RainfallGenerator
 from model.dataset.seasonal_generator import SeasonalGenerator
 from model.dataset.rainfall_generator import RainfallGenerator
 from model.constants import RawFeatureName
+from model.dataset.transit_generator import TransitGenerator
 
 
 class DatasetGenerator:
@@ -42,7 +43,12 @@ if __name__ == '__main__':
         RainfallGenerator(humidity_mean=humidity_mean)
     )
 
-    # "transit": TODO,
+    transit_generator = TransitGenerator()
+
+    generators[RawFeatureName.TRANSIT_VELOCITY] = transit_generator
+    generators[RawFeatureName.TRANSIT_TIME] = transit_generator
+    generators[RawFeatureName.TRANSIT_LENGTH] = transit_generator
+
     # "crack": TODO,
     # "photole": TODO,
 

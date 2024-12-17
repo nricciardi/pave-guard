@@ -8,8 +8,8 @@ class RawFeatureName(Enum):
     CRACK = "crack"
     POTHOLE = "pothole"
     TRANSIT_VELOCITY = "transit_velocity"
-    TRANSIT_LENGTH = "transit_length"
     TRANSIT_TIME = "transit_time"
+    TRANSIT_LENGTH = "transit_length"
 
 
 
