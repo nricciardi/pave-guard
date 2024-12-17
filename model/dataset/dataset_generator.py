@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     humidity_mean = sum(humidities) / len(humidities)
     generators[RawFeatureName.RAINFALL] = (
-        RainfallGenerator(magnitude=500, max_value=2000, mean_value=500, humidity_mean=humidity_mean)
+        RainfallGenerator(humidity_mean=humidity_mean)
     )
 
     # "transit": TODO,

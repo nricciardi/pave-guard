@@ -13,11 +13,11 @@ class SeasonalGenerator(IndependentGenerator):
         self.mean_value = mean_value
         self.magnitude = magnitude
 
-    def modulation(self, timestamp: date) -> float:
+    def __modulation(self, timestamp: date) -> float:
         return np.sin(2 * np.pi / self.period * (int(timestamp.strftime("%j")) - self.phi))
 
     def generate_next_value(self, previous_value, timestamp: date, **kwargs):
 
-        modulation = self.modulation(timestamp)
+        modulation = self.__modulation(timestamp)
 
         return self.magnitude * modulation + self.mean_value + np.random.uniform(-self.max_change, self.max_change)

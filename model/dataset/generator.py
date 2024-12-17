@@ -34,7 +34,7 @@ class Generator(ABC):
         return data
 
     @staticmethod
-    def generate_linspace_timestamp(day: date, n_points: int = 100):
+    def generate_linspace_timestamp(day: date, n_points: int = 100) -> np.ndarray:
         start_time = datetime.combine(day, datetime.min.time())
         end_time = start_time + timedelta(days=1) - timedelta(seconds=1)
 
