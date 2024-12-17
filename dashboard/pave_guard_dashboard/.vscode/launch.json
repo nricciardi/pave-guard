@@ -5,21 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "flareline",
+            "name": "Flutter-Responsive-Admin-Panel-or-Dashboard",
             "request": "launch",
-            "type": "dart",
-            "args": [
-                
-            ]
+            "type": "dart"
         },
         {
-            "name": "flareline (profile mode)",
+            "name": "Flutter-Responsive-Admin-Panel-or-Dashboard (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "flareline (release mode)",
+            "name": "Flutter-Responsive-Admin-Panel-or-Dashboard (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
