@@ -9,11 +9,12 @@ import pandas as pd
 def generate_aggregate_timespace(day: date, rain_probability: float,
                                  rain_aggressivity: float,
                                  rain_duration_average_minutes: float = 80,
-                                 rain_duration_variance: float = 50) -> np.ndarray:
-    alpha = 0.7
-    i = 0
+                                 rain_duration_variance: float = 50,
+                                 alpha: float = 0.9) -> np.ndarray:
 
+    i = 0
     timestamps_total = None
+
     while rain_probability * (alpha ** i) >= np.random.uniform(0, 1):
 
         if rain_probability >= np.random.uniform(0, 1):
