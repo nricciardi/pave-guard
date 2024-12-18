@@ -26,7 +26,8 @@ class Generator(ABC):
         while current_date <= to_date:
 
             day_data = self.generate_day_data(day=current_date, previous_day_data=previous_day_data, **kwargs)
-            data = pd.concat((data, day_data))
+            if not day_data.empty:
+                data = pd.concat([data, day_data]) if not data.empty else day_data
 
             previous_day_data = day_data
             current_date += timedelta(days=1)
