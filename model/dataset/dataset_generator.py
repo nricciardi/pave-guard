@@ -4,6 +4,7 @@ from typing import Dict
 import os
 import pandas as pd
 
+from model.dataset.crack_generator import CrackGenerator
 from model.dataset.generator import Generator
 from model.dataset.ind_generator import IndependentGenerator
 from model.dataset.rainfall_generator import RainfallGenerator
@@ -49,7 +50,8 @@ if __name__ == '__main__':
     generators[RawFeatureName.TRANSIT_TIME] = transit_generator
     generators[RawFeatureName.TRANSIT_LENGTH] = transit_generator
 
-    # "crack": TODO,
+    generators[RawFeatureName.CRACK] = CrackGenerator()
+
     # "photole": TODO,
 
     #DatasetGenerator.generate_dataset("/home/nricciardi/Repositories/pave-guard/model/dataset", from_date, to_date, generators)
