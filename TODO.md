@@ -1,9 +1,6 @@
 
 
-- [ ] Fix grafico app dynamic guard
-- [ ] Aggiunta (solo) login dashboard (token in memory, login a ogni accesso)
-- [ ] Generator
-- [ ] Process dei dati
+
 - [ ] API server per inserire/eliminare/visualizzare le pianificazioni
 - [ ] API server per inserire/eliminare/visualizzare gli interventi svolti
 - [ ] Gestione dei dati degli interventi svolti (lato modello)
@@ -19,15 +16,12 @@
 - [ ] Service dashboard per calendario
 - [ ] Service dashboard per gestione interventi
 - [ ] Service dashboard mappa
-- [ ] UI grafico dati storici
 - [ ] UI calendario
 - [ ] UI gestione interventi
 - [ ] UI mappa con strade e relativo stato strada
 - [ ] Rimozione sezioni non utilizzate dashboard
 - [ ] Rebranding dashboard
-- [ ] Scatola dynamic guard
 - [ ] Scatola static guard
-- [ ] Documentazione dynamic guard
 - [ ] Documentazione static guard
 - [ ] Documentazione server
 - [ ] Documentazione modello
@@ -43,11 +37,19 @@
 
 
 ## Settimana 52
-
+Fil:
+    - [ ] Generator
+    - [ ] Fix grafico app dynamic guard
+    - [ ] Aggiunta (solo) login dashboard (token in memory, login a ogni accesso)
+    - [ ] Scatola dynamic guard
 
 
 
 ## Settimana 1
+Fil:
+    - [ ] Documentazione dynamic guard
+    - [ ] Process dei dati
+    - [ ] UI grafico dati storici
 
 
 
