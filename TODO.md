@@ -38,18 +38,20 @@
 
 ## Settimana 52
 Fil:
-    - [ ] Generator
-    - [ ] Process dei dati
-    - [ ] Aggiunta (solo) login dashboard (token in memory, login a ogni accesso)
-    - [ ] Scatola dynamic guard
+
+- [X] Generator
+- [ ] Process dei dati
+- [ ] Aggiunta (solo) login dashboard (token in memory, login a ogni accesso)
+- [ ] Scatola dynamic guard
 
 
 
 ## Settimana 1
 Fil:
-    - [ ] Documentazione dynamic guard
-    - [ ] Fix grafico app dynamic guard
-    - [ ] UI grafico dati storici
+
+- [ ] Documentazione dynamic guard
+- [ ] Fix grafico app dynamic guard
+- [ ] UI grafico dati storici
 
 
 
