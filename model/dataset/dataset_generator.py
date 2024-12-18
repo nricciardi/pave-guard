@@ -51,6 +51,7 @@ if __name__ == '__main__':
     generators[RawFeatureName.TRANSIT_LENGTH] = transit_generator
 
     generators[RawFeatureName.CRACK] = CrackGenerator()
+    generators[RawFeatureName.POTHOLE] = CrackGenerator(max_cracks=5, cracks_gravity_average=40, probability_detection=0.2)
 
     # "photole": TODO,
 
