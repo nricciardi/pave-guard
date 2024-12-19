@@ -1,6 +1,6 @@
 {
-    "name": "responsive_admin_dashboard",
-    "short_name": "responsive_admin_dashboard",
+    "name": "admin",
+    "short_name": "admin",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,7 +1,9 @@
+import 'package:admin/constants.dart';
+import 'package:admin/controllers/menu_app_controller.dart';
+import 'package:admin/screens/main/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_admin_dashboard/controllers/controller.dart';
-import 'package:responsive_admin_dashboard/screens/login_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,18 +14,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Responsive Admin Dashboard',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      title: 'Pave Guard Dashboard',
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: bgColor,
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
+            .apply(bodyColor: Colors.white),
+        canvasColor: secondaryColor,
       ),
       home: MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => Controller(),)
+          ChangeNotifierProvider(
+            create: (context) => MenuAppController(),
+          ),
         ],
-        child: LoginScreen(),
+        child: MainScreen(),
       ),
     );
   }
 }
-
