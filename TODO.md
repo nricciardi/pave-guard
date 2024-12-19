@@ -1,17 +1,12 @@
 
 
 
-- [ ] API server per inserire/eliminare/visualizzare le pianificazioni
 - [ ] API server per inserire/eliminare/visualizzare gli interventi svolti
 - [ ] Gestione dei dati degli interventi svolti (lato modello)
 - [ ] Creazione del modello (classe Python?)
 - [ ] Allenamento del modello
 - [ ] Save del modello per futuro uso
 - [ ] Componente per la predizione giornaliera
-- [ ] Progettazione database per salvataggio delle predizioni giornaliere
-- [ ] API server per il salvataggio delle predizioni giornaliere
-- [ ] API server per l'ottenimento delle predizioni giornaliere della dashboard
-- [ ] API server per l'ottenimento dei dati storici
 - [ ] Service dashboard per dati storici
 - [ ] Service dashboard per calendario
 - [ ] Service dashboard per gestione interventi
@@ -21,8 +16,6 @@
 - [ ] UI mappa con strade e relativo stato strada
 - [ ] Rimozione sezioni non utilizzate dashboard
 - [ ] Rebranding dashboard
-- [ ] Scatola static guard
-- [ ] Documentazione static guard
 - [ ] Documentazione server
 - [ ] Documentazione modello
 - [ ] Documentazione dashboard
@@ -37,6 +30,7 @@
 
 
 ## Settimana 52
+
 Fil:
 
 - [X] Generator
@@ -44,9 +38,14 @@ Fil:
 - [ ] Aggiunta (solo) login dashboard (token in memory, login a ogni accesso)
 - [ ] Scatola dynamic guard
 
+Nic:
+- [ ] API server per l'ottenimento dei dati storici
+- [ ] API server per inserire/eliminare/visualizzare le pianificazioni
+
 
 
 ## Settimana 1
+
 Fil:
 
 - [ ] Documentazione dynamic guard
@@ -54,9 +53,23 @@ Fil:
 - [ ] UI grafico dati storici
 
 
+Nic:
+- [ ] Documentazione static guard
+- [ ] Scatola static guard
+
+
+
 
 ## Settimana 2
 
+- [ ] Progettazione database per salvataggio delle predizioni giornaliere
+
+
+
+Nic:
+
+- [ ] API server per il salvataggio delle predizioni giornaliere
+- [ ] API server per l'ottenimento delle predizioni giornaliere della dashboard
 
 
 ## Settimana 3
