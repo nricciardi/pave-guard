@@ -27,6 +27,7 @@ class FeatureName(Enum):
     DAYS = "days"
     POTHOLE_SEVERITY = "pothole_severity"
     CRACK_SEVERITY = "crack_severity"
+    IS_RAINING = "is_raining"
 
 
 class TargetName(Enum):

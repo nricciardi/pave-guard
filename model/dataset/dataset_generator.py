@@ -12,6 +12,7 @@ from model.dataset.seasonal_generator import SeasonalGenerator
 from model.dataset.rainfall_generator import RainfallGenerator
 from model.constants import RawFeatureName
 from model.dataset.transit_generator import TransitGenerator
+from model.preprocess.preprocessor import Preprocessor
 
 
 class DatasetGenerator:
@@ -24,12 +25,12 @@ class DatasetGenerator:
             series.to_csv(os.path.join(output_dir, f"{name.value}.csv"), index_label="timestamp", header=[name.value])
 
     @classmethod
-    def csvs_to_dataframe(cls, input_dir: str, output_dir: str = ".", features: list[str] = None):
+    def csvs_to_dataframe(cls, input_dir: str, output_dir: str = ".", output_name: str = "dataset", features: list[str] = None) -> pd.DataFrame:
         if features is None:
-            features = [feat.value for feat in RawFeatureName]
+            features = [feat for feat in RawFeatureName]
 
         dfs = {
-            feature: pd.read_csv(f'{feature}.csv')
+            feature: pd.read_csv(f'{feature.value}.csv')
                 for feature in features
         }
 
@@ -43,7 +44,8 @@ class DatasetGenerator:
             result_df = result_df.merge(df, on='timestamp', how='left')
 
         result_df.set_index('timestamp', inplace=True)
-        result_df.to_csv(os.path.join(output_dir, "dataset.csv"), index_label="timestamp")
+        result_df.to_csv(os.path.join(output_dir, f'{output_name}.csv'), index_label="timestamp")
+        return result_df
 
 
 if __name__ == '__main__':
@@ -78,4 +80,10 @@ if __name__ == '__main__':
     #DatasetGenerator.generate_dataset("/home/nricciardi/Repositories/pave-guard/model/dataset", from_date, to_date, generators)
     DatasetGenerator.generate_dataset(".", from_date, to_date, generators)
 
-    DatasetGenerator.csvs_to_dataframe(".")
+    df = DatasetGenerator.csvs_to_dataframe(".")
+
+
+    preprocessor = Preprocessor()
+    preprocessor.process(
+        df
+    )
