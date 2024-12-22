@@ -23,6 +23,27 @@ class DatasetGenerator:
             series: pd.Series = generator.generate(from_date=from_date, to_date=to_date, **kwargs)
             series.to_csv(os.path.join(output_dir, f"{name.value}.csv"), index_label="timestamp", header=[name.value])
 
+    @classmethod
+    def csvs_to_dataframe(cls, input_dir: str, output_dir: str = ".", features: list[str] = None):
+        if features is None:
+            features = [feat.value for feat in RawFeatureName]
+
+        dfs = {
+            feature: pd.read_csv(f'{feature}.csv')
+                for feature in features
+        }
+
+        for key in dfs:
+            dfs[key]['timestamp'] = pd.to_datetime(dfs[key]['timestamp'])
+
+        timestamps = pd.concat([df['timestamp'] for df in dfs.values()]).drop_duplicates().sort_values()
+
+        result_df = pd.DataFrame({'timestamp': timestamps})
+        for key, df in dfs.items():
+            result_df = result_df.merge(df, on='timestamp', how='left')
+
+        result_df.set_index('timestamp', inplace=True)
+        result_df.to_csv(os.path.join(output_dir, "dataset.csv"), index_label="timestamp")
 
 
 if __name__ == '__main__':
@@ -53,7 +74,8 @@ if __name__ == '__main__':
     generators[RawFeatureName.CRACK] = CrackGenerator()
     generators[RawFeatureName.POTHOLE] = CrackGenerator(max_cracks=5, cracks_gravity_average=40, probability_detection=0.2)
 
-    # "photole": TODO,
 
     #DatasetGenerator.generate_dataset("/home/nricciardi/Repositories/pave-guard/model/dataset", from_date, to_date, generators)
     DatasetGenerator.generate_dataset(".", from_date, to_date, generators)
+
+    DatasetGenerator.csvs_to_dataframe(".")
