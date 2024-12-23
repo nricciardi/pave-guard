@@ -1,4 +1,4 @@
-from dataset.ind_generator import IndependentGenerator
+from model.dataset.ind_generator import IndependentGenerator
 import numpy as np
 from datetime import date
 
@@ -21,4 +21,3 @@ class SeasonalGenerator(IndependentGenerator):
         modulation = self.__modulation(timestamp)
 
         return self.magnitude * modulation + self.mean_value + np.random.uniform(-self.max_change, self.max_change)
-

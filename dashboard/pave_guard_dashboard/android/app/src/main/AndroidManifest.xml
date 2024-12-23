@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.responsive_admin_dashboard">
+    package="com.example.admin">
    <application
-        android:label="responsive_admin_dashboard"
+        android:label="admin"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
