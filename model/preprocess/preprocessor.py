@@ -57,7 +57,7 @@ class Preprocessor:
         grouped_by_day = self.get_groups(data_timestamps, temperatures_name)
 
         for day in grouped_by_day.keys():
-            grouped_by_day[day] = (max(grouped_by_day[day]) - min(grouped_by_day[day])) if len(grouped_by_day[day] > 0) else 0
+            grouped_by_day[day] = (max(grouped_by_day[day]) - min(grouped_by_day[day])) if len(grouped_by_day[day]) > 0 else 0
 
         return sum([
             val for val in grouped_by_day.values()
