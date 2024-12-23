@@ -1,26 +1,14 @@
-import { Resolver, Query, Field, ID, ObjectType } from '@nestjs/graphql';
+import { Resolver, Query, Field, ID, ObjectType, InputType } from '@nestjs/graphql';
 import { TelemetryService } from '../services/telemetry/telemetry.service';
 import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
+import { LocationDto } from '../dto/location.dto';
+
 
 @ObjectType()
-export class MetadataQuery {
+export class MetadataQuery extends LocationDto {
   @Field()
   deviceId: string;
-
-  @Field()
-  road: string;
-
-  @Field()
-  city: string;
-
-  @Field({
-    nullable: true
-  })
-  county?: string;
-
-  @Field()
-  state: string;
 
 }
 
@@ -52,5 +40,11 @@ export class TelemetryResolver {
   @UseGuards(AdminGuard)
   async telemetries() {
     return this.telemetryService.findAll();
+  }
+
+  @Query(() => [LocationDto])
+  @UseGuards(AdminGuard)
+  async locations() {
+    return this.telemetryService.mappedLocations();
   }
 }

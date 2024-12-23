@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Telemetry } from '../../models/telemetry.model';
 import { StaticGuardService } from 'src/modules/device/services/static-guard/static-guard.service';
 import { CreateDynamicTelemetryDto } from '../../dto/create-telemetry.dto';
+import { LocationDto } from '../../dto/location.dto';
 
 @Injectable()
 export class TelemetryService {
@@ -13,6 +14,34 @@ export class TelemetryService {
 
     async findAll(): Promise<Telemetry[]> {
         return this.telemetryModel.find().exec();
+    }
+
+    async mappedLocations(): Promise<LocationDto[]> {
+        return this.telemetryModel.aggregate([
+            {
+                $project: {
+                    "metadata.road": 1,
+                    "metadata.city": 1,
+                    "metadata.county": { $ifNull: ["$metadata.county", "Unknown"] },
+                    "metadata.state": 1,
+                }
+            },
+            {
+                $group: {
+                  _id: {
+                    road: '$metadata.road',
+                    city: '$metadata.city',
+                    county: '$metadata.county',
+                    state: '$metadata.state',
+                  },
+                },
+              },
+              {
+                $replaceRoot: {
+                  newRoot: '$_id',
+                },
+              },
+        ])
     }
 
     async buildStaticFieldsByDeviceId(deviceId: string): Promise<object> {

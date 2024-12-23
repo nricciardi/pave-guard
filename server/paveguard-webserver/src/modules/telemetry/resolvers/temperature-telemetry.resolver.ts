@@ -23,7 +23,9 @@ export class TemperatureTelemetryResolver {
 
   @Query(() => [TemperatureTelemetryQuery])
   @UseGuards(AdminGuard)
-  async temperatureTelemetries() {
+  async temperatureTelemetries(
+  ) {
+
     return this.temperatureTelemetryService.findAll();
   }
 

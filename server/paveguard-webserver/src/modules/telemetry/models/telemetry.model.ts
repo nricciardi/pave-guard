@@ -40,12 +40,18 @@ export class Telemetry extends Document {
       deviceId: { type: Types.ObjectId, ref: 'Device', required: true },
       kind: { type: String, required: false },
       road: { type: String, required: true },
+      city: { type: String, required: true },
+      county: { type: String, required: false },
+      state: { type: String, required: true },
     }
   })
   metadata: {
     deviceId: Types.ObjectId;
     kind: string;
     road: string;
+    city: string;
+    county?: string;
+    state: string;
   };
 }
 

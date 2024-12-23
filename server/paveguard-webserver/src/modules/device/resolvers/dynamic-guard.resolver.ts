@@ -31,6 +31,9 @@ export class DynamicGuardResolver {
     @Token() token: JwtDto
   ) {
 
+    if(!token)
+      return new ForbiddenException("token missed");
+
     const user = await this.userService.findById(token.userId);
 
     if (user.admin)
