@@ -1,4 +1,6 @@
+import 'package:admin/data/env_manager.dart';
 import 'package:admin/screens/login_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'constants.dart';
 import 'controllers/menu_app_controller.dart';
@@ -6,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  await dotenv.load();
   runApp(MyApp());
 }
 
