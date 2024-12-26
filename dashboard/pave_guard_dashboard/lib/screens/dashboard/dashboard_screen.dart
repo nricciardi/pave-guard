@@ -1,4 +1,4 @@
-import 'package:admin/screens/dashboard/components/info_card.dart';
+import '../../screens/dashboard/components/info_card.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
