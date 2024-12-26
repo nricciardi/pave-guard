@@ -34,7 +34,7 @@
 Fil:
 
 - [X] Generator
-- [ ] Process dei dati
+- [X] Process dei dati
 - [ ] Aggiunta (solo) login dashboard (token in memory, login a ogni accesso)
 - [ ] Scatola dynamic guard
 
