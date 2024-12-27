@@ -39,7 +39,9 @@ Fil:
 - [ ] Scatola dynamic guard
 
 Nic:
-- [ ] API server per l'ottenimento dei dati storici
+- [x] API server per l'ottenimento dei dati storici
+- [ ] con filtri strada e deviceId
+- [x] Fix firmware static guard
 - [ ] API server per inserire/eliminare/visualizzare le pianificazioni
 
 
