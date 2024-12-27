@@ -56,6 +56,7 @@ Fil:
 
 
 Nic:
+- [ ] Fix static guard: aggiunta reset transiti se solo una fotocellula viene attivata e non passano più di x secondi
 - [ ] Documentazione static guard
 - [ ] Scatola static guard
 
