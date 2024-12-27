@@ -3,8 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Telemetry } from '../../models/telemetry.model';
 import { StaticGuardService } from 'src/modules/device/services/static-guard/static-guard.service';
-import { CreateDynamicTelemetryDto } from '../../dto/create-telemetry.dto';
+import { CreateDynamicTelemetryDto, TelemetryFilters } from '../../dto/create-telemetry.dto';
 import { LocationDto } from '../../dto/location.dto';
+
+
+export interface TelemetryCrud<T, C> {
+    findAll(filters?: TelemetryFilters): Promise<T[]>;
+
+    create(data: C): Promise<T>;
+}
+
+
 
 @Injectable()
 export class TelemetryService {
@@ -71,5 +80,37 @@ export class TelemetryService {
                 state: data.state
             }
         }
+    }
+
+    buildQuery(filters: TelemetryFilters) {
+        const query: Record<string, any> = {};
+
+        if (filters.deviceId)
+            query['metadata.deviceId'] = filters.deviceId;
+        
+        if (filters.road)
+            query['metadata.road'] = filters.road;
+        
+        if (filters.city)
+            query['metadata.city'] = filters.city;
+        
+        if (filters.county)
+            query['metadata.county'] = filters.county;
+        
+        if (filters.state)
+            query['metadata.state'] = filters.state;
+        
+
+        if (filters.from || filters.to) {
+            query.timestamp = {};
+
+            if (filters.from)
+                query.timestamp.$gte = new Date(filters.from);
+            
+            if (filters.to)
+                query.timestamp.$lte = new Date(filters.to);
+        }
+
+        return query;
     }
 }

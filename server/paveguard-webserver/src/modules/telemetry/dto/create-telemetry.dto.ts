@@ -55,5 +55,61 @@ export class CreateDynamicTelemetryDto extends CreateStaticTelemetryDto {
   longitude: number;
 }
 
+@ArgsType()
+export class TelemetryFilters {
 
+  @Field({
+    nullable: true,
+  })
+  @IsString()
+  @IsMongoId()
+  @IsNotEmpty()
+  deviceId: string;
+
+  @Field({
+    nullable: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  road: string;
+
+  @Field({
+    nullable: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @Field({
+    nullable: true,
+  })
+  @IsString()
+  county?: string;
+
+  @Field({
+    nullable: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  state: string;
+
+  @Field({
+    nullable: true,
+    description: "can be either timestamp or datetime"
+  })
+  @IsDate()
+  @IsNotEmpty()
+  @IsNotEmpty()
+  from: string;
+  
+
+  @Field({
+    nullable: true,
+    description: "can be either timestamp or datetime"
+  })
+  @IsDate()
+  @IsNotEmpty()
+  @IsNotEmpty()
+  to: string;
+}
 

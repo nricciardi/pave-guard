@@ -5,6 +5,7 @@ import { TelemetryQuery } from './telemetry.resolver';
 import { JwtAuthenticationGuard } from 'src/modules/user/guards/jwt-authentication/jwt-authentication.guard';
 import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
+import { TelemetryFilters } from '../dto/create-telemetry.dto';
 
 
 @ObjectType()
@@ -24,9 +25,10 @@ export class TemperatureTelemetryResolver {
   @Query(() => [TemperatureTelemetryQuery])
   @UseGuards(AdminGuard)
   async temperatureTelemetries(
+    @Args({ nullable: true }) filters?: TelemetryFilters,
   ) {
 
-    return this.temperatureTelemetryService.findAll();
+    return this.temperatureTelemetryService.findAll(filters);
   }
 
   @Mutation(() => TemperatureTelemetryQuery)
@@ -34,7 +36,7 @@ export class TemperatureTelemetryResolver {
   async createTemperatureTelemetry(
     @Args() input: CreateTemperatureTelemetryDto,
   ) {
-    
+
     return this.temperatureTelemetryService.create(input);
   }
 }
