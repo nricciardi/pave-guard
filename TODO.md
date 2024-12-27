@@ -34,12 +34,14 @@
 Fil:
 
 - [X] Generator
-- [ ] Process dei dati
-- [ ] Aggiunta (solo) login dashboard (token in memory, login a ogni accesso)
+- [X] Process dei dati
+- [X] Aggiunta (solo) login dashboard (token in memory, login a ogni accesso)
 - [ ] Scatola dynamic guard
 
 Nic:
-- [ ] API server per l'ottenimento dei dati storici
+- [x] API server per l'ottenimento dei dati storici
+- [ ] con filtri strada e deviceId
+- [x] Fix firmware static guard
 - [ ] API server per inserire/eliminare/visualizzare le pianificazioni
 
 

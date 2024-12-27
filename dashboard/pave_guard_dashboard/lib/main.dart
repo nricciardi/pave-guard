@@ -1,12 +1,19 @@
-import 'package:admin/constants.dart';
-import 'package:admin/controllers/menu_app_controller.dart';
-import 'package:admin/screens/main/main_screen.dart';
+import 'package:admin/screens/login_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'constants.dart';
+import 'controllers/menu_app_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  await dotenv.load();
+  runApp(ChangeNotifierProvider(
+      create: (context) => MenuAppController(),
+      child: MyApp(),  // This should be the root widget
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -28,7 +35,7 @@ class MyApp extends StatelessWidget {
             create: (context) => MenuAppController(),
           ),
         ],
-        child: MainScreen(),
+        child: LoginScreen(),
       ),
     );
   }
