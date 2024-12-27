@@ -13,8 +13,13 @@ class MainScreen extends StatelessWidget {
   MainScreen({required this.token});
   @override
   Widget build(BuildContext context) {
+    // Ensure that the MenuAppController is ready before accessing the scaffoldKey
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final menuAppController = context.read<MenuAppController>();
+      // Any additional setup for MenuAppController, if necessary, can be done here
+    });
     return Scaffold(
-      key: context.read<MenuAppController>().scaffoldKey,
+      key: context.read<MenuAppController>().scaffoldKey, // Access scaffoldKey safely after initialization
       drawer: SideMenu(),
       body: SafeArea(
         child: Row(

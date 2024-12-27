@@ -1,4 +1,3 @@
-import 'package:admin/data/env_manager.dart';
 import 'package:admin/screens/login_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -10,7 +9,11 @@ import 'package:provider/provider.dart';
 
 void main() async {
   await dotenv.load();
-  runApp(MyApp());
+  runApp(ChangeNotifierProvider(
+      create: (context) => MenuAppController(),
+      child: MyApp(),  // This should be the root widget
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
