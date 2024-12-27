@@ -7,17 +7,17 @@
 class Telemetry {
 
   protected:
-    String deviceId;
+    char* deviceId;
     unsigned long timestampInSeconds;
 
     String buildGraphqlMutationBody(char* mutationRef, String* extraBody);
 
   public:
-    Telemetry(String deviceId, unsigned long timestampInSeconds): deviceId(deviceId), timestampInSeconds(timestampInSeconds) {
+    Telemetry(char* deviceId, unsigned long timestampInSeconds): deviceId(deviceId), timestampInSeconds(timestampInSeconds) {
     }
 
-    String* getDeviceId() {
-      return &deviceId;
+    char* getDeviceId() {
+      return deviceId;
     }
 
     virtual String toGraphqlMutationBody() = 0;

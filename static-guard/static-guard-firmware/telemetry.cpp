@@ -3,9 +3,9 @@
 String Telemetry::buildGraphqlMutationBody(char* mutationRef, String* extraBody) {
 
   String body(mutationRef);
-  body.concat("(metadata:{deviceId:\\\"");
+  body.concat("(deviceId:\\\"");
   body.concat(deviceId);
-  body.concat("\\\"},timestamp:\\\"");
+  body.concat("\\\",timestamp:\\\"");
   body.concat(timestampInSeconds);
   body.concat("000\\\"");    // timestamp in millis
   

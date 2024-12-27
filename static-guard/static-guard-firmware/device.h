@@ -14,30 +14,12 @@
 #include "led-controller.h"
 #include "queue.h"
 
-
-#define TRANSIT_TRIGGER_QUEUE_SIZE 40  // must be even (e.g. 40)
-
-
-// ==== DEVICE SIGN ====
-// information about specific device, these information are unique for each device
-
-struct DeviceSign {
-  char* deviceId;
-  double latitude;
-  double longitude;
-};
-
-const DeviceSign deviceSign = {
-  .deviceId = "67236c0933a3695fb68e81db",
-  .latitude = 42,
-  .longitude = 42
-};
-
-
 // ==== DEVICE CONFIGURATION ====
-// information about pin numbers, rates and other general configuration options
+// information about device, pin numbers, rates and other general configuration options
 
 struct DeviceConfiguration {
+  char* deviceId;
+
   unsigned short delayBeforeSetupInMillis; 
 
   bool enableHumiditySensor;
@@ -46,6 +28,8 @@ struct DeviceConfiguration {
   int humidityTemperatureSensorType;
   unsigned int temperatureSamplingRateInMillis;
   unsigned int humiditySamplingRateInMillis;
+  float temperatureOffset;
+  float humidityOffset;
 
   bool enableTransitTriggerSensor;
   unsigned char transitTriggerLeftSensorPin;
@@ -66,20 +50,25 @@ struct DeviceConfiguration {
 };
 
 const DeviceConfiguration deviceConfiguration = {
+
+  .deviceId = "6769255b374b0ea6b2e92882",
+
   .delayBeforeSetupInMillis = 2 * 1000,
 
   .enableHumiditySensor = true,
   .enableTemperatureSensor = true,
   .humidityTemperatureSensorPin = 7,
   .humidityTemperatureSensorType = DHT22,
-  .temperatureSamplingRateInMillis = 20 * 1000,
-  .humiditySamplingRateInMillis = 20 * 1000,
+  .temperatureSamplingRateInMillis = 5 * 60 * 1000,
+  .humiditySamplingRateInMillis = 5 * 60 * 1000,
+  .temperatureOffset = 0,
+  .humidityOffset = 0,
 
   .enableTransitTriggerSensor = true,
   .transitTriggerLeftSensorPin = 2,
   .transitTriggerRightSensorPin = 3,
   .transitTriggersdistanceInMeters = 0.186,
-  .transitTriggerQueueSize = TRANSIT_TRIGGER_QUEUE_SIZE,
+  .transitTriggerQueueSize = 40,
   .transitTriggerTrigThresholdInMicros = 50 * 1000,
   .transitTriggerInterruptOffsetInMicros = 100,
 
@@ -87,7 +76,7 @@ const DeviceConfiguration deviceConfiguration = {
   .rainGaugeSensorPin = 8,
   .rainTriggerMultiplierInMm = 0.3,
   .rainSamplesElaborationRateInMillis = 2 * 1000,
-  .rainGaugeTrigThresholdInMillis = 50,
+  .rainGaugeTrigThresholdInMillis = 150,
 
   .ledLogEnabled = true,
   .debug = true,
@@ -114,12 +103,11 @@ class Device {
 
     static Device* instance;
 
-    Device(): sign(deviceSign), configuration(deviceConfiguration) {
+    Device(): configuration(deviceConfiguration) {
     }
 
   public:
 
-    const DeviceSign sign;
     const DeviceConfiguration configuration;
 
     /**

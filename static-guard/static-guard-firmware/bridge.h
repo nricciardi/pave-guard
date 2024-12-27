@@ -10,10 +10,6 @@
 #include "led-controller.h"
 
 
-#define BUCKET_SIZE 30      // MAX 30
-#define BUCKET_THRESHOLD 4
-
-
 // ==== BRIDGE CONFIGURATION ====
 struct BridgeConfiguration {
   bool wifiConnectionNeeded;
@@ -25,6 +21,7 @@ struct BridgeConfiguration {
   char* wifiPassword;
   char* serverAddress;
   unsigned short serverPort;
+  char* serverRoute;
 
   char* ntpServerUrl;
   int ntpTimeOffset;
@@ -42,13 +39,14 @@ struct BridgeConfiguration {
 const BridgeConfiguration bridgeConfiguration = {
   .wifiConnectionNeeded = true,
 
-  .bucketSize = BUCKET_SIZE,
-  .bucketSendingThreshold = BUCKET_THRESHOLD,
+  .bucketSize = 30,   // MAX 30
+  .bucketSendingThreshold = 10,
 
-  .wifiSsid = "ncla",
-  .wifiPassword = "Omegone!",
-  .serverAddress = "192.168.137.178",
+  .wifiSsid = "Martin Router King 2.4GHz",
+  .wifiPassword = "",
+  .serverAddress = "192.168.0.11",
   .serverPort = 3000,
+  .serverRoute = "/graphql",
 
   .ntpServerUrl = "it.pool.ntp.org",
   .ntpTimeOffset = 0,

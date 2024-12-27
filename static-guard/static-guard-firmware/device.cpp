@@ -14,7 +14,7 @@ void Device::onTransitTriggerRightTrig() {
 
 void Device::onRainGaugeTrig() {
 
-  if(abs(Device::instance->lastRainGaugeTrig - millis()) <= Device::instance->configuration.rainGaugeTrigThresholdInMillis)
+  if(abs(millis() - Device::instance->lastRainGaugeTrig) <= Device::instance->configuration.rainGaugeTrigThresholdInMillis)
     return;
 
   Device::instance->rainGaugeUnhandledTrigs += 1;
@@ -73,7 +73,7 @@ void Device::setup() {
   
 
   Serial.print("device OK: ");
-  Serial.println(sign.deviceId);
+  Serial.println(configuration.deviceId);
 
   printOnLedMatrix("DEVICE OK", 50, configuration.ledLogEnabled);
 }
@@ -116,18 +116,21 @@ void Device::work() {
 
 void Device::handleHumidity() {
   
-  float h = dht->readHumidity();
+  float humidity = dht->readHumidity() + configuration.humidityOffset;
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
-  if(!isnan(h)) {
+  if(!isnan(humidity)) {
 
     if(configuration.debug) {
       Serial.print("read humidity: ");
-      Serial.println(h);
+      Serial.print(humidity);
+      Serial.print(" (offset: ");
+      Serial.print(configuration.humidityOffset);
+      Serial.println(")");
     }
 
-    HumidityTelemetry* humidityTelemetry = new HumidityTelemetry(sign.deviceId, timestamp, h);
+    HumidityTelemetry* humidityTelemetry = new HumidityTelemetry(configuration.deviceId, timestamp, humidity);
 
     bridge->put(humidityTelemetry);
 
@@ -135,7 +138,7 @@ void Device::handleHumidity() {
 
     Serial.println("ERROR: fail to read humidity");
     
-    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("HT001"), String("Fail to read humidity"));
+    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "HT001", "Fail to read humidity");
 
     bridge->put(failAlert);
   }
@@ -144,18 +147,21 @@ void Device::handleHumidity() {
 void Device::handleTemperature() {
   
   // Read temperature as Celsius (the default)
-  float t = dht->readTemperature();
+  float temperature = dht->readTemperature() + configuration.temperatureOffset;
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
-  if(!isnan(t)) {
+  if(!isnan(temperature)) {
 
     if(configuration.debug) {
       Serial.print("read temperature: ");
-      Serial.println(t);
+      Serial.print(temperature);
+      Serial.print(" (offset: ");
+      Serial.print(configuration.temperatureOffset);
+      Serial.println(")");
     }
     
-    Telemetry* temperatureTelemetry = new TemperatureTelemetry(sign.deviceId, timestamp, t);
+    Telemetry* temperatureTelemetry = new TemperatureTelemetry(configuration.deviceId, timestamp, temperature);
 
     bridge->put(temperatureTelemetry);
 
@@ -163,7 +169,7 @@ void Device::handleTemperature() {
 
     Serial.println("ERROR: fail to read temperature");
     
-    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("HT002"), String("Fail to read temperature"));
+    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "HT002", "Fail to read temperature");
 
     bridge->put(failAlert);
   }
@@ -171,25 +177,31 @@ void Device::handleTemperature() {
 
 void Device::elaborateRainGaugeUnhandledSamples() {
 
+
   if(rainGaugeUnhandledTrigs <= 0)
     return;
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds() - ((millis() - lastRainGaugeTrig) / 1000);
 
-  unsigned long totalMm = (float) rainGaugeUnhandledTrigs * configuration.rainTriggerMultiplierInMm;
+  noInterrupts();
+
+  unsigned int trigs = rainGaugeUnhandledTrigs;
+  rainGaugeUnhandledTrigs = 0;
+
+  interrupts();
+
+  float totalMm = (float) trigs * configuration.rainTriggerMultiplierInMm;
 
   if(configuration.debug) {
     Serial.print("elaborate rain gauge unhandled samples: ");
-    Serial.print(rainGaugeUnhandledTrigs);
+    Serial.print(trigs);
     Serial.print(" => ");
     Serial.println(totalMm);
   }
     
-  Telemetry* rainTelemetry = new RainTelemetry(sign.deviceId, timestamp, totalMm);
+  Telemetry* rainTelemetry = new RainTelemetry(configuration.deviceId, timestamp, totalMm);
 
   bridge->put(rainTelemetry);
-
-  rainGaugeUnhandledTrigs = 0;
 }
 
 void Device::elaborateTransitTriggersUnhandledSamples() {
@@ -204,7 +216,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT003"), String("Inconsistent queues"));
+    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT003", "Inconsistent queues");
 
     bridge->put(failAlert);
     
@@ -240,7 +252,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT003"), String("Same time in transit samples"));
+    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT003", "Same time in transit samples");
 
     bridge->put(failAlert);
     
@@ -285,7 +297,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT002"), String("Computed velocities is less or equal to zero"));
+    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT002", "Computed velocities is less or equal to zero");
 
     bridge->put(failAlert);
     
@@ -303,7 +315,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT003"), String("Transit time is less or equal to zero"));
+    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT003", "Transit time is less or equal to zero");
 
     bridge->put(failAlert);
     
@@ -325,25 +337,20 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
 
   if(vehicleLength <= 0 || isnan(vehicleLength) || meanVelocity <= 0 || isnan(meanVelocity)) {
 
-    Serial.println("ERROR: trouble during transit computation");
-
-    String msg("Vehicle length or velocity is less or equal to zero or inf. Length: ");
-    msg.concat(vehicleLength);
-    msg.concat("; velocity: ");
-    msg.concat(meanVelocity);
+    Serial.println("ERROR: vehicle length or velocity is less or equal to zero or inf");
 
     Serial.println("WARNING: queues will be cleared");
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailAlert* failAlert = new FailAlert(sign.deviceId, timestamp, String("TT004"), msg);
+    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT004", "Vehicle length or velocity is less or equal to zero or inf");
 
     bridge->put(failAlert);
     
     return;
   }
 
-  Telemetry* transitTelemetry = new TransitTelemetry(sign.deviceId, timestamp, vehicleLength, meanVelocity, transitTimeInSeconds);
+  Telemetry* transitTelemetry = new TransitTelemetry(configuration.deviceId, timestamp, vehicleLength, meanVelocity, transitTimeInSeconds);
 
   bridge->put(transitTelemetry);
 }

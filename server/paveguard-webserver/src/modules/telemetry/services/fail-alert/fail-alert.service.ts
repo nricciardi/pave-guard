@@ -7,7 +7,7 @@ import { TelemetryService } from '../telemetry/telemetry.service';
 
 @Injectable()
 export class FailAlertService {
-    constructor(@InjectModel(FailAlert.name) private failAlertModel: Model<FailAlert>) {
+    constructor(private telemetryService: TelemetryService, @InjectModel(FailAlert.name) private failAlertModel: Model<FailAlert>) {
     }
 
     async findAll(): Promise<FailAlert[]> {
@@ -15,6 +15,11 @@ export class FailAlertService {
     }
 
     async create(data: CreateFailTelemetryDto): Promise<FailAlert> {
-        return this.failAlertModel.create(data);
+        return this.failAlertModel.create({
+            metadata: {
+                deviceId: data.deviceId
+            },
+            ...data
+        });
     }
 }

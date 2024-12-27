@@ -130,11 +130,13 @@ void Bridge::put(Telemetry* telemetry) {
     Serial.print("new telemetry was correctly saved in queue (");
     Serial.print(telemetriesInBucket);
     Serial.print("/");
+    Serial.print(configuration.bucketSendingThreshold);
+    Serial.print("|");
     Serial.print(configuration.bucketSize);
     Serial.println(")");
 
-    char msg[16];
-    sprintf(msg, "%d/%d", telemetriesInBucket, configuration.bucketSize);
+    char msg[24];
+    sprintf(msg, "%d/%d|%d", telemetriesInBucket, configuration.bucketSendingThreshold, configuration.bucketSize);
 
     printOnLedMatrix(msg, 20, configuration.ledLogEnabled && configuration.debug);
   }
@@ -154,12 +156,16 @@ bool Bridge::send() {
     Serial.println("sending telemetries...");
 
   String body = buildRequestBody();
-  
+
+  if(configuration.debug)
+    Serial.println("request having body: \n" + body);    // too many characters...
+
   if(configuration.debug)
     Serial.print("opening POST connection to server... ");
+
   httpClient->beginRequest();
 
-  int connectionResult = httpClient->post("/graphql");
+  int connectionResult = httpClient->post(configuration.serverRoute);
   if (connectionResult == 0) {
 
     if(configuration.debug)
@@ -169,6 +175,9 @@ bool Bridge::send() {
 
     if(configuration.debug)
       Serial.println("FAILED");
+
+    httpClient->endRequest();
+    httpClient->stop();
 
     printOnLedMatrix("SEND FAIL", 80, configuration.ledLogEnabled && configuration.debug);
 
@@ -181,8 +190,6 @@ bool Bridge::send() {
   httpClient->beginBody();
   httpClient->print(body);
   httpClient->endRequest();
-
-  // Serial.println("request having body: \n" + body);    // too many characters... it should not be printed
 
   if(configuration.debug)
     Serial.print("sending... ");
@@ -294,9 +301,9 @@ void Bridge::printWifiStatus() {
 
   // print the received signal strength:
   long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
+  Serial.print("signal strength (RSSI): ");
   Serial.print(rssi);
-  Serial.println(" dBm");
+  Serial.println("dBm");
 }
 
 unsigned long Bridge::getEpochTimeFromNtpServerInSeconds(bool forceUpdate) const {

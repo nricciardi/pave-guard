@@ -8,22 +8,28 @@ class FailAlert: public Telemetry {
 
   private:
 
-    String code;
+    char* code;
 
-    String message;
+    char* message;
 
   public:
-    FailAlert(String deviceId, unsigned long timestampInSeconds, String code, String message): Telemetry(deviceId, timestampInSeconds), code(code), message(message) {}
+    FailAlert(char* deviceId, unsigned long timestampInSeconds, char* code, char* message): Telemetry(deviceId, timestampInSeconds), code(code), message(message) {}
 
   String toGraphqlMutationBody() override {
 
-    String body("mutation{createFailAlert(deviceId:\\\"");
+    String body("createFailAlert(deviceId:\\\"");
     body.concat(deviceId);
     body.concat("\\\",timestamp:\\\"");
     body.concat(timestampInSeconds);
     body.concat("000\\\",");    // timestamp in millis
-    body.concat("code:\\\"" + code + "\\\",");
-    body.concat("message:\\\"" + message + "\\\"){id}}");
+    body.concat("code:\\\"");
+    body.concat(code);
+    body.concat("\\\",");
+    body.concat("message:\\\"");
+    body.concat(message);
+    body.concat("\\\"){id}");
+
+    return body;
   }
 };
 

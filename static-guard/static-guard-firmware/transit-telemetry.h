@@ -12,7 +12,7 @@ class TransitTelemetry: public Telemetry {
     double transitTime;
 
   public:
-    TransitTelemetry(String deviceId, unsigned long timestampInSeconds, double length, double velocity, double transitTime): Telemetry(deviceId, timestampInSeconds), length(length), velocity(velocity), transitTime(transitTime) {}
+    TransitTelemetry(char* deviceId, unsigned long timestampInSeconds, double length, double velocity, double transitTime): Telemetry(deviceId, timestampInSeconds), length(length), velocity(velocity), transitTime(transitTime) {}
 
   String toGraphqlMutationBody() override {
 
