@@ -59,6 +59,7 @@ Nic:
 - [ ] Fix static guard: aggiunta reset transiti se solo una fotocellula viene attivata e non passano più di x secondi
 - [ ] Aggiungere offset 2 gradi sensore temperatura
 - [ ] Togliere matrice led
+- [ ] Invertire pin fotocellule
 - [ ] Documentazione static guard
 - [ ] Scatola static guard
 
