@@ -50,7 +50,7 @@ class DashboardLogic {
       PhotoCollector toUse = cameraController as PhotoCollector;
       String? path = await toUse.getPhoto();
       // TODO: ritorna davvero un percorso?
-      return XFile(path!);
+      return path != '' ? XFile(path!) : null;
     }
   }
 
@@ -194,7 +194,7 @@ class DashboardLogic {
               Text(
                 'External Camera loaded and working.',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 17,
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
@@ -215,7 +215,7 @@ class DashboardLogic {
               Text(
                 'External Camera not loading!',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 17,
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                 ),
@@ -235,17 +235,79 @@ class DashboardLogic {
         cameraController =
             CameraController(cameras.elementAt(0), ResolutionPreset.medium);
         await cameraController.initialize();
-        children.add(const Text(
-          'Built-in camera loaded.',
-          style: TextStyle(fontSize: 24, color: Colors.green),
-        ));
+        children.add(
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 28),
+              SizedBox(width: 10),
+              Text(
+                'Built-in camera loaded and working.',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
         cameraWorking = true;
-        children.add(CameraPreview(cameraController));
+        children.add(
+          Column(
+            children: [
+              const Text(
+                'Live Camera View',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: AspectRatio(
+                    aspectRatio: cameraController.value.aspectRatio,
+                    child: CameraPreview(cameraController),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
       } catch (e) {
-        children.add(const Text(
-          'Built-in camera not loaded!',
-          style: TextStyle(fontSize: 24, color: Colors.red),
-        ));
+        children.add(
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error, color: Colors.red, size: 28), // Icon for error
+              SizedBox(width: 10),
+              Text(
+                'Built-in camera not loading!',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
       }
     }
 
@@ -253,29 +315,76 @@ class DashboardLogic {
       // External GPS
       String result = await GpsManager.isExternalGPSOn(serialInterface);
       if (result == "") {
-        children.add(const Text(
-          'Dynamic-Guard correctly loaded.',
-          style: TextStyle(fontSize: 24, color: Colors.green),
-        ));
+        children.add(const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 28),
+              SizedBox(width: 10),
+              Text(
+                'Dynamic Guard correctly mounted.',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),);
       } else {
-        children.add(Text(
-          result,
-          style: const TextStyle(fontSize: 24, color: Colors.red),
-          textAlign: TextAlign.center,
-        ));
+        children.add(Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error, color: Colors.red, size: 28), // Icon for error
+              const SizedBox(width: 10),
+              Text(
+                result,
+                style: const TextStyle(
+                  fontSize: 17,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),);
       }
     } else {
       // Internal GPS
       if (await GpsManager.isBuiltInGPSOn()) {
-        children.add(const Text(
-          'Built-in GPS loaded.',
-          style: TextStyle(fontSize: 24, color: Colors.green),
-        ));
+        children.add(const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 28),
+              SizedBox(width: 10),
+              Text(
+                'Built-in GPS active.',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),);
       } else {
-        children.add(const Text(
-          'Built-in GPS not loaded!',
-          style: TextStyle(fontSize: 24, color: Colors.red),
-        ));
+        children.add(const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error, color: Colors.red, size: 28), // Icon for error
+              SizedBox(width: 10),
+              Text(
+                "Built-in GPS not active",
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),);
       }
     }
 
