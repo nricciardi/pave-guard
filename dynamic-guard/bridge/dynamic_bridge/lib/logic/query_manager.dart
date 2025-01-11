@@ -103,7 +103,7 @@ class LoginManager extends QueryAbstractManager{
   @override
   bool checkData(data, {token=""}) {
     
-    if(data is! SignupData){
+    if(data is! LoginData){
       return false;
     }
 

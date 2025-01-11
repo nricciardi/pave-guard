@@ -5,3 +5,4 @@ dynamic-guard/bridge/dynamic_bridge/assets/model.tflite
 *.csv
 *.csv
 model/dataset/output.csv
+dynamic-guard/bridge/dynamic_bridge/.env
