@@ -168,8 +168,18 @@ class DashboardLogic {
       // The camera is external
       cameraController = PhotoCollector();
       try {
-        uvcCameraView =
+        if(uvcCameraView!.cameraController.getCameraState == UVCCameraState.closed){
+          throw Exception("Error");
+        }
+        if(uvcCameraView != null){
+          String? pathTest = await uvcCameraView!.cameraController.takePicture();
+          if(pathTest == null || pathTest == ' '){
+            throw Exception("Camera not openable!");
+          }
+        } else {
+          uvcCameraView =
             await PhotoCollector.openExternalCamera();
+        }
         children.add(
           Column(
             children: [
@@ -221,9 +231,10 @@ class DashboardLogic {
             ],
           ),
         );
-        cameraController = uvcCameraView!.cameraController;
         cameraWorking = true;
       } catch (e) {
+        cameraWorking = false;
+        uvcCameraView = null;
         children.add(
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,

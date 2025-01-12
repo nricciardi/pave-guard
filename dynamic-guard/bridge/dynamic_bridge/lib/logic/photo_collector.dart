@@ -30,10 +30,7 @@ class PhotoCollector {
                     width: 480,
                     height: 480,
                   );
-    if(uvcCameraView.cameraController.getCameraState != UVCCameraState.opened){
-        return uvcCameraView;
-    }
-    throw Exception("Error opening camera!");
+    return uvcCameraView;
 
   }
 
