@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
@@ -33,6 +34,8 @@ class DashboardLogic {
   SerialInterface? serialInterface;
   HoleDetector? holeDetector;
 
+  UVCCameraView? uvcCameraView;
+
   DeviceData deviceData;
   DashboardLogic(this.deviceData);
 
@@ -47,10 +50,27 @@ class DashboardLogic {
       }
     } else {
       // USB cam
-      PhotoCollector toUse = cameraController as PhotoCollector;
-      String? path = await toUse.getPhoto();
+      if(uvcCameraView == null){
+        return null;
+      }
+      String? path = await uvcCameraView!.cameraController.takePicture();
+      // TODO: Rimuovere questa linea di debug
+      if(path != ''){
+        log("Magia!");
+      }
       // TODO: ritorna davvero un percorso?
       return path != '' ? XFile(path!) : null;
+    }
+  }
+
+  bool shouldReload(){
+    if(cameraController is CameraController){
+      return false;
+    } else {
+      // USB cam
+      if(uvcCameraView == null || uvcCameraView!.cameraController.getCameraState != UVCCameraState.opened){
+        return true;
+      } else { return false; }
     }
   }
 
@@ -95,6 +115,8 @@ class DashboardLogic {
         return;
       }
       int holeSeverity = await holeDetector!.isHole(file);
+      final File fileToDelete = File(file.path);
+      fileToDelete.delete();
       if (holeSeverity > 0) {
         RoadPotholeTelemetryQuery telemetryQuery = RoadPotholeTelemetryQuery();
         GPSData? gpsData;
@@ -146,7 +168,7 @@ class DashboardLogic {
       // The camera is external
       cameraController = PhotoCollector();
       try {
-        UVCCameraController uvcCameraController =
+        uvcCameraView =
             await PhotoCollector.openExternalCamera();
         children.add(
           Column(
@@ -175,11 +197,7 @@ class DashboardLogic {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: UVCCameraView(
-                    cameraController: uvcCameraController,
-                    width: 480,
-                    height: 480,
-                  ),
+                  child: uvcCameraView!,
                 ),
               ),
             ],
@@ -203,7 +221,7 @@ class DashboardLogic {
             ],
           ),
         );
-        uvcCameraController.msgCallback;
+        cameraController = uvcCameraView!.cameraController;
         cameraWorking = true;
       } catch (e) {
         children.add(

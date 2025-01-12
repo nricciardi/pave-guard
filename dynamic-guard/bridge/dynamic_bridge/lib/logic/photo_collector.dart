@@ -11,8 +11,8 @@ class PhotoCollector {
 
     // Try to open external camera
     try {
-      Future<UVCCameraController> cameraController = openExternalCamera();
-      camera = await cameraController;
+      Future<UVCCameraView> cameraController = openExternalCamera();
+      camera = (await cameraController).cameraController;
     } catch(e) {
       if(EnvManager.isDebugAndroidMode()){
         log("Unable to open camera!");
@@ -22,10 +22,18 @@ class PhotoCollector {
     }
   }
 
-  static Future<UVCCameraController> openExternalCamera() async{
+  static Future<UVCCameraView> openExternalCamera() async{
 
     UVCCameraController cameraController = UVCCameraController();
-    return cameraController;
+    UVCCameraView uvcCameraView = UVCCameraView(
+                    cameraController: cameraController,
+                    width: 480,
+                    height: 480,
+                  );
+    if(uvcCameraView.cameraController.getCameraState != UVCCameraState.opened){
+        return uvcCameraView;
+    }
+    throw Exception("Error opening camera!");
 
   }
 
