@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 SettingsLogic selfLogic = SettingsLogic();
 
 class SettingsPage extends StatefulWidget {
-
   const SettingsPage({super.key});
 
   @override
@@ -40,13 +39,13 @@ class _SettingsPageState extends State<SettingsPage> {
       photoCollector.close();
       isCameraOn = true;
     } catch (e) {
-      if(EnvManager.isDebugAndroidMode()){
+      if (EnvManager.isDebugAndroidMode()) {
         log("Unable to open external camera!");
       }
     }
 
     isGpsOn = await GpsManager.isBuiltInGPSOn();
-    if(!isGpsOn && EnvManager.isDebugAndroidMode()){
+    if (!isGpsOn && EnvManager.isDebugAndroidMode()) {
       log("The GPS is turned off!");
     }
 
@@ -74,9 +73,23 @@ class _SettingsPageState extends State<SettingsPage> {
                 // First group of options
                 const Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Camera',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons
+                            .camera_alt, // Choose an appropriate GPS-related icon
+                        size: 24, // Adjust the size as needed
+                        color: Colors.blue, // Optional: Customize the color
+                      ),
+                      SizedBox(
+                          width: 8), // Add spacing between the icon and text
+                      Text(
+                        'Camera',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ),
                 ListTile(
@@ -111,8 +124,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                         fontSize: 28)),
                                 content: const Text(
                                     "Check the cable connection: no camera found!",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15)),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
@@ -135,9 +149,23 @@ class _SettingsPageState extends State<SettingsPage> {
                 // Second group of options
                 const Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'GPS',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons
+                            .gps_fixed, // Choose an appropriate GPS-related icon
+                        size: 24, // Adjust the size as needed
+                        color: Colors.blue, // Optional: Customize the color
+                      ),
+                      SizedBox(
+                          width: 8), // Add spacing between the icon and text
+                      Text(
+                        'GPS',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ),
                 ListTile(
@@ -197,7 +225,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           // Home button at the bottom
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: ElevatedButton(
               onPressed: () {
                 selfLogic.saveOptions({
@@ -208,7 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
                 Navigator.pop(context); // Go back to the DashboardPage
               },
-              child: const Text('Home'),
+              child: const Text('Home', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
             ),
           ),
         ],

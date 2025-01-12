@@ -97,8 +97,8 @@ class DevicesLinkedState extends State<Devices> {
         builder: (BuildContext context) {
           return Center(
               child: SizedBox(
-                height: 500,
-                width: 500,
+                  height: 500,
+                  width: 500,
                   child: AlertDialog(
                       title: const Text("Scan Device QR Code"),
                       content: Scaffold(
@@ -118,12 +118,12 @@ class DevicesLinkedState extends State<Devices> {
                         },
                       )),
                       actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Close"))
-              ])));
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Close"))
+                      ])));
         });
   }
 
@@ -131,31 +131,63 @@ class DevicesLinkedState extends State<Devices> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Devices Linked'),
-      ),
-      body: ListView.builder(
-        itemCount: devices.length,
-        itemBuilder: (context, index) {
-          final device = devices[index];
-          final isSelected = index == selectedDeviceIndex;
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(Icons.link, size: 28),
+              SizedBox(width: 10),
+              Text(
+                'Devices Linked',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refresh Devices',
+              onPressed: () async {
+                await loadDevices();
+              },
+            ),
+          ]),
+      body: devices.isEmpty
+          ? const Center(
+              child: Text(
+                'No devices linked yet.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            )
+          : ListView.builder(
+              itemCount: devices.length,
+              itemBuilder: (context, index) {
+                final DeviceData device = devices[index];
+                final bool isSelected = (index == selectedDeviceIndex);
 
-          return ListTile(
-            title: Text(device.serialNumber),
-            subtitle: Text(device.createdAt),
-            selected: isSelected,
-            onTap: () {
-              setState(() {
-                selectedDeviceIndex = isSelected ? null : index;
-              });
-            },
-          );
-        },
-      ),
+                return ListTile(
+                  title: Text(
+                    device.serialNumber,
+                    style: TextStyle(
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  subtitle: Text(device.createdAt),
+                  tileColor: isSelected ? Colors.blue.withOpacity(0.2) : null,
+                  selected: isSelected,
+                  onTap: () {
+                    setState(() {
+                      selectedDeviceIndex = isSelected ? null : index;
+                    });
+                  },
+                );
+              },
+            ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           if (selectedDeviceIndex != null)
-            FloatingActionButton(
+            FloatingActionButton.extended(
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.of(context).push(MaterialPageRoute(
@@ -164,12 +196,16 @@ class DevicesLinkedState extends State<Devices> {
                       selfDevice: devices[selectedDeviceIndex!]),
                 ));
               },
-              child: const Icon(Icons.check),
+              label: const Text('Select Device'),
+              icon: const Icon(Icons.check),
+              backgroundColor: Colors.green,
             ),
           const SizedBox(height: 10),
-          FloatingActionButton(
+          FloatingActionButton.extended(
             onPressed: _showAddDeviceDialog,
-            child: const Icon(Icons.add),
+            icon: const Icon(Icons.add),
+            label: const Text('Add Device'),
+            backgroundColor: Colors.blue,
           ),
         ],
       ),

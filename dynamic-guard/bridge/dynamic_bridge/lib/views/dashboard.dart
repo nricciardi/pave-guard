@@ -40,8 +40,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void initializeTimer() {
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      await initializeChildren();
-      selfLogic!.collectAndSendTelemetries();
+      if(selfLogic!.shouldReload()){
+        await initializeChildren();
+        selfLogic!.collectAndSendTelemetries();
+      }
     });
   }
 
@@ -81,6 +83,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -122,9 +125,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 );
               },
             ),
+            const Divider(),
             ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
+              leading: const Icon(Icons.logout, color: Colors.redAccent),
+              title: const Text('Logout', style: TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
                 selfLogic!.logout();
