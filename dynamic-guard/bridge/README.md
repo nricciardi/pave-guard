@@ -1,13 +1,13 @@
-# Bridge for Dynamic Guard
+# Dynamic Guard
 
-## Setup
+## Setup Environment
 
 For Linux: [Start building Flutter Android apps on Linux](https://docs.flutter.dev/get-started/install/linux/android)
 For Windows: [Start building Flutter Android apps on Windows](https://docs.flutter.dev/get-started/install/windows/mobile)
 
 Flutter docs: [Flutter docs](https://docs.flutter.dev/get-started/fundamentals)
 
-## App
+## Bridge - App
 
 L'app che funge da bridge per il Dynamic Guard si compone di diverse componenti. Le sue funzionalità principali sono:
 
@@ -53,3 +53,33 @@ Nei settings si può scegliere quale fotocamera utilizzare (quella built-in del 
 #### Profile
 
 Mostra i dati dell'utente loggato.
+
+### Utilizzo
+
+#### Signup
+
+All'avvio dell'applicazione, la prima pagina mostra la possibilità di inserire le proprie credenziali d'accesso.
+Per effettuare il *signup*, si preme sull'omonimo pulsante e si seguono le istruzioni sullo schermo.
+
+#### Login
+
+All'avvio dell'applicazione, la prima pagina mostra la possibilità di inserire le proprie credenziali d'accesso.
+Per effettuare il *login*, si inseriscono i dati forniti in fase di *signup* e si inviano mediante il pulsante **LOGIN**.
+
+#### Gestione dispositivi
+
+Dopo la fase di *login*, e anche dall'apposito pulsante della homepage, è possibile indicare il dispositivo attualmente in uso. La pagina dei dispositivi mostra tutti i dispositivi connessi alle proprie credenziali. 
+
+   - Per aggiungere un nuovo dispositivo, selezionare il pulsante 'Add Device' e scansionare con la fotocamera posteriore del proprio dispositivo il codice QR affisso al proprio Dynamic Guard.
+  
+  - Per selezionare un dispositivo già collegato al proprio account, premere sul nome del dispositivo e confermare con il pulsante 'Select Device'.
+  
+#### Connessione al Dynamic-Guard
+
+Per connettere il dispositivo al Dynamic Guard, è sufficiente inserire nello slot USB-C del proprio dispositivo il cavo del Dynamic Guard. **NOTA**: I dati registrati dal dispositivo saranno collegati al Dynamic Guard selezionato prima di accedere all'homepage.
+
+La connessione ha successo laddove nell'homepage si legge in verde 'Dynamic-Guard correctly loaded'. Se la scritta non compare anche dopo la connessione al dispositivo, si controlli nelle impostazioni di avere selezionato l'opzione 'Dynamic-Guard' nella scheda 'GPS'.
+
+## Device
+
+

@@ -51,7 +51,7 @@ Nic:
 Fil:
 
 - [ ] Documentazione dynamic guard
-- [ ] Fix grafico app dynamic guard
+- [X] Fix grafico app dynamic guard
 - [ ] UI grafico dati storici
 
 
