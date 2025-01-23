@@ -44,7 +44,7 @@ const BridgeConfiguration bridgeConfiguration = {
 
   .wifiSsid = "Martin Router King 2.4GHz",
   .wifiPassword = "",
-  .serverAddress = "192.168.0.11",
+  .serverAddress = "192.168.0.128",
   .serverPort = 3000,
   .serverRoute = "/graphql",
 

@@ -1,3 +1,4 @@
+#include <cmath>
 #include <sys/_intsup.h>
 #include "Arduino.h"
 #include "api/Common.h"
@@ -177,7 +178,6 @@ void Device::handleTemperature() {
 
 void Device::elaborateRainGaugeUnhandledSamples() {
 
-
   if(rainGaugeUnhandledTrigs <= 0)
     return;
 
@@ -244,15 +244,20 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
 
   interrupts();
 
-  if(microsOfRightTrig1 == microsOfLeftTrig1 || microsOfRightTrig2 == microsOfLeftTrig2) {
+  if(
+      microsOfRightTrig1 == microsOfLeftTrig1
+      || microsOfRightTrig2 == microsOfLeftTrig2
+      || abs(microsOfRightTrig1 - microsOfLeftTrig1) > configuration.transitResetTimeoutInMicros
+      || abs(microsOfRightTrig2 - microsOfLeftTrig2) > configuration.transitResetTimeoutInMicros
+    ) {
 
-    Serial.println("ERROR: same time in transit samples");
+    Serial.println("ERROR: same time in transit samples or delta time greater than timeout");
 
     Serial.println("WARNING: queues will be cleared");
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 
-    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT003", "Same time in transit samples");
+    FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT003", "Same time in transit samples or delta time greater than timeout");
 
     bridge->put(failAlert);
     
@@ -291,7 +296,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
 
   if(velocity1 <= 0 || isnan(velocity1) || velocity2 <= 0 || isnan(velocity2)) {
 
-    Serial.println("ERROR: trouble during velocity computation");
+    Serial.println("ERROR: trouble during velocity computation, computed velocities is less or equal to zero");
     
     Serial.println("WARNING: queues will be cleared");
     transitTriggerRightQueue->clear();
@@ -311,7 +316,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
 
     Serial.println("ERROR: trouble during transit time computation");
 
-    Serial.println("WARNING: queues will be cleared");
+    Serial.println("WARNING: queues will be cleared, transit time is less or equal to zero");
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
 

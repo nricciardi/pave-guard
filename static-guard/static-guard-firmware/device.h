@@ -38,6 +38,7 @@ struct DeviceConfiguration {
   unsigned short transitTriggerQueueSize;
   unsigned long transitTriggerTrigThresholdInMicros;
   unsigned long transitTriggerInterruptOffsetInMicros;      // fix miss increment of timer during interrupt
+  unsigned long transitResetTimeoutInMicros;
 
   bool enableRainGaugeSensor;
   unsigned char rainGaugeSensorPin;
@@ -51,7 +52,7 @@ struct DeviceConfiguration {
 
 const DeviceConfiguration deviceConfiguration = {
 
-  .deviceId = "6769255b374b0ea6b2e92882",
+  .deviceId = "679251aa95e18aed7f6219ed",
 
   .delayBeforeSetupInMillis = 2 * 1000,
 
@@ -61,16 +62,17 @@ const DeviceConfiguration deviceConfiguration = {
   .humidityTemperatureSensorType = DHT22,
   .temperatureSamplingRateInMillis = 5 * 60 * 1000,
   .humiditySamplingRateInMillis = 5 * 60 * 1000,
-  .temperatureOffset = 0,
+  .temperatureOffset = 2,
   .humidityOffset = 0,
 
   .enableTransitTriggerSensor = true,
-  .transitTriggerLeftSensorPin = 2,
-  .transitTriggerRightSensorPin = 3,
+  .transitTriggerLeftSensorPin = 3,
+  .transitTriggerRightSensorPin = 2,
   .transitTriggersdistanceInMeters = 0.186,
   .transitTriggerQueueSize = 40,
   .transitTriggerTrigThresholdInMicros = 50 * 1000,
   .transitTriggerInterruptOffsetInMicros = 100,
+  .transitResetTimeoutInMicros = 5 * 1000 * 1000,
 
   .enableRainGaugeSensor = true,
   .rainGaugeSensorPin = 8,
