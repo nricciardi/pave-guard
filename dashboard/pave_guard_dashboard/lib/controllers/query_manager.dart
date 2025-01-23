@@ -2,6 +2,24 @@ import 'package:flutter_login/flutter_login.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../data/env_manager.dart';
 
+class MeData {
+
+  String firstName;
+  String lastName;
+  String createdAt;
+  String email;
+  String id;
+
+  MeData(this.firstName, this.lastName, this.createdAt, this.email, this.id);
+
+  String getFirstName(){ return firstName; }
+  String getLastName(){ return lastName; }
+  String getCreatedAt(){ return createdAt; }
+  String getEmail(){ return email; }
+  String getId(){ return id; }
+
+}
+
 abstract class QueryAbstractManager {
 
   Future<QueryResult> sendQuery(data, {String token = ""}) async{
@@ -75,6 +93,51 @@ class LoginManager extends QueryAbstractManager{
       queryResult.data!["login"]["token"];
       return true;
     } catch(e) { return false; }
+  }
+
+}
+
+class MeQueryManager extends QueryAbstractManager {
+
+  @override
+  bool checkData(data, {token=""}) {
+    return token != "";
+  }
+
+  @override
+  String getQuery(data, {token=""}) {
+    
+    if(!checkData(data, token: token)){
+      return "";
+    }
+
+    return '''query {
+      me { createdAt, 
+        firstName, 
+        lastName,
+        email,
+        id }
+    }''';
+
+  }
+
+  @override
+  bool checkResults(QueryResult queryResult){
+
+    try {
+      if (!queryResult.data!.containsKey("me")) {
+        return false;
+      }
+      return true;
+    } catch(e) { return false; }
+
+  }
+
+  MeData getMeData(QueryResult queryResult){
+
+    Map<String, dynamic> data = queryResult.data!["me"];
+    return MeData(data["firstName"], data["lastName"], data["createdAt"].toString().substring(0, 10), data["email"], data["id"]);
+
   }
 
 }
