@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 
-from model.constants import FeatureName, RawFeatureName
+from pgmodel.constants import FeatureName, RawFeatureName
 
 
 class Preprocessor:

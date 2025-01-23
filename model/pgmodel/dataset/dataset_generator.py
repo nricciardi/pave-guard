@@ -4,15 +4,15 @@ from typing import Dict
 import os
 import pandas as pd
 
-from model.dataset.crack_generator import CrackGenerator
-from model.dataset.generator import Generator
-from model.dataset.ind_generator import IndependentGenerator
-from model.dataset.rainfall_generator import RainfallGenerator
-from model.dataset.seasonal_generator import SeasonalGenerator
-from model.dataset.rainfall_generator import RainfallGenerator
-from model.constants import RawFeatureName
-from model.dataset.transit_generator import TransitGenerator
-from model.preprocess.preprocessor import Preprocessor
+from pgmodel.dataset.crack_generator import CrackGenerator
+from pgmodel.dataset.generator import Generator
+from pgmodel.dataset.ind_generator import IndependentGenerator
+from pgmodel.dataset.rainfall_generator import RainfallGenerator
+from pgmodel.dataset.seasonal_generator import SeasonalGenerator
+from pgmodel.dataset.rainfall_generator import RainfallGenerator
+from pgmodel.constants import RawFeatureName
+from pgmodel.dataset.transit_generator import TransitGenerator
+from pgmodel.preprocess.preprocessor import Preprocessor
 
 
 class DatasetGenerator:
@@ -25,13 +25,12 @@ class DatasetGenerator:
             series.to_csv(os.path.join(output_dir, f"{name.value}.csv"), index_label="timestamp", header=[name.value])
 
     @classmethod
-    def csvs_to_dataframe(cls, input_dir: str, output_dir: str = ".", output_name: str = "dataset", features: list[str] = None) -> pd.DataFrame:
+    def csv_to_dataframe(cls, input_dir: str, output_name: str = "dataset", features: list[str] = None, save_to_csv: str | None = None) -> pd.DataFrame:
         if features is None:
             features = [feat for feat in RawFeatureName]
 
         dfs = {
-            feature: pd.read_csv(f'{feature.value}.csv')
-                for feature in features
+            feature: pd.read_csv(os.path.join(input_dir, f'{feature.value}.csv')) for feature in features
         }
 
         for key in dfs:
@@ -44,7 +43,10 @@ class DatasetGenerator:
             result_df = result_df.merge(df, on='timestamp', how='left')
 
         result_df.set_index('timestamp', inplace=True)
-        result_df.to_csv(os.path.join(output_dir, f'{output_name}.csv'), index_label="timestamp")
+
+        if save_to_csv is not None:
+            result_df.to_csv(os.path.join(save_to_csv, f'{output_name}.csv'), index_label="timestamp")
+
         return result_df
 
 
@@ -77,13 +79,4 @@ if __name__ == '__main__':
     generators[RawFeatureName.POTHOLE] = CrackGenerator(max_cracks=5, cracks_gravity_average=40, probability_detection=0.2)
 
 
-    #DatasetGenerator.generate_dataset("/home/nricciardi/Repositories/pave-guard/model/dataset", from_date, to_date, generators)
-    DatasetGenerator.generate_dataset(".", from_date, to_date, generators)
-
-    df = DatasetGenerator.csvs_to_dataframe(".")
-
-
-    preprocessor = Preprocessor()
-    preprocessor.process(
-        df
-    )
+    DatasetGenerator.generate_dataset("./data", from_date, to_date, generators)

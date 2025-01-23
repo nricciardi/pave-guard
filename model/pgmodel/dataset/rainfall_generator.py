@@ -1,5 +1,5 @@
 from datetime import date, time, datetime, timedelta
-from model.dataset.generator import Generator
+from pgmodel.dataset.generator import Generator
 from abc import ABC, abstractmethod
 from typing import Callable
 import numpy as np

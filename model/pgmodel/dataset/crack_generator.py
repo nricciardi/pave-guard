@@ -4,7 +4,7 @@ from random import random
 import pandas as pd
 import numpy as np
 
-from model.dataset.ind_generator import IndependentGenerator
+from pgmodel.dataset.ind_generator import IndependentGenerator
 from typing import Callable
 
 

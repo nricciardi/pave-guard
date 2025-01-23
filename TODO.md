@@ -60,7 +60,7 @@ Nic:
 - [x] Aggiungere offset 2 gradi sensore temperatura
 - [x] Togliere matrice led
 - [x] Invertire pin fotocellule
-- [ ] Documentazione static guard
+- [x] Documentazione static guard
 - [x] Scatola static guard
 
 

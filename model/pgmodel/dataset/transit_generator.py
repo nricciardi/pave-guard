@@ -1,6 +1,6 @@
-from model.dataset.ind_generator import IndependentGenerator
-from model.dataset.rainfall_generator import generate_aggregate_timespace
-from typing import Callable, override
+from pgmodel.dataset.ind_generator import IndependentGenerator
+from pgmodel.dataset.rainfall_generator import generate_aggregate_timespace
+from typing import Callable
 from datetime import date
 from abc import ABC, abstractmethod
 import numpy as np
@@ -60,7 +60,6 @@ class TransitGenerator(IndependentGenerator):
             right_value = self.slices[self.slice_index]
             return pd.Series([value.time if self.index == 1 else value.length for value in self.values[left_value:right_value]], index=self.timestamps[left_value:right_value])
 
-    @override
     def generate(self, from_date: date, to_date: date, seed_value = None, **kwargs) -> pd.Series:
         to_return = super().generate(from_date, to_date, seed_value, **kwargs)
         self.index += 1

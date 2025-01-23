@@ -1,4 +1,4 @@
-from model.dataset.ind_generator import IndependentGenerator
+from pgmodel.dataset.ind_generator import IndependentGenerator
 import numpy as np
 
 
