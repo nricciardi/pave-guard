@@ -1,4 +1,4 @@
-import 'package:admin/screens/login_screen.dart';
+import 'package:admin/screens/login/login_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'constants.dart';

@@ -15,15 +15,18 @@ class SideMenu extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: const Color.fromARGB(222, 220, 220, 211),
             ),
             child: Center(
               child: Text(
-                "PaveGuard",
+                'PaveGuard',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
+                  foreground: Paint()
+                    ..shader = const LinearGradient(
+                      colors: <Color>[Colors.blue, Colors.purple],
+                    ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
                 ),
               ),
             ),
@@ -32,30 +35,41 @@ class SideMenu extends StatelessWidget {
             title: "Dashboard",
             svgSrc: "assets/icons/menu_dashboard.svg",
             press: () {
-              Provider.of<MenuAppController>(context, listen: false).setScreen(MenuState.dashboard);
+              Provider.of<MenuAppController>(context, listen: false)
+                  .setScreen(MenuState.dashboard);
             },
           ),
           DrawerListTile(
             title: "Statistics",
             svgSrc: "assets/icons/statistics.svg",
             press: () {
-              Provider.of<MenuAppController>(context, listen: false).setScreen(MenuState.statistics);
+              Provider.of<MenuAppController>(context, listen: false)
+                  .setScreen(MenuState.statistics);
             },
           ),
           DrawerListTile(
             title: "Planning",
             svgSrc: "assets/icons/planning.svg",
-            press: () {},
+            press: () {
+              Provider.of<MenuAppController>(context, listen: false)
+                  .setScreen(MenuState.planning);
+            },
           ),
           DrawerListTile(
             title: "Profile",
             svgSrc: "assets/icons/profile.svg",
-            press: () {},
+            press: () {
+              Provider.of<MenuAppController>(context, listen: false)
+                  .setScreen(MenuState.profile);
+            },
           ),
           DrawerListTile(
             title: "Settings",
             svgSrc: "assets/icons/settings.svg",
-            press: () {},
+            press: () {
+              Provider.of<MenuAppController>(context, listen: false)
+                  .setScreen(MenuState.settings);
+            },
           ),
         ],
       ),
