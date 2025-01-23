@@ -89,6 +89,36 @@ class Preprocessor:
     def is_vehicle_heavy(self, vehicle_length: float) -> bool:
         return vehicle_length >= 4
 
+    def is_row_to_process(self, row: pd.Series) -> bool:
+        is_crack_present = pd.notna(row[RawFeatureName.CRACK.value])
+        # TODO: Keep in mind road maintenance
+        return not is_crack_present
+
+    def partition_and_process(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
+
+        rows = []
+        
+        # Group by day and process each group
+        grouped = raw_dataset.groupby(raw_dataset.index.date)
+        for day, group in grouped:
+            if RawFeatureName.CRACK.value in group:
+                first_occurrence_index = group.index[0]
+                mean_crack_severity = group[RawFeatureName.CRACK.value].mean()
+                raw_dataset.at[first_occurrence_index, RawFeatureName.CRACK.value] = mean_crack_severity
+                raw_dataset.loc[group.index[1:], RawFeatureName.CRACK.value] = np.nan
+
+        for index, row in raw_dataset.iterrows():
+            if not self.is_row_to_process(row):
+                continue
+            # Setting the first row, I look for another one
+            for last_index, last_row in raw_dataset[index:].iterrows():
+                if not self.is_row_to_process(last_row):
+                    continue
+                processed_row = self.process(raw_dataset.loc[index:last_index])
+                rows.append(processed_row.iloc[0])
+
+        return pd.DataFrame(rows)
+
     def process(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
 
         dataset = pd.DataFrame(index=[0])

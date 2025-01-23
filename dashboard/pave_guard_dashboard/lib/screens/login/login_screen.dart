@@ -4,11 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-const users =  {
-  'dribbble@gmail.com': '12345',
-  'hunter@gmail.com': 'hunter',
-};
-
 String? token;
 
 class LoginScreen extends StatelessWidget {
@@ -34,20 +29,16 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
-  Future<String?> _recoverPassword(String name) {
-    debugPrint('Name: $name');
-    return Future.delayed(loginTime).then((_) {
-      if (!users.containsKey(name)) {
-        return 'User not exists';
-      }
-      return null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return FlutterLogin(
       title: 'PAVEGUARD',
+      theme: 
+      LoginTheme(
+        primaryColor: Colors.black,
+        accentColor: Colors.purple,
+        errorColor: Colors.deepOrange,
+      ),
       onLogin: _authUser,
       onSignup: _signupUser,
       onSubmitAnimationCompleted: () {
@@ -55,7 +46,7 @@ class LoginScreen extends StatelessWidget {
           builder: (context) => MainScreen(token: token!),
         ));
       },
-      onRecoverPassword: _recoverPassword,
+      onRecoverPassword: (_) async => null,
       hideForgotPasswordButton: true,
     );
   }
