@@ -1,3 +1,7 @@
+import 'package:admin/controllers/query_manager.dart';
+import 'package:admin/screens/statistics/stats_menu.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
 import '../../controllers/menu_app_controller.dart';
 import '../../responsive.dart';
 import '../../screens/dashboard/dashboard_screen.dart';
@@ -11,35 +15,67 @@ class MainScreen extends StatelessWidget {
   final String token;
 
   MainScreen({required this.token});
+
+  Future<MeData> getMeData() async {
+    final MeQueryManager meQueryManager = MeQueryManager();
+    QueryResult result = await meQueryManager.sendQuery("", token: token);
+    return meQueryManager.getMeData(result);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Ensure that the MenuAppController is ready before accessing the scaffoldKey
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final menuAppController = context.read<MenuAppController>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // ignore: unused_local_variable
+      final MenuAppController menuAppController = context.read<MenuAppController>();
       // Any additional setup for MenuAppController, if necessary, can be done here
     });
-    return Scaffold(
-      key: context.read<MenuAppController>().scaffoldKey, // Access scaffoldKey safely after initialization
-      drawer: SideMenu(),
-      body: SafeArea(
-        child: Row(
+    return FutureBuilder<MeData>(
+      future: getMeData(),
+      builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text('Error: ${snapshot.error}'));
+      } else if (snapshot.hasData) {
+        return Scaffold(
+        key: context.read<MenuAppController>().scaffoldKey, // Access scaffoldKey safely after initialization
+        drawer: SideMenu(),
+        body: SafeArea(
+          child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // We want this side menu only for large screen
             if (Responsive.isDesktop(context))
-              Expanded(
-                // default flex = 1
-                // and it takes 1/6 part of the screen
-                child: SideMenu(),
-              ),
             Expanded(
-              // It takes 5/6 part of the screen
-              flex: 5,
-              child: DashboardScreen(),
+              // it takes 1/6 part of the screen
+              child: SideMenu(),
+            ),
+            Expanded(
+            // It takes 5/6 part of the screen
+            flex: 5,
+            child: Consumer<MenuAppController>(
+              builder: (context, menuAppController, child) {
+              if (menuAppController.getScreen() == MenuState.dashboard) {
+                return DashboardScreen(snapshot.requireData);
+              } else if (menuAppController.getScreen() == MenuState.statistics) {
+                return StatsScreen(snapshot.requireData);
+              }
+              // TODO: More cases
+              else {
+                return Center(child: Text('No data available'));
+              }
+              }
+            ),
             ),
           ],
+          ),
         ),
-      ),
+        );
+      } else {
+        return Center(child: Text('No data available'));
+      }
+      },
     );
   }
 }

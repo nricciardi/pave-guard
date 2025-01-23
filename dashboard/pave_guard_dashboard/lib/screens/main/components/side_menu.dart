@@ -1,5 +1,7 @@
+import 'package:admin/controllers/menu_app_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -12,17 +14,33 @@ class SideMenu extends StatelessWidget {
       child: ListView(
         children: [
           DrawerHeader(
-            child: Image.asset("assets/images/logo.png"),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Center(
+              child: Text(
+                "PaveGuard",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
           DrawerListTile(
             title: "Dashboard",
             svgSrc: "assets/icons/menu_dashboard.svg",
-            press: () {},
+            press: () {
+              Provider.of<MenuAppController>(context, listen: false).setScreen(MenuState.dashboard);
+            },
           ),
           DrawerListTile(
             title: "Statistics",
             svgSrc: "assets/icons/statistics.svg",
-            press: () {},
+            press: () {
+              Provider.of<MenuAppController>(context, listen: false).setScreen(MenuState.statistics);
+            },
           ),
           DrawerListTile(
             title: "Planning",

@@ -1,3 +1,7 @@
+import 'dart:developer';
+
+import 'package:admin/controllers/query_manager.dart';
+
 import '../../../controllers/menu_app_controller.dart';
 import '../../../responsive.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +11,14 @@ import 'package:provider/provider.dart';
 import '../../../constants.dart';
 
 class Header extends StatelessWidget {
-  const Header({
-    Key? key,
+  final MeData data;
+  final String title;
+
+  const Header(
+    {
+      required this.data,
+      required this.title,
+      Key? key,
   }) : super(key: key);
 
   @override
@@ -22,20 +32,25 @@ class Header extends StatelessWidget {
           ),
         if (!Responsive.isMobile(context))
           Text(
-            "Dashboard",
+            title,
             style: Theme.of(context).textTheme.titleLarge,
           ),
         if (!Responsive.isMobile(context))
           Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
         Expanded(child: SearchField()),
-        ProfileCard()
+        ProfileCard(data.getFirstName(), data.getLastName()),
       ],
     );
   }
 }
 
 class ProfileCard extends StatelessWidget {
-  const ProfileCard({
+  final String name;
+  final String surname;
+
+  const ProfileCard(
+    this.name,
+    this.surname, {
     Key? key,
   }) : super(key: key);
 
@@ -54,17 +69,38 @@ class ProfileCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset(
-            "assets/images/profile_pic.png",
-            height: 38,
-          ),
+          Icon(Icons.account_circle, size: 38),
           if (!Responsive.isMobile(context))
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-              child: Text("Angelina Jolie"),
+              child: Text("${name} ${surname}"),
             ),
-          Icon(Icons.keyboard_arrow_down),
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'profile') {
+                // Navigate to profile page
+                // TODO
+                log("helo");
+              } else if (value == 'logout') {
+                // Handle logout
+                // TODO
+                log("helo");
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem(
+                  value: 'profile',
+                  child: Text('Profile'),
+                ),
+                PopupMenuItem(
+                  value: 'logout',
+                  child: Text('Logout'),
+                ),
+              ];
+            },
+          ),
         ],
       ),
     );
