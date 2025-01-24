@@ -1,10 +1,12 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
 import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.tree import DecisionTreeClassifier
-
-
 
 class PaveGuardModel:
 
@@ -28,12 +30,12 @@ class PaveGuardModel:
 if __name__ == '__main__':
 
     # input_dir = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/dataset/data"
-    input_dir = "pgmodel/dataset/data"
+    input_dir = "pgmodel\dataset\data"
 
     df = DatasetGenerator.csv_to_dataframe(input_dir)
 
     preprocessor = Preprocessor()
-    dataset = preprocessor.partition_and_process(df)
+    dataset = preprocessor.process(df)
     print(dataset.head())
 
 

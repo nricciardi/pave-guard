@@ -24,7 +24,7 @@ class Preprocessor:
     def array_count(self, array: np.ndarray) -> int:
         return array.size
 
-    def get_groups(self, data_timestamps: pd.DataFrame, feature_name: str) -> dict:
+    def get_groups(self, data_timestamps: pd.DataFrame) -> dict:
         grouped_by_day = {}
         for day, group in data_timestamps.groupby(data_timestamps.index.date):
             grouped_by_day[day] = group.dropna().tolist()
@@ -41,7 +41,7 @@ class Preprocessor:
                   storm_lower_bound: float = 30.) -> int:
 
         df = pd.DataFrame(rainfall_timestamps, index=pd.to_datetime(rainfall_timestamps.index))
-        grouped_day = self.get_groups(rainfall_timestamps, rain_name)
+        grouped_day = self.get_groups(rainfall_timestamps)
 
         for day in grouped_day.keys():
             grouped_day[day] = sum(grouped_day[day])
@@ -54,7 +54,7 @@ class Preprocessor:
                              temperatures_name: str = RawFeatureName.TEMPERATURE.value) -> float:
 
         df = pd.DataFrame(data_timestamps, index=pd.to_datetime(data_timestamps.index))
-        grouped_by_day = self.get_groups(data_timestamps, temperatures_name)
+        grouped_by_day = self.get_groups(data_timestamps)
 
         for day in grouped_by_day.keys():
             grouped_by_day[day] = (max(grouped_by_day[day]) - min(grouped_by_day[day])) if len(grouped_by_day[day]) > 0 else 0
@@ -92,34 +92,50 @@ class Preprocessor:
     def is_row_to_process(self, row: pd.Series) -> bool:
         is_crack_present = pd.notna(row[RawFeatureName.CRACK.value])
         # TODO: Keep in mind road maintenance
-        return not is_crack_present
+        return is_crack_present
 
-    def partition_and_process(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
+    def process(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
 
-        rows = []
-        
+        index_list = []
         # Group by day and process each group
         grouped = raw_dataset.groupby(raw_dataset.index.date)
         for day, group in grouped:
-            if RawFeatureName.CRACK.value in group:
-                first_occurrence_index = group.index[0]
+            non_null_indices = group[group[RawFeatureName.CRACK.value].notnull()].index
+            if RawFeatureName.CRACK.value in group and not non_null_indices.empty:
+                index_list.append(non_null_indices[0])
+                first_occurrence_index = non_null_indices[0]
                 mean_crack_severity = group[RawFeatureName.CRACK.value].mean()
+                raw_dataset.loc[group.index[0:], RawFeatureName.CRACK.value] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.CRACK.value] = mean_crack_severity
-                raw_dataset.loc[group.index[1:], RawFeatureName.CRACK.value] = np.nan
 
-        for index, row in raw_dataset.iterrows():
+
+
+        return self.partition_and_process(raw_dataset, index_list)
+
+
+    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list: list) -> pd.DataFrame:
+
+        rows = []
+
+        for i in range(0, len(index_list)):
+            index = index_list[i]
+            row = raw_dataset.loc[index]
             if not self.is_row_to_process(row):
                 continue
-            # Setting the first row, I look for another one
-            for last_index, last_row in raw_dataset[index:].iterrows():
+            # Set the first row, I look for another one
+            for j in range(i+1, len(index_list)):
+                last_index = index_list[j]
+                last_row = raw_dataset.loc[last_index]
                 if not self.is_row_to_process(last_row):
                     continue
-                processed_row = self.process(raw_dataset.loc[index:last_index])
+                processed_row = self.process_single_row(raw_dataset.loc[index:last_index])
+                processed_row[FeatureName.CRACK_SEVERITY] = row[RawFeatureName.CRACK.value]
+                processed_row[FeatureName.TARGET] = last_row[RawFeatureName.CRACK.value]
                 rows.append(processed_row.iloc[0])
 
         return pd.DataFrame(rows)
 
-    def process(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
+    def process_single_row(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
 
         dataset = pd.DataFrame(index=[0])
 
