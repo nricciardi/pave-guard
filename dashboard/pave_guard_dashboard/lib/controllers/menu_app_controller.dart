@@ -21,6 +21,10 @@ class MenuAppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void refresh(){
+    notifyListeners();
+  }
+
   String getSearch(){
     String text = _searchText;
     _searchText = "";
