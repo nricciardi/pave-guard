@@ -141,3 +141,50 @@ class MeQueryManager extends QueryAbstractManager {
   }
 
 }
+
+class LocationData {
+  String? road;
+  String? city;
+  String? county;
+  String? state;
+  LocationData({this.road, this.city, this.county, this.state});
+}
+
+class QueryLocationManager extends QueryAbstractManager {
+
+  @override
+  bool checkData(data, {String token = ""}) {
+    return token != "";
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try{
+      if(queryResult.data!["location"] == null){
+        return false;
+      } return true;
+    } catch(e) { return false; }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    return """query {
+                locations{
+                  road, 
+                  city, 
+                  county, 
+                  state
+                }
+              }""";
+  }
+
+  List<LocationData> getLocationData(QueryResult queryResult){
+    List<LocationData> locations = [];
+    List<dynamic> data = queryResult.data!["locations"];
+    for(var location in data){
+      locations.add(LocationData(road: location["road"], city: location["city"], county: location["county"], state: location["state"]));
+    }
+    return locations;
+  }
+  
+}

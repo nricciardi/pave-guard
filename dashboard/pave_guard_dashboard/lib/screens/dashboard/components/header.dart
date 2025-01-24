@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:admin/controllers/query_manager.dart';
 
 import '../../../controllers/menu_app_controller.dart';
@@ -13,11 +11,13 @@ import '../../../constants.dart';
 class Header extends StatelessWidget {
   final MeData data;
   final String title;
+  final bool show_searchbar;
 
   const Header(
     {
       required this.data,
       required this.title,
+      this.show_searchbar = true,
       Key? key,
   }) : super(key: key);
 
@@ -37,7 +37,8 @@ class Header extends StatelessWidget {
           ),
         if (!Responsive.isMobile(context))
           Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
-        Expanded(child: SearchField()),
+        if(show_searchbar)
+          Expanded(child: SearchField()),
         ProfileCard(data.getFirstName(), data.getLastName()),
       ],
     );
@@ -79,13 +80,9 @@ class ProfileCard extends StatelessWidget {
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'profile') {
-                // Navigate to profile page
-                // TODO
-                log("helo");
+                context.read<MenuAppController>().setScreen(MenuState.profile);
               } else if (value == 'logout') {
-                // Handle logout
-                // TODO
-                log("helo");
+                context.read<MenuAppController>().logout();
               }
             },
             itemBuilder: (BuildContext context) {
@@ -108,13 +105,23 @@ class ProfileCard extends StatelessWidget {
 }
 
 class SearchField extends StatelessWidget {
-  const SearchField({
+  final TextEditingController _controller = TextEditingController();
+
+  SearchField({
     Key? key,
   }) : super(key: key);
+
+  void onTap(BuildContext context){
+    context.read<MenuAppController>().search(_controller.text);
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: _controller,
+      onSubmitted: (value) {
+        onTap(context);
+      },
       decoration: InputDecoration(
         hintText: "Search",
         fillColor: secondaryColor,
@@ -124,7 +131,9 @@ class SearchField extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         suffixIcon: InkWell(
-          onTap: () {},
+          onTap: () {
+            onTap(context);
+          },
           child: Container(
             padding: EdgeInsets.all(defaultPadding * 0.75),
             margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2),

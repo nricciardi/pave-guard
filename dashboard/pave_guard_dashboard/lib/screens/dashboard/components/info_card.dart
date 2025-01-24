@@ -3,14 +3,19 @@ import 'package:flutter/material.dart';
 import '../../../constants.dart';
 
 class InfoCard extends StatelessWidget {
+  
   const InfoCard({
     Key? key,
     required this.title,
     required this.value,
+    this.titleStyle,
+    this.valueStyle
   }) : super(key: key);
 
   final String title;
   final String value;
+  final TextStyle? titleStyle;
+  final TextStyle? valueStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -25,33 +30,16 @@ class InfoCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            this.value,
-            maxLines: 1,
-          ),
-          Text(
             this.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            style: this.titleStyle,
           ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Text(
-          //       "${info.numOfFiles} Files",
-          //       style: Theme.of(context)
-          //           .textTheme
-          //           .bodySmall!
-          //           .copyWith(color: Colors.white70),
-          //     ),
-          //     Text(
-          //       info.totalStorage!,
-          //       style: Theme.of(context)
-          //           .textTheme
-          //           .bodySmall!
-          //           .copyWith(color: Colors.white),
-          //     ),
-          //   ],
-          // )
+          Text(
+            this.value,
+            maxLines: 1,
+            style: this.valueStyle,
+          ),
         ],
       ),
     );

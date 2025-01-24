@@ -3,6 +3,8 @@ from datetime import date, timedelta
 from typing import Dict
 import os
 import pandas as pd
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from pgmodel.dataset.crack_generator import CrackGenerator
 from pgmodel.dataset.generator import Generator
