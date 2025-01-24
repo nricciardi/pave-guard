@@ -102,13 +102,23 @@ class ProfileCard extends StatelessWidget {
 }
 
 class SearchField extends StatelessWidget {
-  const SearchField({
+  final TextEditingController _controller = TextEditingController();
+
+  SearchField({
     Key? key,
   }) : super(key: key);
+
+  void onTap(BuildContext context){
+    context.read<MenuAppController>().search(_controller.text);
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: _controller,
+      onSubmitted: (value) {
+        onTap(context);
+      },
       decoration: InputDecoration(
         hintText: "Search",
         fillColor: secondaryColor,
@@ -118,7 +128,9 @@ class SearchField extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         suffixIcon: InkWell(
-          onTap: () {},
+          onTap: () {
+            onTap(context);
+          },
           child: Container(
             padding: EdgeInsets.all(defaultPadding * 0.75),
             margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2),

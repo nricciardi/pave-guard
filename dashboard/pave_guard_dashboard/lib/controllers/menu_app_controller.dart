@@ -6,6 +6,7 @@ class MenuAppController extends ChangeNotifier {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   MenuState _menuState = MenuState.dashboard;
+  String _searchText = "";
 
   GlobalKey<ScaffoldState> get scaffoldKey => _scaffoldKey;
 
@@ -15,7 +16,19 @@ class MenuAppController extends ChangeNotifier {
     }
   }
 
+  void search(String text){
+    _searchText = text;
+    notifyListeners();
+  }
+
+  String getSearch(){
+    String text = _searchText;
+    _searchText = "";
+    return text;
+  }
+
   void setScreen(MenuState state){
+    _searchText = "";
     _menuState = state;
     notifyListeners();
   }
