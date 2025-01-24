@@ -1,5 +1,6 @@
 import 'package:admin/controllers/query_manager.dart';
 import 'package:admin/screens/planning/planning_screen.dart';
+import 'package:admin/screens/profile/profile_screen.dart';
 import 'package:admin/screens/statistics/stats_menu.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -64,7 +65,7 @@ class MainScreen extends StatelessWidget {
               } else if (menuAppController.getScreen() == MenuState.planning) {
                 return PlanningScreen(snapshot.requireData);
               } else if (menuAppController.getScreen() == MenuState.profile) {
-                return Center(child: Text('Profile'));
+                return ProfileScreen(snapshot.requireData);
               } else if (menuAppController.getScreen() == MenuState.settings) {
                 return Center(child: Text('Settings'));
               } else {

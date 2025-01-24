@@ -79,9 +79,7 @@ class ProfileCard extends StatelessWidget {
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'profile') {
-                // Navigate to profile page
-                // TODO
-                log("helo");
+                context.read<MenuAppController>().setScreen(MenuState.profile);
               } else if (value == 'logout') {
                 // Handle logout
                 // TODO
