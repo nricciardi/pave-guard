@@ -30,7 +30,12 @@ import { ManagementModule } from './modules/management/management.module';
           port = `:${configService.get('DB_PORT')}`;
         }
 
-        const uri = `mongodb://${configService.get('DB_USER')}:${configService.get('DB_PASS')}@${configService.get('DB_HOST')}${port}/${configService.get('DB_NAME')}`;
+        let params = "";
+        if(!!configService.get('DB_PARAMS')) {
+          params = `?${configService.get('DB_PARAMS')}`;
+        }
+
+        const uri = `mongodb+srv://${configService.get('DB_USER')}:${configService.get('DB_PASS')}@${configService.get('DB_HOST')}${port}/${configService.get('DB_NAME')}${params}`;
 
         console.log(`connect to ${uri}`);
         
