@@ -12,7 +12,6 @@ CalendarFormat _calendarFormat = CalendarFormat.month;
 DateTime _selectedDay = DateTime.now();
 
 class PlanningScreen extends StatelessWidget {
-
   PlanningScreen(this.data, {Key? key}) : super(key: key);
 
   final MeData data;
@@ -44,18 +43,57 @@ class PlanningScreen extends StatelessWidget {
                           firstDay: DateTime.utc(2000, 10, 1),
                           lastDay: DateTime.utc(2100, 10, 31),
                           focusedDay: DateTime.now(),
+                          daysOfWeekStyle: DaysOfWeekStyle(
+                            weekdayStyle: TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            weekendStyle: TextStyle(
+                              color: Colors.redAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          calendarStyle: CalendarStyle(
+                            selectedDecoration: BoxDecoration(
+                              color: Colors.deepPurpleAccent,
+                              shape: BoxShape.circle,
+                            ),
+                            todayDecoration: BoxDecoration(
+                              color: Colors.grey.shade700,
+                              shape: BoxShape.circle,
+                            ),
+                            markersMaxCount: 1,
+                          ),
                           calendarFormat: _calendarFormat,
-                          onFormatChanged: (format) { 
+                          onFormatChanged: (format) {
                             _calendarFormat = format;
-                            Provider.of<MenuAppController>(context, listen: false).refresh();
+                            Provider.of<MenuAppController>(context,
+                                    listen: false)
+                                .refresh();
                           },
                           selectedDayPredicate: (day) {
                             return isSameDay(_selectedDay, day);
                           },
-                          onDaySelected: (selectedDay, focusedDay){
+                          onDaySelected: (selectedDay, focusedDay) {
                             _selectedDay = selectedDay;
-                            Provider.of<MenuAppController>(context, listen: false).refresh();
+                            Provider.of<MenuAppController>(context,
+                                    listen: false)
+                                .refresh();
                           },
+                        ),
+                        SizedBox(height: defaultPadding),
+                        ElevatedButton(
+                          onPressed: () {},
+                          child: Text("Plan Maintenance"),
+                          style: ElevatedButton.styleFrom(
+                            shadowColor: Colors.purpleAccent,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 50, vertical: 20),
+                            textStyle: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),
