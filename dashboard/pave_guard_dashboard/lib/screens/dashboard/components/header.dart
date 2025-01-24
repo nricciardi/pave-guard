@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:admin/controllers/query_manager.dart';
 
 import '../../../controllers/menu_app_controller.dart';
@@ -81,9 +79,7 @@ class ProfileCard extends StatelessWidget {
               if (value == 'profile') {
                 context.read<MenuAppController>().setScreen(MenuState.profile);
               } else if (value == 'logout') {
-                // Handle logout
-                // TODO
-                log("helo");
+                context.read<MenuAppController>().logout();
               }
             },
             itemBuilder: (BuildContext context) {

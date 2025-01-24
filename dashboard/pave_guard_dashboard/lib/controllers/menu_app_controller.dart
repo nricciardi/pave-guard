@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum MenuState { dashboard, statistics, planning, profile, settings }
+enum MenuState { dashboard, statistics, planning, profile, settings, logout }
 
 class MenuAppController extends ChangeNotifier {
 
@@ -18,6 +18,15 @@ class MenuAppController extends ChangeNotifier {
   void setScreen(MenuState state){
     _menuState = state;
     notifyListeners();
+  }
+
+  void logout(){
+    _menuState = MenuState.logout;
+    notifyListeners();
+  }
+
+  void delete(){
+    _menuState = MenuState.dashboard;
   }
 
   MenuState getScreen(){

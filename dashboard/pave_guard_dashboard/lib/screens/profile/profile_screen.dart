@@ -1,5 +1,7 @@
+import 'package:admin/controllers/menu_app_controller.dart';
 import 'package:admin/controllers/query_manager.dart';
 import 'package:admin/screens/dashboard/components/header.dart';
+import 'package:provider/provider.dart';
 
 import 'package:flutter/material.dart';
 
@@ -20,7 +22,7 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             Header(data: data, title: "Profile"),
-            SizedBox(height: defaultPadding * 10),
+            SizedBox(height: defaultPadding * 8.5),
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -52,6 +54,21 @@ class ProfileScreen extends StatelessWidget {
                     "Since: ${data.createdAt}",
                     style: Theme.of(context).textTheme.titleLarge,
                     ),
+                  SizedBox(height: defaultPadding * 2),
+                  ElevatedButton(
+                      onPressed: () {
+                        Provider.of<MenuAppController>(context, listen: false).logout();
+                    },
+                    child: Text("Logout"),
+                    style: ElevatedButton.styleFrom(
+                    shadowColor: Colors.red,
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                    textStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    ),
+                  ),
                   ],
                   ),
                 ),
