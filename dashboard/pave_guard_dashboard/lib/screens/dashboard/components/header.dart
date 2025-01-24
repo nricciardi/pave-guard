@@ -11,11 +11,13 @@ import '../../../constants.dart';
 class Header extends StatelessWidget {
   final MeData data;
   final String title;
+  final bool show_searchbar;
 
   const Header(
     {
       required this.data,
       required this.title,
+      this.show_searchbar = true,
       Key? key,
   }) : super(key: key);
 
@@ -35,7 +37,8 @@ class Header extends StatelessWidget {
           ),
         if (!Responsive.isMobile(context))
           Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
-        Expanded(child: SearchField()),
+        if(show_searchbar)
+          Expanded(child: SearchField()),
         ProfileCard(data.getFirstName(), data.getLastName()),
       ],
     );

@@ -24,7 +24,7 @@ class PlanningScreen extends StatelessWidget {
         padding: EdgeInsets.all(defaultPadding),
         child: Column(
           children: [
-            Header(data: data, title: "Planning"),
+            Header(data: data, title: "Planning", show_searchbar: false),
             SizedBox(height: defaultPadding),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,8 +40,8 @@ class PlanningScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         TableCalendar(
-                          firstDay: DateTime.utc(2000, 10, 1),
-                          lastDay: DateTime.utc(2100, 10, 31),
+                          firstDay: DateTime.utc(2010, 10, 1),
+                          lastDay: DateTime.utc(2050, 10, 31),
                           focusedDay: DateTime.now(),
                           daysOfWeekStyle: DaysOfWeekStyle(
                             weekdayStyle: TextStyle(
