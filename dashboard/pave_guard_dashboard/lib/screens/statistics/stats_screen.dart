@@ -4,6 +4,9 @@ import 'package:admin/screens/dashboard/components/header.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+const double lineChartWidth = 400;
+int granularity = 30;
+
 class SeverityData {
   final List<int> severities;
   final List<String> dates;
@@ -148,13 +151,13 @@ Column getCharts(MapEntry<String, SeverityData?> sev_entry, MapEntry<String, Sev
           SizedBox(width: defaultPadding * 3),
           Container(
             height: 200,
-            width: 400,
+            width: lineChartWidth,
             child: getLineChart(sev_entry),
           ),
           SizedBox(width: defaultPadding * 3),
           Container(
             height: 200,
-            width: 400,
+            width: lineChartWidth,
             child: getLineChart(poth_entry),
           )
         ],
@@ -162,6 +165,69 @@ Column getCharts(MapEntry<String, SeverityData?> sev_entry, MapEntry<String, Sev
       SizedBox(height: defaultPadding * 1.7),
     ],
   );
+}
+
+class StateHeader extends StatelessWidget {
+
+  const StateHeader({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 150 + lineChartWidth / 2),
+          Text(
+        "Cracks",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.lightBlueAccent,
+        ),
+          ),
+          SizedBox(width: lineChartWidth),
+          Text(
+        "Pothole",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.lightBlueAccent,
+        ),
+          ),
+          SizedBox(width: lineChartWidth / 3),
+          Row(
+        children: [
+          ChoiceChip(
+            label: Text("30"),
+            selected: false,
+            onSelected: (selected) {
+              granularity = 30;
+            },
+          ),
+          ChoiceChip(
+            label: Text("90"),
+            selected: false,
+            onSelected: (selected) {
+              granularity = 90;
+            },
+          ),
+          ChoiceChip(
+            label: Text("180"),
+            selected: false,
+            onSelected: (selected) {
+              granularity = 180;
+            },
+          ),
+        ],
+          ),
+        ],
+      ),
+    );
+  }
+
 }
 
 class StatsScreen extends StatelessWidget {
@@ -201,6 +267,8 @@ class StatsScreen extends StatelessWidget {
         child: Column(
           children: [
             Header(data: data, title: "Statistics"),
+            SizedBox(height: defaultPadding),
+            StateHeader(),
             SizedBox(height: defaultPadding),
             Column(
                 children: locations_temp.where((loc){return searched_text == "" ? true : loc.toLowerCase().contains(searched_text.toLowerCase());}).map((loc) {
