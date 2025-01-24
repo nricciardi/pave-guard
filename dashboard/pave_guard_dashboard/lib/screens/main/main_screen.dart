@@ -68,7 +68,7 @@ class MainScreen extends StatelessWidget {
                         return DashboardScreen(snapshot.requireData);
                       } else if (menuAppController.getScreen() ==
                           MenuState.statistics) {
-                        return StatsScreen(snapshot.requireData);
+                        return StatsScreen(snapshot.requireData, token);
                       } else if (menuAppController.getScreen() ==
                           MenuState.planning) {
                         return PlanningScreen(snapshot.requireData);
