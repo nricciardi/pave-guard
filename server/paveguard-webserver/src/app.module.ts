@@ -25,9 +25,14 @@ import { ManagementModule } from './modules/management/management.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
 
-        let uri = `mongodb://${configService.get('DB_USER')}:${configService.get('DB_PASS')}@${configService.get('DB_HOST')}:${configService.get('DB_PORT')}/${configService.get('DB_NAME')}`;
+        let port = "";
+        if(!!configService.get('DB_PORT')) {
+          port = `:${configService.get('DB_PORT')}`;
+        }
 
-        // DEBUG: console.log(`connect to ${uri}`);
+        const uri = `mongodb://${configService.get('DB_USER')}:${configService.get('DB_PASS')}@${configService.get('DB_HOST')}${port}/${configService.get('DB_NAME')}`;
+
+        console.log(`connect to ${uri}`);
         
         return ({
           uri,
