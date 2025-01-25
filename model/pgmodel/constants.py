@@ -1,5 +1,12 @@
 from enum import Enum
 
+class DataframeKey(Enum):
+    RAINFALL = "rainfall"
+    TEMPERATURE = "temperature"
+    HUMIDITY = "humidity"
+    CRACK = "crack"
+    POTHOLE = "pothole"
+    TRANSIT = "transit"
 
 class RawFeatureName(Enum):
     RAINFALL = "rainfall"

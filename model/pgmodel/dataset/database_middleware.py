@@ -1,7 +1,8 @@
 import pandas as pd
-from typing import Dict
+from typing import Dict, List, Tuple
 import requests
-from pgmodel.constants import RawFeatureName
+
+from pgmodel.constants import RawFeatureName, DataframeKey
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 
 GRAPHQL_ENDPOINT = "http://localhost:3000/graphql"
@@ -17,10 +18,10 @@ class DatabaseFiller:
 
         mutations = []
 
-        mutations.extend(self.build_temperature_mutations(device_id, dataframes["temperature"]))
-        mutations.extend(self.build_humidity_mutations(device_id, dataframes["humidity"]))
-        mutations.extend(self.build_rainfall_mutations(device_id, dataframes["rainfall"]))
-        mutations.extend(self.build_transit_mutations(device_id, dataframes["transit"]))
+        mutations.extend(self.build_temperature_mutations(device_id, dataframes[DataframeKey.TEMPERATURE.value]))
+        mutations.extend(self.build_humidity_mutations(device_id, dataframes[DataframeKey.HUMIDITY.value]))
+        mutations.extend(self.build_rainfall_mutations(device_id, dataframes[DataframeKey.RAINFALL.value]))
+        mutations.extend(self.build_transit_mutations(device_id, dataframes[DataframeKey.TRANSIT.value]))
 
         self.upload_data(mutations)
 
@@ -28,8 +29,8 @@ class DatabaseFiller:
                                   longitude: float, dataframes: Dict[str, pd.DataFrame]):
         mutations = []
 
-        mutations.extend(self.build_crack_mutations(device_id, road, city, county, state, latitude, longitude, dataframes["crack"]))
-        mutations.extend(self.build_pothole_mutations(device_id, road, city, county, state, latitude, longitude, dataframes["pothole"]))
+        mutations.extend(self.build_crack_mutations(device_id, road, city, county, state, latitude, longitude, dataframes[DataframeKey.CRACK.value]))
+        mutations.extend(self.build_pothole_mutations(device_id, road, city, county, state, latitude, longitude, dataframes[DataframeKey.POTHOLE.value]))
 
         self.upload_data(mutations)
 
@@ -162,7 +163,7 @@ class DatabaseFiller:
                     """.strip())
 
             except Exception as e:
-                print(e)
+                print("error", e)
 
         return mutations
 
@@ -194,8 +195,146 @@ class DatabaseFiller:
         return mutations
 
 
+class DatabaseFetcher:
 
-if __name__ == '__main__':
+    def __init__(self, graphql_endpoint: str = GRAPHQL_ENDPOINT):
+        self.graphql_endpoint = graphql_endpoint
+
+    def locations(self) -> List[Dict]:
+        query = """
+        query {
+          locations {
+            road,
+            city,
+            county,
+            state
+          }
+        }
+        """
+
+        return self.__request(query).json()["data"]["locations"]
+
+    def static_guard_telemetries_data(self) -> Dict[str, pd.DataFrame]:
+
+        data = {}
+
+        query = """
+        query {
+          temperatureTelemetries {
+            temperature,
+            latitude,
+            longitude,
+            timestamp
+          }
+        }
+        """
+
+        response = self.__request(query).json()
+        data[DataframeKey.TEMPERATURE.value] = pd.DataFrame.from_dict(response["data"]["temperatureTelemetries"])
+
+        query = """
+                query {
+                  humidityTelemetries {
+                    humidity,
+                    latitude,
+                    longitude,
+                    timestamp
+                  }
+                }
+                """
+
+        response = self.__request(query).json()
+        data[DataframeKey.HUMIDITY.value] = pd.DataFrame.from_dict(response["data"]["humidityTelemetries"])
+
+        query = """
+                query {
+                  rainTelemetries {
+                    mm,
+                    latitude,
+                    longitude,
+                    timestamp
+                  }
+                }
+                """
+
+        response = self.__request(query).json()
+        data[DataframeKey.RAINFALL.value] = pd.DataFrame.from_dict(response["data"]["rainTelemetries"])
+
+        query = """
+                query {
+                  transitTelemetries {
+                    velocity,
+                    length,
+                    transitTime,
+                    latitude,
+                    longitude,
+                    timestamp
+                  }
+                }
+                """
+
+        response = self.__request(query).json()
+        data[DataframeKey.TRANSIT.value] = pd.DataFrame.from_dict(response["data"]["transitTelemetries"])
+
+        return data
+
+
+    def dynamic_guard_telemetries_data(self) -> Tuple[List[Dict], List[pd.DataFrame], List[pd.DataFrame]]:
+
+        locations = self.locations()
+
+        cracks = []
+        potholes = []
+
+        for location in locations:
+            crack_query = f"""
+                    query {{
+            roadCrackTelemetries(
+                road: "{location['road']}",
+                city: "{location['city']}",
+                county: "{location['county']}",
+                state: "{location['state']}"
+                ) {{
+                    severity,
+                    latitude,
+                    longitude,
+                    timestamp
+                }}
+            }}"""
+
+            response = self.__request(crack_query)
+
+            cracks.append(pd.DataFrame.from_dict(response.json()["data"]["roadCrackTelemetries"]))
+
+            crack_query = f"""
+                                query {{
+                        roadPotholeTelemetries(
+                            road: "{location['road']}",
+                            city: "{location['city']}",
+                            county: "{location['county']}",
+                            state: "{location['state']}"
+                            ) {{
+                                severity,
+                                latitude,
+                                longitude,
+                                timestamp
+                            }}
+                        }}"""
+
+            response = self.__request(crack_query)
+
+            potholes.append(pd.DataFrame.from_dict(response.json()["data"]["roadPotholeTelemetries"]))
+
+
+        return locations, cracks, potholes
+
+    def __request(self, query):
+        headers = {"Content-Type": "application/json"}
+
+        return requests.post(self.graphql_endpoint, json={"query": query}, headers=headers)
+
+
+def upload_telemetries():
     dbfiller = DatabaseFiller(max_telemetries_in_req=5)
 
     n_days = 30
@@ -230,3 +369,17 @@ if __name__ == '__main__':
             dynamic_guard["longitude"],
             DatasetGenerator.generate_dynamic_guard_telemetries_data(n_days)
         )
+
+
+
+
+if __name__ == '__main__':
+    # upload_telemetries()
+
+    dbfetcher = DatabaseFetcher()
+
+    print(dbfetcher.locations())
+
+    print(dbfetcher.static_guard_telemetries_data())
+
+    print(dbfetcher.dynamic_guard_telemetries_data())
