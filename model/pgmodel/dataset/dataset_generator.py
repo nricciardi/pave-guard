@@ -25,6 +25,24 @@ class DatasetGenerator:
             series.to_csv(os.path.join(output_dir, f"{name.value}.csv"), index_label="timestamp", header=[name.value])
 
     @classmethod
+    def telemetries_to_dataframe(cls, telemetries: list[pd.DataFrame]) -> pd.DataFrame:
+        
+        # Gets out all timestamps
+        for df in telemetries:
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+        timestamps = pd.concat([df['timestamp'] for df in telemetries]).drop_duplicates().sort_values()
+        result_df = pd.DataFrame({'timestamp': timestamps})
+        
+        # Merges all dataframes
+        for df in telemetries:
+            result_df = result_df.merge(df, on='timestamp', how='left')
+            
+        result_df.set_index('timestamp', inplace=True)
+        return result_df
+                  
+        
+
+    @classmethod
     def csv_to_dataframe(cls, input_dir: str, output_name: str = "dataset", features: list[str] = None, save_to_csv: str | None = None) -> pd.DataFrame:
         if features is None:
             features = [feat for feat in RawFeatureName]
