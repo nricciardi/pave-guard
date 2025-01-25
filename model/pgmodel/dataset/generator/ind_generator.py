@@ -9,10 +9,11 @@ from abc import ABC, abstractmethod
 class IndependentGenerator(Generator, ABC):
 
     def __init__(self, timestamp_callback: Callable[[date, int], np.ndarray] = Generator.generate_linspace_timestamp,
-                 values_in_a_day: int = 48, min_value: int = 0, max_value: int = 100, max_change: float = 5, **kwargs):
+                 var_name: str  = 'value', values_in_a_day: int = 48, min_value: int = 0, max_value: int = 100, max_change: float = 5, **kwargs):
 
         super().__init__(**kwargs)
 
+        self.var_name = var_name
         self.timestamp_callback = timestamp_callback
         self.values_in_a_day = values_in_a_day
         self.min_value = min_value
@@ -23,7 +24,7 @@ class IndependentGenerator(Generator, ABC):
     def generate_next_value(self, previous_value, timestamp: date, **kwargs):
         raise NotImplemented
 
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.Series:
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
 
         timestamps = self.timestamp_callback(day, self.values_in_a_day)
 
@@ -37,5 +38,8 @@ class IndependentGenerator(Generator, ABC):
                 max(min(next_value, self.max_value), self.min_value)
             )
 
-        return pd.Series(values, index=timestamps)
+        return pd.DataFrame({
+            'timestamp': timestamps,
+            self.var_name: values
+        })
 
