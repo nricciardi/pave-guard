@@ -16,6 +16,7 @@ APP_ENV=local
 
 DEBUG=true
 
+DB_PROT=mongodb
 DB_HOST=mongo
 DB_PORT=27017
 DB_USER=paveguard-webserver
@@ -25,6 +26,12 @@ DB_NAME=paveguard
 GRAPHQL_PLAYGROUND_ENABLED=true
 GRAPHQL_PATH=/graphql
 ```
+
+> [!IMPORTANT]
+> Change password, this is an example.
+
+In production, `DB_PROT=mongodb+srv`
+
 
 Installa i moduli node in locale:
 
