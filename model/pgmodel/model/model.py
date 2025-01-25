@@ -32,7 +32,9 @@ if __name__ == '__main__':
     # input_dir = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/dataset/data"
     input_dir = "pgmodel\dataset\data"
 
-    df = DatasetGenerator.csv_to_dataframe(input_dir)
+    # telemetries = ServerPullTutto()
+
+    df = DatasetGenerator.telemetries_to_dataframe(telemetries)
 
     # model = PaveGuardModel(DecisionTreeClassifier(), DecisionTreeClassifier())
 
