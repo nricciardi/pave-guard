@@ -19,18 +19,16 @@ class Transit:
 
 class TransitGenerator(IndependentGenerator):
 
-    def __init__(self, timestamp_callback: Callable[[date, float, float], np.ndarray] = generate_aggregate_timespace,
+    def __init__(self, speed_name = "speed", length_name = "length", time_name = "time", timestamp_callback: Callable[[date, float, float], np.ndarray] = generate_aggregate_timespace,
                  average_transit_in_a_day: int = 500, min_transits_in_a_day: int = 100,
                  max_transits_in_a_day: int = 2000, max_speed_change: float = 20, **kwargs):
         super().__init__(timestamp_callback=timestamp_callback, values_in_a_day=average_transit_in_a_day, min_value=min_transits_in_a_day, max_value=max_transits_in_a_day, **kwargs)
 
+        self.speed_name = speed_name
+        self.length_name = length_name
+        self.time_name = time_name
         self.timestamp_callback = timestamp_callback
         self.max_speed_change = max_speed_change
-        self.index = 0
-        self.values = []
-        self.timestamps = []
-        self.slices = [0]
-        self.slice_index = 0
 
     def generate_next_value(self, previous_value, timestamp: date, **kwargs) -> Transit:
         length = np.random.uniform(2.5, 5)
@@ -39,28 +37,23 @@ class TransitGenerator(IndependentGenerator):
         time = Transit.get_time(length, speed)
         return Transit(length, time, speed)
 
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.Series:
-        if self.index == 0:
-            new_timestamps = self.timestamp_callback(day, 0.95, 0.3, 15, 5, 0.99)
-            for timestamp in new_timestamps:
-                self.timestamps.append(timestamp)
-            values_index = len(self.values)
-            self.slices.append(values_index)
-            previous_value = 40.
-            for _ in range(0, new_timestamps.size):
-                new_value = self.generate_next_value(previous_value, day)
-                previous_value = new_value.speed
-                self.values.append(new_value)
-            return pd.Series([value.speed for value in self.values[values_index:]], index=new_timestamps)
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
+        
+        new_timestamps = self.timestamp_callback(day, 0.95, 0.3, 15, 5, 0.99)
+        previous_value = 40.
+        values: list[Transit] = []
+        for _ in range(0, new_timestamps.size):
+            new_value: Transit = self.generate_next_value(previous_value, day)
+            previous_value = new_value.speed
+            values.append(new_value)
+        data = {
+            'timestamp': new_timestamps,
+            self.speed_name: [value.speed for value in values],
+            self.time_name: [value.time for value in values],
+            self.length_name: [value.length for value in values]
+        }
+        return pd.DataFrame(data)
 
-        else:
-            left_value = self.slices[self.slice_index]
-            self.slice_index += 1
-            right_value = self.slices[self.slice_index]
-            return pd.Series([value.time if self.index == 1 else value.length for value in self.values[left_value:right_value]], index=self.timestamps[left_value:right_value])
-
-    def generate(self, from_date: date, to_date: date, seed_value = None, **kwargs) -> pd.Series:
+    def generate(self, from_date: date, to_date: date, seed_value = None, **kwargs) -> pd.DataFrame:
         to_return = super().generate(from_date, to_date, seed_value, **kwargs)
-        self.index += 1
-        self.slice_index = 0
         return to_return

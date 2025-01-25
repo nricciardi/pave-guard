@@ -49,12 +49,13 @@ def generate_aggregate_timespace(day: date, phenomenon_probability: float,
 
 class RainfallGenerator(Generator, ABC):
 
-    def __init__(self, timestamp_callback: Callable[[date, float, float], np.ndarray] = generate_aggregate_timespace,
+    def __init__(self, var_name: str = "rain", timestamp_callback: Callable[[date, float, float], np.ndarray] = generate_aggregate_timespace,
                  humidity_mean: float = 50, rain_aggressivity_mean: float = 0.5, rain_duration_average_minutes: float = 70,
                  rain_duration_variance: float = 30, rain_click_measure: float = 3, **kwargs):
 
         super().__init__(**kwargs)
 
+        self.var_name = var_name
         self.timestamp_callback = timestamp_callback
         self.humidity_mean = humidity_mean
         self.rain_aggressivity_mean = rain_aggressivity_mean
@@ -73,14 +74,14 @@ class RainfallGenerator(Generator, ABC):
         )
         return prob
 
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.Series:
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
 
         timestamps = self.timestamp_callback(day, self.rain_probability(day), np.random.uniform(0.01, 1.))
         values = []
         for _ in range(0, timestamps.size):
             values.append(self.rain_click_measure)
 
-        return pd.Series(values, index=timestamps)
+        return pd.DataFrame({"timestamp": timestamps, self.var_name: values})
 
     @staticmethod
     def get_season(date_obj):

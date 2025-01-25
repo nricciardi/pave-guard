@@ -3,5 +3,6 @@
         "paveguard",
         "Signup",
         "timeseries"
-    ]
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }

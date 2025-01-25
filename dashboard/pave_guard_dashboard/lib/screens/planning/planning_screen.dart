@@ -81,10 +81,24 @@ class PlanningScreen extends StatelessWidget {
                                 .refresh();
                           },
                         ),
-                        SizedBox(height: defaultPadding),
+                        SizedBox(height: defaultPadding * 3),
                         ElevatedButton(
                           onPressed: () {},
                           child: Text("Plan Maintenance"),
+                          style: ElevatedButton.styleFrom(
+                            shadowColor: Colors.purpleAccent,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 50, vertical: 20),
+                            textStyle: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: defaultPadding * 2),
+                        ElevatedButton(
+                          onPressed: () {},
+                          child: Text("Delete Maintenance"),
                           style: ElevatedButton.styleFrom(
                             shadowColor: Colors.purpleAccent,
                             padding: EdgeInsets.symmetric(

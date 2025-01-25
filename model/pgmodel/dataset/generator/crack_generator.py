@@ -41,9 +41,9 @@ class CrackGenerator(IndependentGenerator):
         detected = np.random.choice(self.cracks)
         return int(max(0, min(100, detected + np.random.uniform(-self.max_change, self.max_change))))
 
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.Series:
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
         timestamps = random_timespace(day, int(np.random.standard_normal() * 100 * self.num_cracks * self.probability_detection))
         values = []
         for timestamp in timestamps:
             values.append(self.generate_next_value(0, timestamp))
-        return pd.Series(values, index=timestamps)
+        return pd.DataFrame({'timestamp': timestamps, self.var_name: values})

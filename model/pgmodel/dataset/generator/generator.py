@@ -10,18 +10,15 @@ class Generator(ABC):
         self.seed_value = seed_value
 
     @abstractmethod
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.Series:
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
         raise NotImplemented
 
-    def generate(self, from_date: date, to_date: date, seed_value = None, **kwargs) -> pd.Series:
+    def generate(self, from_date: date, to_date: date, seed_value = None, **kwargs) -> pd.DataFrame:
 
-        data = pd.Series([])
+        data = pd.DataFrame()
+        previous_day_data = None
 
         current_date = from_date
-        previous_day_data = seed_value if self.seed_value is None else self.seed_value
-
-        if previous_day_data is not None:
-            previous_day_data = pd.Series(previous_day_data)
 
         while current_date <= to_date:
 
