@@ -94,7 +94,7 @@ class Preprocessor:
         # TODO: Keep in mind road maintenance
         return is_crack_present
 
-    def process(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
+    def process(self, raw_dataset: pd.DataFrame, consecutive_measures_only: bool = True) -> pd.DataFrame:
 
         index_list = []
         # Group by day and process each group
@@ -107,23 +107,22 @@ class Preprocessor:
                 mean_crack_severity = group[RawFeatureName.CRACK.value].mean()
                 raw_dataset.loc[group.index[0:], RawFeatureName.CRACK.value] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.CRACK.value] = mean_crack_severity
+        raw_dataset = raw_dataset.dropna(how='all')
+
+        return self.partition_and_process(raw_dataset, index_list, consecutive_measures_only=consecutive_measures_only)
 
 
-
-        return self.partition_and_process(raw_dataset, index_list)
-
-
-    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list: list) -> pd.DataFrame:
+    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list: list, consecutive_measures_only: bool = True) -> pd.DataFrame:
 
         rows = []
 
-        for i in range(0, len(index_list)):
+        for i in range(0, len(index_list) - 1):
             index = index_list[i]
             row = raw_dataset.loc[index]
             if not self.is_row_to_process(row):
                 continue
             # Set the first row, I look for another one
-            for j in range(i+1, len(index_list)):
+            for j in range(i+1, i+2 if consecutive_measures_only else len(index_list)):
                 last_index = index_list[j]
                 last_row = raw_dataset.loc[last_index]
                 if not self.is_row_to_process(last_row):
@@ -151,7 +150,7 @@ class Preprocessor:
         dataset[FeatureName.TRANSIT_TOTAL] = self.array_count(raw_dataset[RawFeatureName.TRANSIT_TIME.value])
 
         heavy_transit: np.ndarray = np.array([1 for length in raw_dataset[RawFeatureName.TRANSIT_LENGTH.value] if self.is_vehicle_heavy(length)])
-        raw_dataset[FeatureName.IS_RAINING.value] = np.array(
+        raw_dataset.loc[:, FeatureName.IS_RAINING.value] = np.array(
             [1 if self.is_raining_at_time(raw_dataset[~np.isnan(raw_dataset[RawFeatureName.RAINFALL.value])].index, pd.to_datetime(timestamp)) else 0 for timestamp in raw_dataset.index]
         )
 

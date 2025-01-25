@@ -35,7 +35,7 @@ if __name__ == '__main__':
     df = DatasetGenerator.csv_to_dataframe(input_dir)
 
     preprocessor = Preprocessor()
-    dataset = preprocessor.process(df)
+    dataset = preprocessor.process(df, consecutive_measures_only=False)
     print(dataset.head())
 
 
