@@ -1,4 +1,4 @@
-from pgmodel.dataset.ind_generator import IndependentGenerator
+from pgmodel.dataset.generator.ind_generator import IndependentGenerator
 import numpy as np
 from datetime import date
 

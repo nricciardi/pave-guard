@@ -1,10 +1,9 @@
 from datetime import date, datetime
-from random import random
 
 import pandas as pd
 import numpy as np
 
-from pgmodel.dataset.ind_generator import IndependentGenerator
+from pgmodel.dataset.generator.ind_generator import IndependentGenerator
 from typing import Callable
 
 

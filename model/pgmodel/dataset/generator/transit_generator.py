@@ -1,8 +1,7 @@
-from pgmodel.dataset.ind_generator import IndependentGenerator
-from pgmodel.dataset.rainfall_generator import generate_aggregate_timespace
+from pgmodel.dataset.generator.ind_generator import IndependentGenerator
+from pgmodel.dataset.generator.rainfall_generator import generate_aggregate_timespace
 from typing import Callable
 from datetime import date
-from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 
