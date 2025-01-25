@@ -4,6 +4,7 @@ import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
 import { TrafficTelemetryService } from '../services/transit-telemetry/transit-telemetry.service';
 import { CreateTransitTelemetryDto } from '../dto/create-transit-telemetry.dto';
+import { TelemetryFilters } from '../dto/create-telemetry.dto';
 
 
 @ObjectType()
@@ -28,8 +29,10 @@ export class TransitTelemetryResolver {
 
   @Query(() => [TransitTelemetryQuery])
   @UseGuards(AdminGuard)
-  async transitTelemetries() {
-    return this.transitTelemetryService.findAll();
+  async transitTelemetries(
+    @Args({ nullable: true }) filters?: TelemetryFilters,
+  ) {
+    return this.transitTelemetryService.findAll(filters);
   }
 
   @Mutation(() => TransitTelemetryQuery)

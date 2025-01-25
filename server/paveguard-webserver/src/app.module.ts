@@ -35,7 +35,7 @@ import { ManagementModule } from './modules/management/management.module';
           params = `?${configService.get('DB_PARAMS')}`;
         }
 
-        const uri = `mongodb+srv://${configService.get('DB_USER')}:${configService.get('DB_PASS')}@${configService.get('DB_HOST')}${port}/${configService.get('DB_NAME')}${params}`;
+        const uri = `${configService.get('DB_PROT')}://${configService.get('DB_USER')}:${configService.get('DB_PASS')}@${configService.get('DB_HOST')}${port}/${configService.get('DB_NAME')}${params}`;
 
         console.log(`connect to ${uri}`);
         

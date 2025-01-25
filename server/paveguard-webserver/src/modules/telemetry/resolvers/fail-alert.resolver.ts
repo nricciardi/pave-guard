@@ -5,6 +5,7 @@ import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
 import { FailAlertService } from '../services/fail-alert/fail-alert.service';
 import { CreateFailTelemetryDto } from '../dto/create-fail-alert.dto';
+import { TelemetryFilters } from '../dto/create-telemetry.dto';
 
 
 @ObjectType()
@@ -35,8 +36,10 @@ export class FailTelemetryResolver {
 
   @Query(() => [FailAlertQuery])
   @UseGuards(AdminGuard)
-  async failAlerts() {
-    return this.failTelemetryService.findAll();
+  async failAlerts(
+    @Args({ nullable: true }) filters?: TelemetryFilters,
+  ) {
+    return this.failTelemetryService.findAll(filters);
   }
 
   @Mutation(() => FailAlertQuery)

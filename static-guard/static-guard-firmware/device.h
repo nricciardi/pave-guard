@@ -62,7 +62,7 @@ const DeviceConfiguration deviceConfiguration = {
   .humidityTemperatureSensorType = DHT22,
   .temperatureSamplingRateInMillis = 5 * 60 * 1000,
   .humiditySamplingRateInMillis = 5 * 60 * 1000,
-  .temperatureOffset = 2,
+  .temperatureOffset = 1,
   .humidityOffset = 0,
 
   .enableTransitTriggerSensor = true,

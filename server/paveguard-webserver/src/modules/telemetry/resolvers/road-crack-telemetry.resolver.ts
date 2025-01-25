@@ -5,6 +5,7 @@ import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
 import { RoadCrackService } from '../services/road-crack/road-crack.service';
 import { CreateRoadCrackTelemetryDto } from '../dto/create-road-crack-telemetry.dto';
+import { TelemetryFilters } from '../dto/create-telemetry.dto';
 
 
 @ObjectType()
@@ -22,8 +23,10 @@ export class RoadCrackTelemetryResolver {
 
   @Query(() => [RoadCrackTelemetryQuery])
   @UseGuards(AdminGuard)
-  async roadCrackTelemetries() {
-    return this.roadCrackTelemetryService.findAll();
+  async roadCrackTelemetries(
+    @Args({ nullable: true }) filters?: TelemetryFilters,
+  ) {
+    return this.roadCrackTelemetryService.findAll(filters);
   }
 
   @Mutation(() => RoadCrackTelemetryQuery)

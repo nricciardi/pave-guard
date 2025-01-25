@@ -5,6 +5,7 @@ import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
 import { RoadPotholeService } from '../services/road-pothole/road-pothole.service';
 import { CreateRoadPotholeTelemetryDto } from '../dto/create-road-pothole-telemetry.dto';
+import { TelemetryFilters } from '../dto/create-telemetry.dto';
 
 
 @ObjectType()
@@ -22,8 +23,10 @@ export class RoadPotholeTelemetryResolver {
 
   @Query(() => [RoadPotholeTelemetryQuery])
   @UseGuards(AdminGuard)
-  async roadPotholeTelemetries() {
-    return this.roadPotholeTelemetryService.findAll();
+  async roadPotholeTelemetries(
+    @Args({ nullable: true }) filters?: TelemetryFilters,
+  ) {
+    return this.roadPotholeTelemetryService.findAll(filters);
   }
 
   @Mutation(() => RoadPotholeTelemetryQuery)

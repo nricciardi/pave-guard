@@ -4,14 +4,15 @@ import { CreateRoadPotholeTelemetryDto } from '../../dto/create-road-pothole-tel
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TelemetryService } from '../telemetry/telemetry.service';
+import { TelemetryFilters } from '../../dto/create-telemetry.dto';
 
 @Injectable()
 export class RoadPotholeService {
     constructor(private telemetryService: TelemetryService, @InjectModel(RoadPotholeTelemetry.name) private roadPotholeTelemetryModel: Model<RoadPotholeTelemetry>) {
     }
 
-    async findAll(): Promise<RoadPotholeTelemetry[]> {
-        return this.roadPotholeTelemetryModel.find().exec()
+    async findAll(filters?: TelemetryFilters): Promise<RoadPotholeTelemetry[]> {
+        return this.roadPotholeTelemetryModel.find(this.telemetryService.buildQuery(filters)).exec()
     }
 
     async create(data: CreateRoadPotholeTelemetryDto): Promise<RoadPotholeTelemetry> {

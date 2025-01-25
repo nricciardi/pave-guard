@@ -6,6 +6,7 @@ import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
 import { RainTelemetryService } from '../services/rain-telemetry/rain-telemetry.service';
 import { CreateRainTelemetryDto } from '../dto/create-rain-telemetry.dto';
+import { TelemetryFilters } from '../dto/create-telemetry.dto';
 
 
 @ObjectType()
@@ -24,8 +25,10 @@ export class RainTelemetryResolver {
 
   @Query(() => [RainTelemetryQuery])
   @UseGuards(AdminGuard)
-  async rainTelemetries() {
-    return this.rainTelemetryService.findAll();
+  async rainTelemetries(
+    @Args({ nullable: true }) filters?: TelemetryFilters,
+  ) {
+    return this.rainTelemetryService.findAll(filters);
   }
 
   @Mutation(() => RainTelemetryQuery)
