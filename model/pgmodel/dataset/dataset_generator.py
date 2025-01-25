@@ -19,7 +19,51 @@ from pgmodel.dataset.generator.transit_generator import TransitGenerator
 class DatasetGenerator:
 
     @classmethod
-    def generate_dataset(cls, from_date: date, to_date: date, generators: Dict[RawFeatureName, Generator], **kwargs) -> dict[RawFeatureName, pd.DataFrame]:
+    def generate_static_guard_telemetries_data(cls, n_days = 30, from_date = date.today()):
+        to_date = date.today() + timedelta(days=n_days)
+
+        generators = {}
+        generators[RawFeatureName.TEMPERATURE.value] = SeasonalGenerator(magnitude=25, min_value=-20, max_value=40,
+                                                                         mean_value=18, seed_value=10,
+                                                                         var_name=RawFeatureName.TEMPERATURE.value)
+        generators[RawFeatureName.HUMIDITY.value] = SeasonalGenerator(mean_value=50, magnitude=50,
+                                                                      var_name=RawFeatureName.HUMIDITY.value)
+
+        humidities = []
+        for i in range(0, n_days * 48):
+            humidities.append(generators[RawFeatureName.HUMIDITY.value].generate_next_value(
+                humidities[-1] if len(humidities) > 0 else 0, from_date.today().__add__(timedelta(days=i))))
+        humidity_mean = sum(humidities) / len(humidities)
+
+        generators[RawFeatureName.RAINFALL.value] = (
+            RainfallGenerator(humidity_mean=humidity_mean, var_name=RawFeatureName.RAINFALL.value)
+        )
+
+        generators["transit"] = TransitGenerator(speed_name=RawFeatureName.TRANSIT_VELOCITY.value,
+                                                 length_name=RawFeatureName.TRANSIT_LENGTH.value,
+                                                 time_name=RawFeatureName.TRANSIT_TIME.value)
+
+        dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators)
+
+        return dfs
+
+    @classmethod
+    def generate_dynamic_guard_telemetries_data(cls, n_days=30, from_date=date.today()):
+        to_date = date.today() + timedelta(days=n_days)
+
+        generators = {}
+
+        generators[RawFeatureName.CRACK.value] = CrackGenerator(var_name=RawFeatureName.CRACK)
+        generators[RawFeatureName.POTHOLE.value] = CrackGenerator(max_cracks=5, cracks_gravity_average=40,
+                                                                  probability_detection=0.2,
+                                                                  var_name=RawFeatureName.POTHOLE.value)
+
+        dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators)
+
+        return dfs
+
+    @classmethod
+    def generate_dfs(cls, from_date: date, to_date: date, generators: Dict[str, Generator], **kwargs) -> dict[str, pd.DataFrame]:
 
         dfs = {}
 
@@ -75,28 +119,5 @@ class DatasetGenerator:
 
 if __name__ == '__main__':
 
-    n_days = 30
-    from_date = date.today()
-    to_date = date.today() + timedelta(days=n_days)
 
-    generators = {}
-    generators[RawFeatureName.TEMPERATURE] = SeasonalGenerator(magnitude=25, min_value=-20, max_value=40, mean_value=18, seed_value=10, var_name=RawFeatureName.TEMPERATURE)
-    generators[RawFeatureName.HUMIDITY] = SeasonalGenerator(mean_value=50, magnitude=50, var_name=RawFeatureName.HUMIDITY)
-
-    humidities = []
-    for i in range(0, n_days * 48):
-        humidities.append(generators[RawFeatureName.HUMIDITY].generate_next_value(humidities[-1] if len(humidities) > 0 else 0, from_date.today().__add__(timedelta(days=i))))
-    humidity_mean = sum(humidities) / len(humidities)
-
-    generators[RawFeatureName.RAINFALL] = (
-        RainfallGenerator(humidity_mean=humidity_mean, var_name=RawFeatureName.RAINFALL)
-    )
-
-    generators["transit"] = TransitGenerator(speed_name=RawFeatureName.TRANSIT_VELOCITY, length_name=RawFeatureName.TRANSIT_LENGTH, time_name=RawFeatureName.TRANSIT_TIME)
-
-    generators[RawFeatureName.CRACK] = CrackGenerator(var_name=RawFeatureName.CRACK)
-    generators[RawFeatureName.POTHOLE] = CrackGenerator(max_cracks=5, cracks_gravity_average=40, probability_detection=0.2, var_name=RawFeatureName.POTHOLE)
-
-
-    dfs = DatasetGenerator.generate_dataset(from_date, to_date, generators)
     print(dfs)
