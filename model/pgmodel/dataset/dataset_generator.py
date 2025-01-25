@@ -92,7 +92,7 @@ if __name__ == '__main__':
         RainfallGenerator(humidity_mean=humidity_mean, var_name=RawFeatureName.RAINFALL)
     )
 
-    generators[RawFeatureName.TRANSIT_LENGTH] = TransitGenerator(speed_name=RawFeatureName.TRANSIT_VELOCITY, length_name=RawFeatureName.TRANSIT_LENGTH, time_name=RawFeatureName.TRANSIT_TIME)
+    generators["transit"] = TransitGenerator(speed_name=RawFeatureName.TRANSIT_VELOCITY, length_name=RawFeatureName.TRANSIT_LENGTH, time_name=RawFeatureName.TRANSIT_TIME)
 
     generators[RawFeatureName.CRACK] = CrackGenerator(var_name=RawFeatureName.CRACK)
     generators[RawFeatureName.POTHOLE] = CrackGenerator(max_cracks=5, cracks_gravity_average=40, probability_detection=0.2, var_name=RawFeatureName.POTHOLE)
