@@ -281,6 +281,12 @@ class SeverityCrackQueryManager extends SeverityQueryManager {
 
 }
 
+class PlanningData {
+  List<LocationData> locations;
+  List<DateTime> dates;
+  PlanningData(this.locations, this.dates);
+}
+
 class SeverityPotholeQueryManager extends SeverityQueryManager {
 
   @override
@@ -318,5 +324,47 @@ class SeverityPotholeQueryManager extends SeverityQueryManager {
     }
     return severitiesAveragedByDay(severity, timestamp);
   }
+
+}
+
+class PlanningQueryManager extends QueryAbstractManager {
+
+  @override
+  bool checkData(data, {String token = ""}) {
+    return token != "";
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try{
+      if(queryResult.data!["planningCalendar"] == null){
+        return false;
+      } return true;
+    } catch(e) { return false; }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    return """query {
+                planningCalendar{
+                  road,
+                  city,
+                  county,
+                  state,
+                  date
+                }
+              }""";
+  }
+
+  PlanningData getPlanningData(QueryResult queryResult){
+    List<LocationData> locations = [];
+    List<DateTime> dates = [];
+    List<dynamic> data = queryResult.data!["planningCalendar"];
+    for(var planning in data){
+      locations.add(LocationData(road: planning["road"], city: planning["city"], county: planning["county"], state: planning["state"]));
+      dates.add(DateTime.parse(planning["date"]));
+    }
+    return PlanningData(locations, dates);
+  } 
 
 }
