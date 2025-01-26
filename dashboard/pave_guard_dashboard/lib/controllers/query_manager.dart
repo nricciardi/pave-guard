@@ -1,3 +1,4 @@
+import 'package:admin/screens/statistics/stats_screen.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../data/env_manager.dart';
@@ -197,4 +198,125 @@ class QueryLocationManager extends QueryAbstractManager {
     return locations;
   }
   
+}
+
+abstract class SeverityQueryManager extends QueryAbstractManager{
+
+  @override
+  bool checkData(data, {String token = ""}) {
+    if(data is! LocationData) return false;
+    return token != "";
+  }
+
+  Future<Map<LocationData, SeverityData>> getSeveritiesForLocations(List<LocationData> locations, String token) async {
+    Map<LocationData, SeverityData> result = {};
+    for(LocationData location in locations){
+      QueryResult queryResult = await sendQuery(location, token: token);
+      result[location] = getSeverityData(queryResult);
+    }
+    return result;
+  }
+
+  SeverityData getSeverityData(QueryResult queryResult);
+  SeverityData severitiesAveragedByDay(List<int> severity, List<DateTime> timestamp){
+    Map<DateTime, List<int>> dailySeverities = {};
+    for (int i = 0; i < timestamp.length; i++) {
+      DateTime date = DateTime(timestamp[i].year, timestamp[i].month, timestamp[i].day);
+      if (!dailySeverities.containsKey(date)) { dailySeverities[date] = [];}
+      dailySeverities[date]!.add(severity[i]);
+    }
+
+    List<int> meanSeverities = [];
+    List<DateTime> uniqueDates = [];
+    dailySeverities.forEach((date, severities) {
+      int sum = severities.reduce((a, b) => a + b);
+      meanSeverities.add((sum / severities.length).round());
+      uniqueDates.add(date);
+    });
+
+    severity = meanSeverities;
+    timestamp = uniqueDates;
+    return SeverityData(severity, timestamp);
+  }
+
+}
+
+class SeverityCrackQueryManager extends SeverityQueryManager {
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try{
+      if(queryResult.data!["roadCrackTelemetries"] == null){
+        return false;
+      } return true;
+    } catch(e) { return false; }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    return """query {
+                roadCrackTelemetries(
+                  road: "${data.road}",
+                  city: "${data.city}",
+                  county: "${data.county}",
+                  state: "${data.state}"
+                ){
+                  severity,
+                  timestamp
+                }
+              }""";
+  }
+
+  @override
+  SeverityData getSeverityData(QueryResult queryResult){
+    List<int> severity = [];
+    List<DateTime> timestamp = [];
+    List<dynamic> data = queryResult.data!["roadCrackTelemetries"];
+    for(var telemetries in data){
+      severity.add(telemetries["severity"]);
+      timestamp.add(DateTime.parse(telemetries["timestamp"]));
+    }
+    return severitiesAveragedByDay(severity, timestamp);    
+  }
+
+}
+
+class SeverityPotholeQueryManager extends SeverityQueryManager {
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try{
+      if(queryResult.data!["roadPotholeTelemetries"] == null){
+        return false;
+      } return true;
+    } catch(e) { return false; }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    return """query {
+                roadPotholeTelemetries(
+                  road: "${data.road}",
+                  city: "${data.city}",
+                  county: "${data.county}",
+                  state: "${data.state}"
+                ){
+                  severity,
+                  timestamp
+                }
+              }""";
+  }
+
+  @override
+  SeverityData getSeverityData(QueryResult queryResult){
+    List<int> severity = [];
+    List<DateTime> timestamp = [];
+    List<dynamic> data = queryResult.data!["roadPotholeTelemetries"];
+    for(var telemetries in data){
+      severity.add(telemetries["severity"]);
+      timestamp.add(DateTime.parse(telemetries["timestamp"]));
+    }
+    return severitiesAveragedByDay(severity, timestamp);
+  }
+
 }
