@@ -444,6 +444,9 @@ def upload_telemetries():
             DatasetGenerator.generate_dynamic_guard_telemetries_data(n_days)
         )
 
+def is_maintenance_for_road(maintenance, location) -> bool:
+    return maintenance["road"] == location["road"] and maintenance["city"] == location["city"] and maintenance["county"] == location["county"] and maintenance["state"] == location["state"]
+
 if __name__ == '__main__':
     # upload_telemetries()
 
@@ -452,6 +455,9 @@ if __name__ == '__main__':
     locations = dbfetcher.locations()
     static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
     dynamic_guard_telemetries = dbfetcher.dynamic_guard_telemetries_data()
+    maintenance_operations = dbfetcher.maintenance_operations()
+    for maintenance in maintenance_operations:
+        maintenance["date"] = pd.to_datetime(maintenance["date"])
     
     db_total: list[pd.DataFrame] = []
     
@@ -470,8 +476,10 @@ if __name__ == '__main__':
             location["latitude"] = (crack_severity["latitude"].mean() + pothole_severity["latitude"].mean()) / 2
             location["longitude"] = (crack_severity["longitude"].mean() + pothole_severity["longitude"].mean()) / 2
             
+            maintenances = [maintenance for maintenance in maintenance_operations if is_maintenance_for_road(maintenance, location)]
+            
             telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
-            telemetries = Preprocessor().process(telemetries, location)
+            telemetries = Preprocessor().process(telemetries, location, maintenances)
             db_total.append(telemetries)
         
     db_total = pd.DataFrame(db_total)

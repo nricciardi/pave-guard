@@ -102,7 +102,6 @@ class Preprocessor:
 
     def is_row_to_process(self, row: pd.Series) -> bool:
         is_crack_present = pd.notna(row[RawFeatureName.CRACK.value])
-        # TODO: Keep in mind road maintenance
         return is_crack_present
 
     @staticmethod
@@ -113,7 +112,8 @@ class Preprocessor:
         distance = np.sqrt(lat_diff_meters ** 2 + lon_diff_meters ** 2)
         return distance <= M
 
-    def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], consecutive_measures_only: bool = True) -> pd.DataFrame:
+    def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], maintenances: list[dict],
+                consecutive_measures_only: bool = True) -> pd.DataFrame:
 
         index_list = []
         var_tel_lon = "longitude"
@@ -142,6 +142,12 @@ class Preprocessor:
                 raw_dataset.loc[group.index[0:], "modulation"] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.CRACK.value] = mean_crack_severity
         raw_dataset = raw_dataset.dropna(how='all')
+        # Add maintenance info
+        raw_dataset['maintenance'] = raw_dataset.apply(
+            lambda row: 1 if any(
+            maintenance['date'].date() == row.name.date() for maintenance in maintenances
+            ) else 0, axis=1
+        )
 
         return self.partition_and_process(raw_dataset, index_list, consecutive_measures_only=consecutive_measures_only)
 
@@ -159,6 +165,8 @@ class Preprocessor:
             for j in range(i+1, i+2 if consecutive_measures_only else len(index_list)):
                 last_index = index_list[j]
                 last_row = raw_dataset.loc[last_index]
+                if last_row['maintenance'] == 1:
+                    break
                 if not self.is_row_to_process(last_row):
                     continue
                 processed_row = self.process_single_row(raw_dataset.loc[index:last_index])
