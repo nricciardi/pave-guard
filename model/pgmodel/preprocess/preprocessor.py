@@ -107,8 +107,8 @@ class Preprocessor:
     def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], consecutive_measures_only: bool = True) -> pd.DataFrame:
 
         index_list = []
-        var_tel_lon = "lon"
-        var_tel_lat = "lat"
+        var_tel_lon = "longitude"
+        var_tel_lat = "latitude"
         location_lon = location["longitude"]
         location_lat = location["latitude"]
         raw_dataset = raw_dataset[
@@ -116,6 +116,11 @@ class Preprocessor:
             raw_dataset[RawFeatureName.POTHOLE.value].isnull() &
             raw_dataset.apply(lambda row: self.is_road_in_range(location_lat, location_lon, row[var_tel_lat], row[var_tel_lon], ), axis=1)
         ]
+        raw_dataset['modulation'] = raw_dataset.apply(
+            lambda row: max(0, 1 - np.sqrt(
+            ((row[var_tel_lat] - location_lat) * 111320) ** 2 +
+            ((row[var_tel_lon] - location_lon) * 40075000 * np.cos(np.radians(location_lat)) / 360) ** 2
+            ) / M), axis=1)
         # Group by day and process each group
         grouped = raw_dataset.groupby(raw_dataset.index.date)
         for day, group in grouped:
