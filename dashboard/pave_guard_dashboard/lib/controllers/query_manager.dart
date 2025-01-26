@@ -148,6 +148,16 @@ class LocationData {
   String? county;
   String? state;
   LocationData({this.road, this.city, this.county, this.state});
+
+  @override
+  String toString() {
+    return "$road\n$city ($state)";
+  }
+
+  bool contains(String text){
+    return road!.toLowerCase().contains(text.toLowerCase()) || city!.toLowerCase().contains(text.toLowerCase()) || state!.toLowerCase().contains(text.toLowerCase());
+  }
+
 }
 
 class QueryLocationManager extends QueryAbstractManager {

@@ -251,8 +251,6 @@ class StatsScreen extends StatelessWidget {
         ["10/01/21", "10/02/21", "10/03/21", "10/04/21", "10/05/21"]),
   };
 
-  final List<String> locations_temp = ["Via Nizza", "Via Roma", "Via Catania", "Via Belgrado", "Via Colvento"];
-
   final MeData data;
   final String token;
   final String searched_text;
@@ -271,9 +269,9 @@ class StatsScreen extends StatelessWidget {
             StateHeader(),
             SizedBox(height: defaultPadding),
             Column(
-                children: locations_temp.where((loc){return searched_text == "" ? true : loc.toLowerCase().contains(searched_text.toLowerCase());}).map((loc) {
+                children: locations.where((loc){return searched_text == "" ? true : loc.contains(searched_text.toLowerCase());}).map((loc) {
                 return getCharts(
-                  MapEntry(loc, streets_sev[loc]), MapEntry(loc, streets_poth[loc]));
+                  MapEntry(loc.toString(), streets_sev[loc]), MapEntry(loc.toString(), streets_poth[loc]));
                 }).toList(),
             ),
           ],
