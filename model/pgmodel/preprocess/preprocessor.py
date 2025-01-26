@@ -5,6 +5,8 @@ import numpy as np
 
 from pgmodel.constants import FeatureName, RawFeatureName
 
+# Meters hyperparameter
+M: float = 50 
 
 class Preprocessor:
 
@@ -94,9 +96,26 @@ class Preprocessor:
         # TODO: Keep in mind road maintenance
         return is_crack_present
 
-    def process(self, raw_dataset: pd.DataFrame, consecutive_measures_only: bool = True) -> pd.DataFrame:
+    @staticmethod
+    def is_road_in_range(road_lat: float, road_lon: float, lat: float, lon: float) -> bool:
+        # Degrees to meters
+        lat_diff_meters = (road_lat - lat) * 111320
+        lon_diff_meters = (road_lon - lon) * 40075000 * np.cos(np.radians(lat)) / 360
+        distance = np.sqrt(lat_diff_meters ** 2 + lon_diff_meters ** 2)
+        return distance <= M
+
+    def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], consecutive_measures_only: bool = True) -> pd.DataFrame:
 
         index_list = []
+        var_tel_lon = "lon"
+        var_tel_lat = "lat"
+        location_lon = location["longitude"]
+        location_lat = location["latitude"]
+        raw_dataset = raw_dataset[
+            raw_dataset[RawFeatureName.CRACK.value].isnull() &
+            raw_dataset[RawFeatureName.POTHOLE.value].isnull() &
+            raw_dataset.apply(lambda row: self.is_road_in_range(location_lat, location_lon, row[var_tel_lat], row[var_tel_lon], ), axis=1)
+        ]
         # Group by day and process each group
         grouped = raw_dataset.groupby(raw_dataset.index.date)
         for day, group in grouped:

@@ -85,7 +85,25 @@ class DatasetGenerator:
         # Merges all dataframes
         for df in telemetries:
             result_df = result_df.merge(df, on='timestamp', how='left')
-            
+            if "latitude_x" in result_df.columns:
+                result_df["latitude"] = result_df["latitude_x"].fillna(result_df["latitude_y"])
+                result_df = result_df.drop(columns=["latitude_x", "latitude_y"])
+            if "longitude_x" in result_df.columns:
+                result_df["longitude"] = result_df["longitude_x"].fillna(result_df["longitude_y"])
+                result_df = result_df.drop(columns=["longitude_x", "longitude_y"])
+
+        # Rename columns to match RawFeatureName values
+        rename_dict = {
+            'temperature': RawFeatureName.TEMPERATURE.value,
+            'humidity': RawFeatureName.HUMIDITY.value,
+            'rainfall': RawFeatureName.RAINFALL.value,
+            'transit_velocity': RawFeatureName.TRANSIT_VELOCITY.value,
+            'transit_length': RawFeatureName.TRANSIT_LENGTH.value,
+            'transit_time': RawFeatureName.TRANSIT_TIME.value,
+            'crack': RawFeatureName.CRACK.value,
+            'pothole': RawFeatureName.POTHOLE.value
+        }
+        result_df.rename(columns=rename_dict, inplace=True)
         result_df.set_index('timestamp', inplace=True)
         return result_df
                   

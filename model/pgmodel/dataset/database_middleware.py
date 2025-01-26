@@ -1,9 +1,14 @@
 import pandas as pd
 from typing import Dict, List, Tuple
 import requests
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from pgmodel.constants import RawFeatureName, DataframeKey
 from pgmodel.dataset.dataset_generator import DatasetGenerator
+from pgmodel.preprocess.preprocessor import Preprocessor
 
 GRAPHQL_ENDPOINT = "http://localhost:3000/graphql"
 
@@ -207,7 +212,7 @@ class DatabaseFetcher:
             road,
             city,
             county,
-            state
+            state,
           }
         }
         """
@@ -371,6 +376,8 @@ def upload_telemetries():
         )
 
 
+def are_locations_equal(location1: Dict, location2: Dict) -> bool:
+    return location1["road"] == location2["road"] and location1["city"] == location2["city"] and location1["county"] == location2["county"] and location1["state"] == location2["state"]
 
 
 if __name__ == '__main__':
@@ -378,8 +385,26 @@ if __name__ == '__main__':
 
     dbfetcher = DatabaseFetcher()
 
-    print(dbfetcher.locations())
+    locations = dbfetcher.locations()
+    static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
+    dynamic_guard_telemetries = dbfetcher.dynamic_guard_telemetries_data()
+    
+    db_total: list[pd.DataFrame] = []
+    
+    for location in locations:
+        index = next((i for i, loc in enumerate(dynamic_guard_telemetries[0]) if are_locations_equal(loc, location)), None)
+        if index is not None:
 
-    print(dbfetcher.static_guard_telemetries_data())
-
-    print(dbfetcher.dynamic_guard_telemetries_data())
+            crack_severity = dynamic_guard_telemetries[1][index]
+            crack_severity = crack_severity.rename(columns={"severity": "crack"})
+            pothole_severity = dynamic_guard_telemetries[2][index]
+            pothole_severity = pothole_severity.rename(columns={"severity": "pothole"})
+            telemetries = [df for df in static_guard_telemetries if not df.empty]
+            telemetries.append(crack_severity)
+            telemetries.append(pothole_severity)
+            
+            telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
+            telemetries = Preprocessor().process(telemetries, location)
+            db_total.append(telemetries)
+        
+    db_total = pd.DataFrame(db_total)
