@@ -2,6 +2,7 @@ import pandas as pd
 from typing import Dict, List, Tuple
 import requests
 import sys
+from datetime import date
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -283,7 +284,6 @@ class DatabaseFetcher:
 
         return data
 
-
     def dynamic_guard_telemetries_data(self) -> Tuple[List[Dict], List[pd.DataFrame], List[pd.DataFrame]]:
 
         locations = self.locations()
@@ -332,6 +332,75 @@ class DatabaseFetcher:
 
 
         return locations, cracks, potholes
+
+    def maintenance_operations(self) -> List[Dict]:
+        query = """
+        query {
+          planningCalendar {
+            id,
+            road,
+            city,
+            county,
+            state,
+            date,
+            done,
+            description
+          }
+        }
+        """
+
+        return self.__request(query).json()["data"]["planningCalendar"]
+
+    def crack_telemetries_by_date(self, date = date.today()):
+
+        query = f"""
+         query {{
+          roadCrackTelemetries(
+            from: "{date.year}-{str(date.month).zfill(2)}-{str(date.day).zfill(2)}T00:00:00.000Z",
+            to: "{date.year}-{str(date.month).zfill(2)}-{str(date.day).zfill(2)}T23:59:59.000Z"
+          )  {{
+              severity,
+              latitude,
+              longitude,
+              timestamp,
+              metadata {{
+                road,
+                city,
+                county,
+                state,
+                deviceId
+              }}
+          }}
+        }}
+        """
+
+        return self.__request(query)["date"]["roadCrackTelemetries"]
+
+    def pothole_telemetries_by_date(self, date=date.today()):
+        query = f"""
+         query {{
+          roadPotholeTelemetries(
+            from: "{date.year}-{str(date.month).zfill(2)}-{str(date.day).zfill(2)}T00:00:00.000Z",
+            to: "{date.year}-{str(date.month).zfill(2)}-{str(date.day).zfill(2)}T23:59:59.000Z"
+          )  {{
+              severity,
+              latitude,
+              longitude,
+              timestamp,
+              metadata {{
+                road,
+                city,
+                county,
+                state,
+                deviceId
+              }}
+          }}
+        }}
+        """
+
+        return self.__request(query)["date"]["roadPotholeTelemetries"]
+
+
 
     def __request(self, query):
         headers = {"Content-Type": "application/json"}
@@ -385,26 +454,28 @@ if __name__ == '__main__':
 
     dbfetcher = DatabaseFetcher()
 
-    locations = dbfetcher.locations()
-    static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
-    dynamic_guard_telemetries = dbfetcher.dynamic_guard_telemetries_data()
-    
-    db_total: list[pd.DataFrame] = []
-    
-    for location in locations:
-        index = next((i for i, loc in enumerate(dynamic_guard_telemetries[0]) if are_locations_equal(loc, location)), None)
-        if index is not None:
+    print(dbfetcher.maintenance_operations())
 
-            crack_severity = dynamic_guard_telemetries[1][index]
-            crack_severity = crack_severity.rename(columns={"severity": "crack"})
-            pothole_severity = dynamic_guard_telemetries[2][index]
-            pothole_severity = pothole_severity.rename(columns={"severity": "pothole"})
-            telemetries = [df for df in static_guard_telemetries if not df.empty]
-            telemetries.append(crack_severity)
-            telemetries.append(pothole_severity)
-            
-            telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
-            telemetries = Preprocessor().process(telemetries, location)
-            db_total.append(telemetries)
-        
-    db_total = pd.DataFrame(db_total)
+    # locations = dbfetcher.locations()
+    # static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
+    # dynamic_guard_telemetries = dbfetcher.dynamic_guard_telemetries_data()
+    #
+    # db_total: list[pd.DataFrame] = []
+    #
+    # for location in locations:
+    #     index = next((i for i, loc in enumerate(dynamic_guard_telemetries[0]) if are_locations_equal(loc, location)), None)
+    #     if index is not None:
+    #
+    #         crack_severity = dynamic_guard_telemetries[1][index]
+    #         crack_severity = crack_severity.rename(columns={"severity": "crack"})
+    #         pothole_severity = dynamic_guard_telemetries[2][index]
+    #         pothole_severity = pothole_severity.rename(columns={"severity": "pothole"})
+    #         telemetries = [df for df in static_guard_telemetries if not df.empty]
+    #         telemetries.append(crack_severity)
+    #         telemetries.append(pothole_severity)
+    #
+    #         telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
+    #         telemetries = Preprocessor().process(telemetries, location)
+    #         db_total.append(telemetries)
+    #
+    # db_total = pd.DataFrame(db_total)

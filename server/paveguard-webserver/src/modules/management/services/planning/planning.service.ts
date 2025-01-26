@@ -4,6 +4,7 @@ import { CreatePlanningDto } from '../../dto/create-planning.dto';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { UpdatePlanningDto } from '../../dto/update-planning.dto';
 
 @Injectable()
 export class PlanningService {
@@ -18,6 +19,20 @@ export class PlanningService {
     const newPlanning = new this.planningCalendarModel(input);
 
     return newPlanning.save();
+  }
+
+  async updatePlanning(planningId: string, values: UpdatePlanningDto): Promise<PlanningCalendar> {
+
+    const planning = await this.planningCalendarModel.findByIdAndUpdate(
+      planningId,
+      values,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).exec();
+
+    return planning;
   }
 
   async deletePlanningById(planningId: string): Promise<PlanningCalendar> {

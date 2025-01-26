@@ -2,12 +2,13 @@ import { Field, ArgsType } from '@nestjs/graphql';
 import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 
 @ArgsType()
-export class CreatePlanningDto {
+export class UpdatePlanningDto {
 
-    @Field()
+    @Field({
+        nullable: true
+    })
     @IsDate()
-    @IsNotEmpty()
-    date: Date;
+    date?: Date;
 
     @Field({
         nullable: true
@@ -15,15 +16,17 @@ export class CreatePlanningDto {
     @IsString()
     description?: string;
 
-    @Field()
+    @Field({
+        nullable: true
+    })
     @IsString()
-    @IsNotEmpty()
-    road: string;
+    road?: string;
 
-    @Field()
+    @Field({
+        nullable: true
+    })
     @IsString()
-    @IsNotEmpty()
-    city: string;
+    city?: string;
 
     @Field({
         nullable: true
@@ -31,8 +34,15 @@ export class CreatePlanningDto {
     @IsString()
     county?: string;
 
-    @Field()
+    @Field({
+        nullable: true
+    })
     @IsString()
-    @IsNotEmpty()
-    state: string;
+    state?: string;
+
+    @Field({
+        nullable: true
+    })
+    @IsBoolean()
+    done?: boolean;
 }

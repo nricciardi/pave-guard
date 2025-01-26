@@ -3,6 +3,7 @@ import { PlanningService } from '../../services/planning/planning.service';
 import { CreatePlanningDto } from '../../dto/create-planning.dto';
 import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/user/guards/admin/admin.guard';
+import { UpdatePlanningDto } from '../../dto/update-planning.dto';
 
 
 @ObjectType()
@@ -17,14 +18,24 @@ export class PlanningCalendarQuery {
   @Field()
   city: string;
 
-  @Field()
+  @Field({
+    nullable: true
+  })
   county?: string;
+
+  @Field({
+    nullable: true
+  })
+  description?: string;
 
   @Field()
   state: string;
 
   @Field()
   date: Date
+
+  @Field()
+  done: boolean
 }
 
 
@@ -47,6 +58,15 @@ export class PlanningResolver {
         @Args() input: CreatePlanningDto,
     ) {
         return this.planningService.createPlanning(input);
+    }
+
+    @Mutation(() => PlanningCalendarQuery)
+    @UseGuards(AdminGuard)
+    async updatePlanning(
+        @Args("planningId") planningId: string,
+        @Args() input: UpdatePlanningDto,
+    ) {
+        return this.planningService.updatePlanning(planningId, input);
     }
 
     @Mutation(() => PlanningCalendarQuery)

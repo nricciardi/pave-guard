@@ -28,6 +28,12 @@ export class PlanningCalendar extends Document {
 
     @Prop({ required: true })
     state: string;
+
+    @Prop({
+        required: true,
+        default: false,
+    })
+    done: boolean;
 }
 
 export const PlanningCalendarSchema = SchemaFactory.createForClass(PlanningCalendar);
