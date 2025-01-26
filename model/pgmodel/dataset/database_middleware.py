@@ -444,38 +444,34 @@ def upload_telemetries():
             DatasetGenerator.generate_dynamic_guard_telemetries_data(n_days)
         )
 
-
-def are_locations_equal(location1: Dict, location2: Dict) -> bool:
-    return location1["road"] == location2["road"] and location1["city"] == location2["city"] and location1["county"] == location2["county"] and location1["state"] == location2["state"]
-
-
 if __name__ == '__main__':
     # upload_telemetries()
 
     dbfetcher = DatabaseFetcher()
 
-    print(dbfetcher.maintenance_operations())
+    locations = dbfetcher.locations()
+    static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
+    dynamic_guard_telemetries = dbfetcher.dynamic_guard_telemetries_data()
+    
+    db_total: list[pd.DataFrame] = []
+    
+    for location in locations:
+        index = next((i for i, loc in enumerate(dynamic_guard_telemetries[0]) if loc==location), None)
+        if index is not None:
 
-    # locations = dbfetcher.locations()
-    # static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
-    # dynamic_guard_telemetries = dbfetcher.dynamic_guard_telemetries_data()
-    #
-    # db_total: list[pd.DataFrame] = []
-    #
-    # for location in locations:
-    #     index = next((i for i, loc in enumerate(dynamic_guard_telemetries[0]) if are_locations_equal(loc, location)), None)
-    #     if index is not None:
-    #
-    #         crack_severity = dynamic_guard_telemetries[1][index]
-    #         crack_severity = crack_severity.rename(columns={"severity": "crack"})
-    #         pothole_severity = dynamic_guard_telemetries[2][index]
-    #         pothole_severity = pothole_severity.rename(columns={"severity": "pothole"})
-    #         telemetries = [df for df in static_guard_telemetries if not df.empty]
-    #         telemetries.append(crack_severity)
-    #         telemetries.append(pothole_severity)
-    #
-    #         telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
-    #         telemetries = Preprocessor().process(telemetries, location)
-    #         db_total.append(telemetries)
-    #
-    # db_total = pd.DataFrame(db_total)
+            crack_severity = dynamic_guard_telemetries[1][index]
+            crack_severity = crack_severity.rename(columns={"severity": "crack"})
+            pothole_severity = dynamic_guard_telemetries[2][index]
+            pothole_severity = pothole_severity.rename(columns={"severity": "pothole"})
+            telemetries = [df for df in static_guard_telemetries if not df.empty]
+            telemetries.append(crack_severity)
+            telemetries.append(pothole_severity)
+            
+            location["latitude"] = (crack_severity["latitude"].mean() + pothole_severity["latitude"].mean()) / 2
+            location["longitude"] = (crack_severity["longitude"].mean() + pothole_severity["longitude"].mean()) / 2
+            
+            telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
+            telemetries = Preprocessor().process(telemetries, location)
+            db_total.append(telemetries)
+        
+    db_total = pd.DataFrame(db_total)

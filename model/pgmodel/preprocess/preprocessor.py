@@ -16,12 +16,21 @@ class Preprocessor:
             return 0
         return self.array_mean(temperatures)
 
-    def array_mean(self, array: np.ndarray) -> float:
-        array = array[~np.isnan(array)]
-        return array.mean(axis=0)
+    def array_mean(self, array: np.ndarray, weights: np.ndarray | None) -> float:
+        if weights is None:
+            weights = np.ones_like(array)
+        valid_indices = ~np.isnan(array)
+        array = array[valid_indices]
+        weights = weights[valid_indices]
+        return np.average(array, weights=weights)
 
-    def array_sum(self, array: np.ndarray) -> float:
-        return array.sum(axis=0)
+    def array_sum(self, array: np.ndarray, weight: np.ndarray | None) -> float:
+        if weight is None:
+            weight = np.ones_like(array)
+        valid_indices = ~np.isnan(array)
+        array = array[valid_indices]
+        weight = weight[valid_indices]
+        return np.sum(array * weight)
 
     def array_count(self, array: np.ndarray) -> int:
         return array.size
@@ -112,9 +121,9 @@ class Preprocessor:
         location_lon = location["longitude"]
         location_lat = location["latitude"]
         raw_dataset = raw_dataset[
-            raw_dataset[RawFeatureName.CRACK.value].isnull() &
-            raw_dataset[RawFeatureName.POTHOLE.value].isnull() &
-            raw_dataset.apply(lambda row: self.is_road_in_range(location_lat, location_lon, row[var_tel_lat], row[var_tel_lon], ), axis=1)
+            raw_dataset.apply(lambda row: self.is_road_in_range(location_lat, location_lon, row[var_tel_lat], row[var_tel_lon]), axis=1) |
+            raw_dataset[RawFeatureName.CRACK.value].notna() |
+            raw_dataset[RawFeatureName.POTHOLE.value].notna()
         ]
         raw_dataset['modulation'] = raw_dataset.apply(
             lambda row: max(0, 1 - np.sqrt(
@@ -130,6 +139,7 @@ class Preprocessor:
                 first_occurrence_index = non_null_indices[0]
                 mean_crack_severity = group[RawFeatureName.CRACK.value].mean()
                 raw_dataset.loc[group.index[0:], RawFeatureName.CRACK.value] = np.nan
+                raw_dataset.loc[group.index[0:], "modulation"] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.CRACK.value] = mean_crack_severity
         raw_dataset = raw_dataset.dropna(how='all')
 
