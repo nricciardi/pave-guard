@@ -349,7 +349,8 @@ class DatabaseFetcher:
         }
         """
 
-        return self.__request(query).json()["data"]["planningCalendar"]
+        res = self.__request(query).json()
+        return res["data"]["planningCalendar"]
 
     def crack_telemetries_by_date(self, date = date.today()):
 
@@ -412,7 +413,7 @@ def upload_telemetries():
     dbfiller = DatabaseFiller(max_telemetries_in_req=5)
 
     n_days = 30
-    static_guards_ids = ["679251aa95e18aed7f6219ed"]
+    static_guards_ids = ["67975a6f6ca18c7a68c3a91d"]
 
     for device_id in static_guards_ids:
         dbfiller.upload_static_guard_data(

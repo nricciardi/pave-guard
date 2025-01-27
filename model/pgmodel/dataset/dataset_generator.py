@@ -96,17 +96,16 @@ class DatasetGenerator:
         rename_dict = {
             'temperature': RawFeatureName.TEMPERATURE.value,
             'humidity': RawFeatureName.HUMIDITY.value,
-            'rainfall': RawFeatureName.RAINFALL.value,
-            'transit_velocity': RawFeatureName.TRANSIT_VELOCITY.value,
-            'transit_length': RawFeatureName.TRANSIT_LENGTH.value,
-            'transit_time': RawFeatureName.TRANSIT_TIME.value,
+            'mm': RawFeatureName.RAINFALL.value,
+            'velocity': RawFeatureName.TRANSIT_VELOCITY.value,
+            'length': RawFeatureName.TRANSIT_LENGTH.value,
+            'transitTime': RawFeatureName.TRANSIT_TIME.value,
             'crack': RawFeatureName.CRACK.value,
             'pothole': RawFeatureName.POTHOLE.value
         }
         result_df.rename(columns=rename_dict, inplace=True)
         result_df.set_index('timestamp', inplace=True)
         return result_df
-                  
         
 
     @classmethod

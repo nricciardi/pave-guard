@@ -1,5 +1,7 @@
 import sys
 import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from pgmodel.dataset.database_middleware import DatabaseFetcher
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
@@ -16,7 +18,7 @@ def is_maintenance_for_road(maintenance, location) -> bool:
     return maintenance["road"] == location["road"] and maintenance["city"] == location["city"] and maintenance["county"] == location["county"] and maintenance["state"] == location["state"]
 
 
-def final_dataset() -> pd.DataFrame:
+def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
     dbfetcher = DatabaseFetcher()
 
     static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
@@ -25,7 +27,8 @@ def final_dataset() -> pd.DataFrame:
     for maintenance in maintenance_operations:
         maintenance["date"] = pd.to_datetime(maintenance["date"])
 
-    db_total: list[pd.DataFrame] = []
+    db_total_crack: list[pd.DataFrame] = []
+    db_total_pothole: list[pd.DataFrame] = []
 
     for location, crack_telemetries_of_loc, pothole_telemetries_of_loc in zip(locations, crack_telemetries, pothole_telemetries):
 
@@ -43,16 +46,18 @@ def final_dataset() -> pd.DataFrame:
                             is_maintenance_for_road(maintenance, location)]
 
             telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
-            telemetries = Preprocessor().process(telemetries, location, maintenances)
-            db_total.append(telemetries)
+            crack, pothole = Preprocessor().process(telemetries, location, maintenances)
+            db_total_crack.append(crack)
+            db_total_pothole.append(pothole)
 
         except KeyError as key_error:
             print("error:", key_error)
             print(location)
 
-    db_total = pd.DataFrame(db_total)
+    db_total_crack = pd.concat(db_total_crack, ignore_index=True)
+    db_total_pothole = pd.concat(db_total_pothole, ignore_index=True)
 
-    return db_total
+    return db_total_crack, db_total_pothole
 
 
 class PaveGuardModel:
@@ -80,7 +85,7 @@ if __name__ == '__main__':
         pothole_model=DecisionTreeClassifier(),
     )
 
-    dataset = final_dataset()
+    crack_dataset, poth_dataset = final_dataset()
 
     print(dataset)
 

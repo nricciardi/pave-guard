@@ -285,6 +285,17 @@ class PlanningData {
   List<LocationData> locations;
   List<DateTime> dates;
   PlanningData(this.locations, this.dates);
+
+  List<LocationData> getLocations(DateTime day){
+    List<LocationData> result = [];
+    for(int i = 0; i < dates.length; i++){
+      if(dates[i].year == day.year && dates[i].month == day.month && dates[i].day == day.day){
+        result.add(locations[i]);
+      }
+    }
+    return result;
+  }
+
 }
 
 class SeverityPotholeQueryManager extends SeverityQueryManager {

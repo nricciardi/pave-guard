@@ -222,7 +222,7 @@ class StateHeader extends StatelessWidget {
               color: Colors.lightBlueAccent,
             ),
           ),
-          SizedBox(width: lineChartWidth / 3),
+          SizedBox(width: lineChartWidth / 2.5),
           Row(
             children: [slider],
           ),
@@ -308,9 +308,9 @@ class _StatsScreenState extends State<StatsScreen> {
             SizedBox(height: defaultPadding),
             StateHeader(slider: Slider(
               value: granularity.toDouble(),
-              min: 1,
-              max: 30,
-              divisions: 29,
+              min: 2,
+              max: 40,
+              divisions: 38,
               label: granularity.toString(),
               onChanged: (double value) {
                 setState(() {

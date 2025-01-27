@@ -10,11 +10,13 @@ M: float = 50
 
 class Preprocessor:
 
-    def subzero_temperature_mean(self, temperatures: np.ndarray) -> float:
+    def subzero_temperature_mean(self, temperatures: np.ndarray, weights: np.ndarray | None) -> float:
+        indexes = temperatures < 0
         temperatures = temperatures[temperatures < 0]
+        weights = weights[indexes]
         if temperatures.size == 0:
             return 0
-        return self.array_mean(temperatures)
+        return self.array_mean(temperatures, weights)
 
     def array_mean(self, array: np.ndarray, weights: np.ndarray | None) -> float:
         if weights is None:
@@ -22,7 +24,10 @@ class Preprocessor:
         valid_indices = ~np.isnan(array)
         array = array[valid_indices]
         weights = weights[valid_indices]
-        return np.average(array, weights=weights)
+        if weights.sum() == 0:
+            return np.nan
+        else:
+            return np.average(array, weights=weights)
 
     def array_sum(self, array: np.ndarray, weight: np.ndarray | None) -> float:
         if weight is None:
@@ -100,8 +105,8 @@ class Preprocessor:
     def is_vehicle_heavy(self, vehicle_length: float) -> bool:
         return vehicle_length >= 4
 
-    def is_row_to_process(self, row: pd.Series) -> bool:
-        is_crack_present = pd.notna(row[RawFeatureName.CRACK.value])
+    def is_row_to_process(self, row: pd.Series, feature_name: str) -> bool:
+        is_crack_present = pd.notna(row[feature_name])
         return is_crack_present
 
     @staticmethod
@@ -115,13 +120,15 @@ class Preprocessor:
     def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], maintenances: list[dict],
                 consecutive_measures_only: bool = True) -> pd.DataFrame:
 
-        index_list = []
+        index_list_crack = []
+        index_list_pothole = []
         var_tel_lon = "longitude"
         var_tel_lat = "latitude"
         location_lon = location["longitude"]
         location_lat = location["latitude"]
+        streets_in_range = raw_dataset.apply(lambda row: self.is_road_in_range(location_lat, location_lon, row[var_tel_lat], row[var_tel_lon]), axis=1)
         raw_dataset = raw_dataset[
-            raw_dataset.apply(lambda row: self.is_road_in_range(location_lat, location_lon, row[var_tel_lat], row[var_tel_lon]), axis=1) |
+            streets_in_range |
             raw_dataset[RawFeatureName.CRACK.value].notna() |
             raw_dataset[RawFeatureName.POTHOLE.value].notna()
         ]
@@ -134,14 +141,21 @@ class Preprocessor:
         # Group by day and process each group
         grouped = raw_dataset.groupby(raw_dataset.index.date)
         for day, group in grouped:
-            non_null_indices = group[group[RawFeatureName.CRACK.value].notnull()].index
-            if RawFeatureName.CRACK.value in group and not non_null_indices.empty:
-                index_list.append(non_null_indices[0])
-                first_occurrence_index = non_null_indices[0]
+            non_null_indices_crack = group[group[RawFeatureName.CRACK.value].notnull()].index
+            non_null_indices_pothole = group[group[RawFeatureName.POTHOLE.value].notnull()].index
+            if RawFeatureName.CRACK.value in group and not non_null_indices_crack.empty:
+                index_list_crack.append(non_null_indices_crack[0])
+                first_occurrence_index = non_null_indices_crack[0]
                 mean_crack_severity = group[RawFeatureName.CRACK.value].mean()
                 raw_dataset.loc[group.index[0:], RawFeatureName.CRACK.value] = np.nan
-                raw_dataset.loc[group.index[0:], "modulation"] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.CRACK.value] = mean_crack_severity
+            if RawFeatureName.POTHOLE.value in group and not non_null_indices_pothole.empty:
+                index_list_pothole.append(non_null_indices_pothole[0])
+                first_occurrence_index = non_null_indices_pothole[0]
+                mean_crack_pothole = group[RawFeatureName.POTHOLE.value].mean()
+                raw_dataset.loc[group.index[0:], RawFeatureName.POTHOLE.value] = np.nan
+                raw_dataset.at[first_occurrence_index, RawFeatureName.POTHOLE.value] = mean_crack_pothole
+
         raw_dataset = raw_dataset.dropna(how='all')
         # Add maintenance info
         raw_dataset['maintenance'] = raw_dataset.apply(
@@ -150,43 +164,55 @@ class Preprocessor:
             ) else 0, axis=1
         )
 
-        return self.partition_and_process(raw_dataset, index_list, consecutive_measures_only=consecutive_measures_only)
+        return self.partition_and_process(raw_dataset, index_list_crack, index_list_pothole, consecutive_measures_only=consecutive_measures_only)
 
 
-    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list: list, consecutive_measures_only: bool = True) -> pd.DataFrame:
+    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list_crack: list, index_list_pothole: list, consecutive_measures_only: bool = True) -> pd.DataFrame:
 
-        rows = []
+        crack_rows = []
+        pothole_rows = []
 
-        for i in range(0, len(index_list) - 1):
-            index = index_list[i]
-            row = raw_dataset.loc[index]
-            if not self.is_row_to_process(row):
-                continue
-            # Set the first row, I look for another one
-            for j in range(i+1, i+2 if consecutive_measures_only else len(index_list)):
-                last_index = index_list[j]
-                last_row = raw_dataset.loc[last_index]
-                if last_row['maintenance'] == 1:
-                    break
-                if not self.is_row_to_process(last_row):
+        for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
+            for i in range(0, len(index_list) - 1):
+                index = index_list[i]
+                row = raw_dataset.loc[index]
+                if not self.is_row_to_process(row, feature_name):
                     continue
-                processed_row = self.process_single_row(raw_dataset.loc[index:last_index])
-                processed_row[FeatureName.CRACK_SEVERITY] = row[RawFeatureName.CRACK.value]
-                processed_row[FeatureName.TARGET] = last_row[RawFeatureName.CRACK.value]
-                rows.append(processed_row.iloc[0])
+                # Set the first row, I look for another one
+                for j in range(i+1, i+2 if consecutive_measures_only else len(index_list)):
+                    last_index = index_list[j]
+                    last_row = raw_dataset.loc[last_index]
+                    if last_row['maintenance'] == 1:
+                        break
+                    if not self.is_row_to_process(last_row, feature_name):
+                        continue
+                    processed_row = self.process_single_row(raw_dataset.loc[index:last_index])
+                    if feature_name == RawFeatureName.CRACK.value:
+                        processed_row[FeatureName.CRACK_SEVERITY] = row[RawFeatureName.CRACK.value]
+                        processed_row["crack_target"] = last_row[RawFeatureName.CRACK.value]
+                        crack_rows.append(processed_row.iloc[0])
+                    else:
+                        processed_row[FeatureName.POTHOLE_SEVERITY] = row[RawFeatureName.POTHOLE.value]
+                        processed_row["pothole_target"] = last_row[RawFeatureName.POTHOLE.value]
+                        pothole_rows.append(processed_row.iloc[0])
 
-        return pd.DataFrame(rows)
+        crack_df = pd.DataFrame(crack_rows)
+        poth_df = pd.DataFrame(pothole_rows)
+        return crack_df, poth_df
 
     def process_single_row(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
 
         dataset = pd.DataFrame(index=[0])
         weights = raw_dataset["modulation"]
-        weights = weights / weights.sum()
+        if weights.sum() == 0:
+            weights = np.ones_like(weights)
+        else:
+            weights = weights / weights.sum()
 
         dataset[FeatureName.TEMPERATURE_MEAN] = self.array_mean(raw_dataset[RawFeatureName.TEMPERATURE.value], weights)
         dataset[FeatureName.HUMIDITY_MEAN] = self.array_mean(raw_dataset[RawFeatureName.HUMIDITY.value], weights)
         dataset[FeatureName.DAYS] = self.get_days(raw_dataset.index)
-        dataset[FeatureName.SUBZERO_TEMPERATURE_MEAN] = self.subzero_temperature_mean(raw_dataset[RawFeatureName.TEMPERATURE.value])
+        dataset[FeatureName.SUBZERO_TEMPERATURE_MEAN] = self.subzero_temperature_mean(raw_dataset[RawFeatureName.TEMPERATURE.value], weights)
         dataset[FeatureName.RAINFALL_QUANTITY] = self.array_sum(raw_dataset[RawFeatureName.RAINFALL.value], weights)
 
         dataset[FeatureName.STORM_TOTAL] = self.get_storms(raw_dataset[RawFeatureName.RAINFALL.value])
@@ -203,7 +229,7 @@ class Preprocessor:
         dataset[FeatureName.TRANSIT_DURING_RAINFALL] = self.transit_during_rainfall(raw_dataset)
         dataset[FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL] = self.transit_heavy_during_rainfall(raw_dataset)
 
-        dataset[FeatureName.CRACK_SEVERITY] = self.array_mean(raw_dataset[RawFeatureName.CRACK.value], weights)
-        dataset[FeatureName.POTHOLE_SEVERITY] = self.array_sum(raw_dataset[RawFeatureName.POTHOLE.value], weights)
+        dataset[FeatureName.CRACK_SEVERITY] = self.array_mean(raw_dataset[RawFeatureName.CRACK.value], weights) if raw_dataset[RawFeatureName.CRACK.value].size > 0 else np.nan
+        dataset[FeatureName.POTHOLE_SEVERITY] = self.array_sum(raw_dataset[RawFeatureName.POTHOLE.value], weights) if raw_dataset[RawFeatureName.POTHOLE.value].size > 0 else np.nan
 
         return dataset

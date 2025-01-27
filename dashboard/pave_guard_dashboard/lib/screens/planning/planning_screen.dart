@@ -104,8 +104,9 @@ class _PlanningScreenState extends State<PlanningScreen> {
                           },
                           eventLoader: (day) {
                             if (planningData != null) {
-                              return planningData!.locations.map((loc) => loc.toString()).toList();
-                            } return [];
+                              return planningData!.getLocations(day).map((loc)=>loc.toString()).toList();
+                            }
+                            return [];
                             },
                             calendarBuilders: CalendarBuilders(
                             markerBuilder: (context, date, events) {
