@@ -4,7 +4,7 @@ from datetime import datetime, UTC
 import pymongo
 import joblib
 from sklearn.model_selection import train_test_split
-from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME
+from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME, RawFeatureName
 from pgmodel.dataset.database_middleware import DatabaseFetcher
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
@@ -85,12 +85,12 @@ class PaveGuardModel:
         self.__fit_crack_model(X, y_train_crack)
         self.__fit_pothole_model(X, y_train_pothole)
 
-        performances = {
+        self.performances = {
             "crack_model_performance": self.__eval_crack_model(X_test_crack, y_test_crack),
             "pothole_model_performance": self.__eval_crack_model(X_test_pothole, y_test_pothole),
         }
 
-        return performances
+        return self.performances
 
 
     def __fit_crack_model(self, X: pd.DataFrame, y: pd.Series):
@@ -145,9 +145,9 @@ if __name__ == '__main__':
 
     print(dataset)
 
-    X = dataset.drop(columns=["crack", "pothole"])
-    Y_crack = dataset["crack"]
-    Y_pothole = dataset["pothole"]
+    X = dataset.drop(columns=[RawFeatureName.CRACK.value, RawFeatureName.POTHOLE.value])
+    Y_crack = dataset[RawFeatureName.CRACK.value]
+    Y_pothole = dataset[RawFeatureName.POTHOLE.value]
 
     model.fit(X, Y_crack, Y_pothole)
 
