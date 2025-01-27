@@ -125,7 +125,7 @@ class Preprocessor:
             raw_dataset[RawFeatureName.CRACK.value].notna() |
             raw_dataset[RawFeatureName.POTHOLE.value].notna()
         ]
-        raw_dataset['modulation'] = raw_dataset.apply(
+        raw_dataset.loc[:, 'modulation'] = raw_dataset.apply(
             lambda row: max(0, 1 - np.sqrt(
             ((row[var_tel_lat] - location_lat) * 111320) ** 2 +
             ((row[var_tel_lon] - location_lon) * 40075000 * np.cos(np.radians(location_lat)) / 360) ** 2
@@ -179,7 +179,7 @@ class Preprocessor:
     def process_single_row(self, raw_dataset: pd.DataFrame) -> pd.DataFrame:
 
         dataset = pd.DataFrame(index=[0])
-        weights = raw_dataset["mutation"]
+        weights = raw_dataset["modulation"]
 
         dataset[FeatureName.TEMPERATURE_MEAN] = self.array_mean(raw_dataset[RawFeatureName.TEMPERATURE.value], weights)
         dataset[FeatureName.HUMIDITY_MEAN] = self.array_mean(raw_dataset[RawFeatureName.HUMIDITY.value], weights)
