@@ -29,12 +29,6 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Ensure that the MenuAppController is ready before accessing the scaffoldKey
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // ignore: unused_local_variable
-      final MenuAppController menuAppController =
-          context.read<MenuAppController>();
-      // Any additional setup for MenuAppController, if necessary, can be done here
-    });
     return FutureBuilder<MeData>(
       future: getMeData(),
       builder: (context, snapshot) {

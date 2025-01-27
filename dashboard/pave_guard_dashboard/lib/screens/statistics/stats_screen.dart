@@ -190,7 +190,11 @@ Column getCharts(MapEntry<String, SeverityData?> sev_entry,
 }
 
 class StateHeader extends StatelessWidget {
+
+  final Widget slider;
+
   const StateHeader({
+    required this.slider,
     Key? key,
   }) : super(key: key);
 
@@ -220,32 +224,7 @@ class StateHeader extends StatelessWidget {
           ),
           SizedBox(width: lineChartWidth / 3),
           Row(
-            children: [
-              ChoiceChip(
-                label: Text("10"),
-                selected: false,
-                onSelected: (selected) {
-                  granularity = 10;
-                  didGranularityChange = true;
-                },
-              ),
-              ChoiceChip(
-                label: Text("20"),
-                selected: false,
-                onSelected: (selected) {
-                  granularity = 20;
-                  didGranularityChange = true;
-                },
-              ),
-              ChoiceChip(
-                label: Text("30"),
-                selected: false,
-                onSelected: (selected) {
-                  granularity = 30;
-                  didGranularityChange = true;
-                },
-              ),
-            ],
+            children: [slider],
           ),
         ],
       ),
@@ -271,7 +250,7 @@ class _StatsScreenState extends State<StatsScreen> {
   final Map<LocationData, SeverityData> streets_poth = {};
 
   void startGranularityChangeTimer() {
-    Timer.periodic(Duration(milliseconds: 250), (timer) {
+    Timer.periodic(Duration(minutes: 250), (timer) {
       if (didGranularityChange) {
         setState(() {
           didGranularityChange = false;
@@ -327,7 +306,18 @@ class _StatsScreenState extends State<StatsScreen> {
           children: [
             Header(data: widget.data, title: "Statistics"),
             SizedBox(height: defaultPadding),
-            StateHeader(),
+            StateHeader(slider: Slider(
+              value: granularity.toDouble(),
+              min: 1,
+              max: 30,
+              divisions: 29,
+              label: granularity.toString(),
+              onChanged: (double value) {
+                setState(() {
+                  granularity = value.toInt();
+                });
+              },
+            )),
             SizedBox(height: defaultPadding),
             Column(
               children: locations.where((loc) {
