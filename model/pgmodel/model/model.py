@@ -1,8 +1,10 @@
 import json
 import sys
 import os
+from typing import Dict
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 from datetime import datetime, UTC
 import joblib
 from sklearn.model_selection import train_test_split
@@ -11,9 +13,10 @@ from pgmodel.dataset.database_middleware import DatabaseFetcher
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
 from sklearn.base import BaseEstimator
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeRegressor
 import pandas as pd
-from sklearn.metrics import f1_score
+from sklearn.metrics import mean_squared_error
+from prophet import Prophet
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -64,33 +67,53 @@ def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     return db_total_crack, db_total_pothole
 
+def prophets_dataset():
+    dbfetcher = DatabaseFetcher()
+
+    static_guard_telemetries = dbfetcher.static_guard_telemetries_data()
+    locations, crack_telemetries, pothole_telemetries = dbfetcher.dynamic_guard_telemetries_data()
+
+    datasets = {}
+
+    for feature, df in static_guard_telemetries:
+
+        df = df[]
+
+        datasets[feature]
+
+
 
 class PaveGuardModel:
 
     models_info_file_name = "models_info.json"
     crack_model_file_name = "crack_model"
     pothole_model_file_name = "pothole_model"
+    prophet_model_base_file_name = "prophet_model_"
 
     def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator,
                  test_size: float = 0.25):
 
         self.crack_model = crack_model
         self.pothole_model = pothole_model
+        self.prophet_models: Dict[str, Prophet] = {}
         self.test_size = test_size
         self.performances = None
 
-    def train(self, X: pd.DataFrame, y_crack: pd.Series, y_pothole: pd.Series) -> dict:
+    def train(self, X_prophet: Dict[str, pd.DataFrame], X_crack: pd.DataFrame, y_crack: pd.Series, X_pothole: pd.DataFrame, y_pothole: pd.Series) -> dict:
 
-        X_train_crack, X_test_crack, y_train_crack, y_test_crack = train_test_split(X, y_crack,
-                                                            stratify=y_crack,
-                                                            test_size=self.test_size)
+        for feature, df in X_prophet:
+            prophet_model = Prophet()
 
-        X_train_pothole, X_test_pothole, y_train_pothole, y_test_pothole = train_test_split(X, y_crack,
-                                                                                    stratify=y_crack,
-                                                                                    test_size=self.test_size)
+            prophet_model.fit(df)
 
-        self.__fit_crack_model(X, y_train_crack)
-        self.__fit_pothole_model(X, y_train_pothole)
+            self.prophet_models[feature] = prophet_model
+
+        X_train_crack, X_test_crack, y_train_crack, y_test_crack = train_test_split(X_crack, y_crack, test_size=self.test_size)
+
+        X_train_pothole, X_test_pothole, y_train_pothole, y_test_pothole = train_test_split(X_pothole, y_pothole, test_size=self.test_size)
+
+        self.__fit_crack_model(X_train_crack, y_train_crack)
+        self.__fit_pothole_model(X_train_pothole, y_train_pothole)
 
         self.performances = {
             "crack_model_performance": self.__eval_crack_model(X_test_crack, y_test_crack),
@@ -109,12 +132,12 @@ class PaveGuardModel:
     def __eval_crack_model(self, X: pd.DataFrame, y: pd.Series) -> float:
         y_pred = self.crack_model.predict(X)
 
-        return f1_score(y, y_pred)
+        return mean_squared_error(y, y_pred)
 
     def __eval_pothole_model(self, X: pd.DataFrame, y: pd.Series) -> float:
         y_pred = self.pothole_model.predict(X)
 
-        return f1_score(y, y_pred)
+        return mean_squared_error(y, y_pred)
 
 
     def save_model_db(self, output_dir_path: str) -> str:
@@ -124,14 +147,23 @@ class PaveGuardModel:
         crack_model_output_file_path = os.path.join(output_dir_path, self.crack_model_file_name)
         pothole_model_output_file_path = os.path.join(output_dir_path, self.pothole_model_file_name)
 
+        prophet_models_path = {}
+        for feature, prophet_model in self.prophet_models:
+            file_path = os.path.join(output_dir_path, f"{self.prophet_model_base_file_name}{feature}")
+            prophet_models_path[feature] = file_path
+
+            joblib.dump(prophet_model, file_path)
+
+
         joblib.dump(self.crack_model, crack_model_output_file_path)
         joblib.dump(self.pothole_model, pothole_model_output_file_path)
 
         models_info = {
             "crack_model_path": crack_model_output_file_path,
             "pothole_model_path": pothole_model_output_file_path,
+            "prophet_models_paths": prophet_models_path,
             "performances": self.performances,
-            "updated_at": datetime.now(UTC)
+            "updated_at": str(datetime.now(UTC))
         }
 
         with open(models_info_output_file_path, "w") as info_file:
@@ -147,6 +179,9 @@ class PaveGuardModel:
             self.crack_model = joblib.load(models_info["crack_model_path"])
             self.pothole_model = joblib.load(models_info["pothole_model_path"])
 
+            for feature, path in models_info["prophet_models_paths"]:
+                self.prophet_models[feature] = joblib.load(path)
+
             return models_info["updated_at"]
 
 
@@ -155,20 +190,19 @@ class PaveGuardModel:
 if __name__ == '__main__':
 
     model = PaveGuardModel(
-        crack_model=RandomForestClassifier(),
-        pothole_model=RandomForestClassifier(),
+        crack_model=DecisionTreeRegressor(),
+        pothole_model=DecisionTreeRegressor(),
     )
 
-    crack_dataset, poth_dataset = final_dataset()
+    crack_dataset, pothole_dataset = final_dataset()
 
-    print(crack_dataset)
-
+    prophets_dataset = prophet_dataset()
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
-    X_poth = poth_dataset.drop(columns=[FeatureName.TARGET])
-    Y_crack = crack_dataset[FeatureName.TARGET]
-    Y_pothole = poth_dataset[FeatureName.TARGET]
+    X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET])
+    y_crack = crack_dataset[FeatureName.TARGET]
+    y_pothole = pothole_dataset[FeatureName.TARGET]
 
-    model.fit(X, Y_crack, Y_pothole)
+    model.train(prophets_dataset, X_crack, y_crack, X_pothole, y_pothole)
 
     output_path = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
     models_info_file_path = model.save_model_db(output_path)
