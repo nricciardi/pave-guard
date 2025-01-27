@@ -1,12 +1,17 @@
 import sys
 import os
+from datetime import datetime, UTC
+import pymongo
+import joblib
+from sklearn.model_selection import train_test_split
+from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME
 from pgmodel.dataset.database_middleware import DatabaseFetcher
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
-import pandas as pd
 from sklearn.base import BaseEstimator
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
+from sklearn.metrics import f1_score
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -57,17 +62,71 @@ def final_dataset() -> pd.DataFrame:
 
 class PaveGuardModel:
 
-    def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator):
+    def __init__(self, crack_model_name: str, crack_model: BaseEstimator, pothole_model_name: str, pothole_model: BaseEstimator,
+                 mongodb_endpoint: str = MONGODB_ENDPOINT, test_size: float = 0.25):
         self.crack_model = crack_model
         self.pothole_model = pothole_model
+        self.mongodb_endpoint = mongodb_endpoint
+        self.crack_model_name = crack_model_name
+        self.pothole_model_name = pothole_model_name
+        self.test_size = test_size
+        self.performances = None
 
-    def fit(self, X: pd.DataFrame, Y_crack: pd.Series, Y_pothole: pd.Series):
-        self.crack_model.fit(X, Y_crack)
-        self.pothole_model.fit(X, Y_pothole)
+    def train(self, X: pd.DataFrame, y_crack: pd.Series, y_pothole: pd.Series) -> dict:
+
+        X_train_crack, X_test_crack, y_train_crack, y_test_crack = train_test_split(X, y_crack,
+                                                            stratify=y_crack,
+                                                            test_size=self.test_size)
+
+        X_train_pothole, X_test_pothole, y_train_pothole, y_test_pothole = train_test_split(X, y_crack,
+                                                                                    stratify=y_crack,
+                                                                                    test_size=self.test_size)
+
+        self.__fit_crack_model(X, y_train_crack)
+        self.__fit_pothole_model(X, y_train_pothole)
+
+        performances = {
+            "crack_model_performance": self.__eval_crack_model(X_test_crack, y_test_crack),
+            "pothole_model_performance": self.__eval_crack_model(X_test_pothole, y_test_pothole),
+        }
+
+        return performances
+
+
+    def __fit_crack_model(self, X: pd.DataFrame, y: pd.Series):
+        self.crack_model.fit(X, y)
+
+    def __fit_pothole_model(self, X: pd.DataFrame, y: pd.Series):
+        self.pothole_model.fit(X, y)
+
+    def __eval_crack_model(self, X: pd.DataFrame, y: pd.Series) -> float:
+        y_pred = self.crack_model.predict(X)
+
+        return f1_score(y, y_pred)
+
+    def __eval_pothole_model(self, X: pd.DataFrame, y: pd.Series) -> float:
+        y_pred = self.pothole_model.predict(X)
+
+        return f1_score(y, y_pred)
 
 
 
 
+    def save_model_db(self):
+        client = pymongo.MongoClient(self.mongodb_endpoint)
+        db = client[DATABASE_NAME]
+        collection = db["model_weights"]
+
+        document = {
+            "crack_model_name": self.crack_model_name,
+            "pothole_model_name": self.pothole_model_name,
+            "crack_model_weights": joblib.dumps(self.crack_model),
+            "pothole_model_weights": joblib.dumps(self.pothole_model),
+            "updated_at": datetime.now(UTC)
+        }
+
+        collection.insert_one(document)
+        print("model saved")
 
 
 
@@ -76,11 +135,21 @@ class PaveGuardModel:
 if __name__ == '__main__':
 
     model = PaveGuardModel(
-        crack_model=DecisionTreeClassifier(),
-        pothole_model=DecisionTreeClassifier(),
+        crack_model_name="random_forest",
+        crack_model=RandomForestClassifier(),
+        pothole_model_name="random_forest",
+        pothole_model=RandomForestClassifier(),
     )
 
     dataset = final_dataset()
 
     print(dataset)
+
+    X = dataset.drop(columns=["crack", "pothole"])
+    Y_crack = dataset["crack"]
+    Y_pothole = dataset["pothole"]
+
+    model.fit(X, Y_crack, Y_pothole)
+
+    model.save_model_db()
 

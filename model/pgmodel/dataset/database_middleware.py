@@ -7,11 +7,8 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-from pgmodel.constants import RawFeatureName, DataframeKey
+from pgmodel.constants import RawFeatureName, DataframeKey, GRAPHQL_ENDPOINT
 from pgmodel.dataset.dataset_generator import DatasetGenerator
-from pgmodel.preprocess.preprocessor import Preprocessor
-
-GRAPHQL_ENDPOINT = "http://localhost:3000/graphql"
 
 
 class DatabaseFiller:
@@ -303,13 +300,16 @@ class DatabaseFetcher:
                     severity,
                     latitude,
                     longitude,
-                    timestamp
+                    timestamp,
+                    metadata {{
+                      deviceId
+                    }}
                 }}
             }}"""
 
             response = self.__request(crack_query)
 
-            cracks.append(pd.DataFrame.from_dict(response.json()["data"]["roadCrackTelemetries"]))
+            cracks.append(pd.json_normalize(response.json()["data"]["roadCrackTelemetries"], sep="_"))
 
             crack_query = f"""
                                 query {{
@@ -322,13 +322,16 @@ class DatabaseFetcher:
                                 severity,
                                 latitude,
                                 longitude,
-                                timestamp
+                                timestamp,
+                                metadata {{
+                                  deviceId
+                                }}
                             }}
                         }}"""
 
             response = self.__request(crack_query)
 
-            potholes.append(pd.DataFrame.from_dict(response.json()["data"]["roadPotholeTelemetries"]))
+            potholes.append(pd.json_normalize(response.json()["data"]["roadPotholeTelemetries"], sep="_"))
 
 
         return locations, cracks, potholes
@@ -446,4 +449,10 @@ def upload_telemetries():
 
 
 if __name__ == '__main__':
-    upload_telemetries()
+    # upload_telemetries()
+
+    dbfetcher = DatabaseFetcher()
+
+    _, _, t = dbfetcher.dynamic_guard_telemetries_data()
+
+    print(type(t[0]))

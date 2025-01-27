@@ -1,5 +1,11 @@
 from enum import Enum
 
+
+GRAPHQL_ENDPOINT = "http://localhost:3000/graphql"
+MONGODB_ENDPOINT = "mongodb://localhost:27017/"
+DATABASE_NAME = "paveguard"
+
+
 class DataframeKey(Enum):
     RAINFALL = "rainfall"
     TEMPERATURE = "temperature"
