@@ -1,7 +1,7 @@
+import json
 import sys
 import os
 from datetime import datetime, UTC
-import pymongo
 import joblib
 from sklearn.model_selection import train_test_split
 from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME, RawFeatureName
@@ -62,13 +62,15 @@ def final_dataset() -> pd.DataFrame:
 
 class PaveGuardModel:
 
-    def __init__(self, crack_model_name: str, crack_model: BaseEstimator, pothole_model_name: str, pothole_model: BaseEstimator,
-                 mongodb_endpoint: str = MONGODB_ENDPOINT, test_size: float = 0.25):
+    models_info_file_name = "models_info.json"
+    crack_model_file_name = "crack_model"
+    pothole_model_file_name = "pothole_model"
+
+    def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator,
+                 test_size: float = 0.25):
+
         self.crack_model = crack_model
         self.pothole_model = pothole_model
-        self.mongodb_endpoint = mongodb_endpoint
-        self.crack_model_name = crack_model_name
-        self.pothole_model_name = pothole_model_name
         self.test_size = test_size
         self.performances = None
 
@@ -110,24 +112,37 @@ class PaveGuardModel:
         return f1_score(y, y_pred)
 
 
+    def save_model_db(self, output_dir_path: str) -> str:
 
 
-    def save_model_db(self):
-        client = pymongo.MongoClient(self.mongodb_endpoint)
-        db = client[DATABASE_NAME]
-        collection = db["model_weights"]
+        models_info_output_file_path = os.path.join(output_dir_path, self.models_info_file_name)
+        crack_model_output_file_path = os.path.join(output_dir_path, self.crack_model_file_name)
+        pothole_model_output_file_path = os.path.join(output_dir_path, self.pothole_model_file_name)
 
-        document = {
-            "crack_model_name": self.crack_model_name,
-            "pothole_model_name": self.pothole_model_name,
-            "crack_model_weights": joblib.dumps(self.crack_model),
-            "pothole_model_weights": joblib.dumps(self.pothole_model),
+        joblib.dump(self.crack_model, crack_model_output_file_path)
+        joblib.dump(self.pothole_model, pothole_model_output_file_path)
+
+        models_info = {
+            "crack_model_path": crack_model_output_file_path,
+            "pothole_model_path": pothole_model_output_file_path,
+            "performances": self.performances,
             "updated_at": datetime.now(UTC)
         }
 
-        collection.insert_one(document)
-        print("model saved")
+        with open(models_info_output_file_path, "w") as info_file:
+            json.dump(models_info, info_file, indent=4)
 
+        return models_info_output_file_path
+
+    def restore_model(self, models_info_file_path: str) -> datetime.date:
+
+        with open(models_info_file_path, "r") as models_info_file:
+            models_info = json.load(models_info_file)
+
+            self.crack_model = joblib.load(models_info["crack_model_path"])
+            self.pothole_model = joblib.load(models_info["pothole_model_path"])
+
+            return models_info["updated_at"]
 
 
 
@@ -135,9 +150,7 @@ class PaveGuardModel:
 if __name__ == '__main__':
 
     model = PaveGuardModel(
-        crack_model_name="random_forest",
         crack_model=RandomForestClassifier(),
-        pothole_model_name="random_forest",
         pothole_model=RandomForestClassifier(),
     )
 
@@ -151,5 +164,10 @@ if __name__ == '__main__':
 
     model.fit(X, Y_crack, Y_pothole)
 
-    model.save_model_db()
+    output_path = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
+    models_info_file_path = model.save_model_db(output_path)
+
+    updated_at = model.restore_model(models_info_file_path)
+
+    print(updated_at)
 
