@@ -281,23 +281,6 @@ class SeverityCrackQueryManager extends SeverityQueryManager {
 
 }
 
-class PlanningData {
-  List<LocationData> locations;
-  List<DateTime> dates;
-  PlanningData(this.locations, this.dates);
-
-  List<LocationData> getLocations(DateTime day){
-    List<LocationData> result = [];
-    for(int i = 0; i < dates.length; i++){
-      if(dates[i].year == day.year && dates[i].month == day.month && dates[i].day == day.day){
-        result.add(locations[i]);
-      }
-    }
-    return result;
-  }
-
-}
-
 class SeverityPotholeQueryManager extends SeverityQueryManager {
 
   @override
@@ -338,10 +321,30 @@ class SeverityPotholeQueryManager extends SeverityQueryManager {
 
 }
 
+class PlanningData {
+  List<LocationData> locations;
+  List<DateTime> dates;
+  List<String> ids;
+  List<String> descriptions;
+  PlanningData(this.locations, this.dates, this.ids, this.descriptions);
+
+  List<LocationData> getLocations(DateTime day){
+    List<LocationData> result = [];
+    for(int i = 0; i < dates.length; i++){
+      if(dates[i].year == day.year && dates[i].month == day.month && dates[i].day == day.day){
+        result.add(locations[i]);
+      }
+    }
+    return result;
+  }
+
+}
+
 class PlanningQueryManager extends QueryAbstractManager {
 
   @override
   bool checkData(data, {String token = ""}) {
+    if(data !is LocationData) return false;
     return token != "";
   }
 
@@ -362,7 +365,8 @@ class PlanningQueryManager extends QueryAbstractManager {
                   city,
                   county,
                   state,
-                  date
+                  date,
+                  id
                 }
               }""";
   }
@@ -370,12 +374,59 @@ class PlanningQueryManager extends QueryAbstractManager {
   PlanningData getPlanningData(QueryResult queryResult){
     List<LocationData> locations = [];
     List<DateTime> dates = [];
+    List<String> descriptions = [];
+    List<String> ids = [];
     List<dynamic> data = queryResult.data!["planningCalendar"];
     for(var planning in data){
       locations.add(LocationData(road: planning["road"], city: planning["city"], county: planning["county"], state: planning["state"]));
       dates.add(DateTime.parse(planning["date"]));
+      descriptions.add(planning["description"]);
+      ids.add(planning["id"]);
     }
-    return PlanningData(locations, dates);
-  } 
+    return PlanningData(locations, dates, ids, descriptions);
+  }
+
+}
+
+class AddPlanningData {
+  LocationData location;
+  DateTime date;
+  String description;
+  AddPlanningData(this.location, this.date, this.description);
+}
+
+class AddPlanningQueryManager extends QueryAbstractManager {
+
+  @override
+  bool checkData(data, {String token = ""}) {
+    if(data is! AddPlanningData) return false;
+    return token != "";
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try{
+      if(queryResult.data!["addPlanning"] == null){
+        return false;
+      } return true;
+    } catch(e) { return false; }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    LocationData location = data.location;
+    DateTime date = data.date;
+    String description = data.description;
+    return """query {
+                createPlanning(
+                  road: "${location.road}",
+                  city: "${location.city}",
+                  county: "${location.county}",
+                  state: "${location.state}",
+                  date: "$date",
+                  description: "$description"
+                )
+              }""";
+  }
 
 }

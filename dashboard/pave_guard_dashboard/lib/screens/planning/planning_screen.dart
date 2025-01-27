@@ -7,9 +7,6 @@ import 'package:flutter/material.dart';
 
 import '../../constants.dart';
 
-CalendarFormat _calendarFormat = CalendarFormat.month;
-DateTime _selectedDay = DateTime.now();
-
 class PlanningScreen extends StatefulWidget {
   final MeData data;
   final String token;
@@ -24,11 +21,84 @@ class _PlanningScreenState extends State<PlanningScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _selectedDay = DateTime.now();
   PlanningData? planningData;
+  List<LocationData>? locations = [];
 
   @override
   void initState() {
     super.initState();
     _fetchPlanningData();
+    _fetchLocations();
+  }
+
+  void _showDialog(BuildContext context, DateTime selectedDay) {
+    LocationData selectedOption = locations![0];
+    final TextEditingController textController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select and Enter Details'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<LocationData>(
+                decoration: InputDecoration(
+                  labelText: 'Select the Location',
+                  border: OutlineInputBorder(),
+                ),
+                items: locations!
+                    .map((LocationData option) => DropdownMenuItem(
+                          value: option,
+                          child: Text(option.toString()),
+                        ))
+                    .toList(),
+                onChanged: (LocationData? newValue) {
+                  selectedOption = newValue!;
+                },
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: textController,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                print('Selected Option: $selectedOption');
+                print('Entered Text: ${textController.text}');
+                AddPlanningQueryManager addPlanningQueryManager = AddPlanningQueryManager();
+                AddPlanningData toSend = AddPlanningData(selectedOption, selectedDay, textController.text);
+                addPlanningQueryManager.sendQuery(toSend, token: widget.token).then((_){
+                  planningData = null;
+                  _fetchPlanningData();
+                }
+                );
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _fetchLocations() async {
+    QueryLocationManager locationQueryManager = QueryLocationManager();
+    QueryResult result = await locationQueryManager.sendQuery("", token: widget.token);
+    locations = locationQueryManager.getLocationData(result);
+    setState(() {
+    });
   }
 
   void _fetchPlanningData() async {
@@ -41,7 +111,7 @@ class _PlanningScreenState extends State<PlanningScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (planningData == null) {
+    if (planningData == null || locations == null) {
       return Center(child: CircularProgressIndicator());
     }
     return SafeArea(
@@ -127,7 +197,9 @@ class _PlanningScreenState extends State<PlanningScreen> {
                         ),
                         SizedBox(height: defaultPadding * 3),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            _showDialog(context, _selectedDay);
+                          },
                           child: Text("Plan Maintenance"),
                           style: ElevatedButton.styleFrom(
                             shadowColor: Colors.purpleAccent,
