@@ -7,6 +7,12 @@ import 'package:flutter/material.dart';
 
 import '../../constants.dart';
 
+class CalendarData {
+  LocationData location;
+  bool done;
+  CalendarData(this.location, this.done);
+}
+
 class PlanningScreen extends StatefulWidget {
   final MeData data;
   final String token;
@@ -21,7 +27,7 @@ class _PlanningScreenState extends State<PlanningScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _selectedDay = DateTime.now();
   PlanningData? planningData;
-  List<LocationData>? locations = [];
+  List<LocationData>? locations;
 
   @override
   void initState() {
@@ -30,7 +36,7 @@ class _PlanningScreenState extends State<PlanningScreen> {
     _fetchLocations();
   }
 
-  void _showDialog(BuildContext context, DateTime selectedDay) {
+  void _showDialogAdd(BuildContext context, DateTime selectedDay) {
     LocationData selectedOption = locations![0];
     final TextEditingController textController = TextEditingController();
 
@@ -75,8 +81,6 @@ class _PlanningScreenState extends State<PlanningScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                print('Selected Option: $selectedOption');
-                print('Entered Text: ${textController.text}');
                 AddPlanningQueryManager addPlanningQueryManager = AddPlanningQueryManager();
                 AddPlanningData toSend = AddPlanningData(selectedOption, selectedDay, textController.text);
                 addPlanningQueryManager.sendQuery(toSend, token: widget.token).then((_){
@@ -88,6 +92,97 @@ class _PlanningScreenState extends State<PlanningScreen> {
               child: Text('Submit'),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showEditDialog(BuildContext context, DateTime selectedDay) {
+    LocationData? selectedOption;
+    final TextEditingController textController = TextEditingController();
+    bool showExtraFields = false;
+    bool isChecked = false;
+    PlanningData dayPlanningData = this.planningData!.getPlanning(selectedDay);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text('Edit Maintenance'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<LocationData>(
+                    decoration: InputDecoration(
+                      labelText: 'Select the Maintenance',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: dayPlanningData.locations
+                        .map((LocationData option) => DropdownMenuItem(
+                              value: option,
+                              child: Text(option.toString()),
+                            ))
+                        .toList(),
+                    onChanged: (LocationData? newValue) {
+                      setState(() {
+                        selectedOption = newValue;
+                        showExtraFields = (newValue != null);
+                        if(showExtraFields){
+                          int index = dayPlanningData.locations.indexOf(newValue!);
+                          isChecked =  dayPlanningData.dones[index];
+                          textController.text = dayPlanningData.descriptions[index];
+                        }
+                      });
+                    },
+                  ),
+                  if (showExtraFields) ...[
+                    SizedBox(height: 16),
+                    CheckboxListTile(
+                      title: Text('Done?'),
+                      value: isChecked,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isChecked = value ?? false;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: textController,
+                      decoration: InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    if(selectedOption == null) return;
+                    EditPlanningQueryManager editPlanningQueryManager = EditPlanningQueryManager();
+                    int index = dayPlanningData.locations.indexOf(selectedOption!);
+                    String id = dayPlanningData.ids[index];
+                    EditPlanningData toSend = EditPlanningData(id, textController.text, isChecked);
+                    editPlanningQueryManager.sendQuery(toSend, token: widget.token).then((_){
+                        planningData = null;
+                        _fetchPlanningData();
+                      }
+                    );
+                  },
+                  child: Text('Update'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -174,19 +269,25 @@ class _PlanningScreenState extends State<PlanningScreen> {
                           },
                           eventLoader: (day) {
                             if (planningData != null) {
-                              return planningData!.getLocations(day).map((loc)=>loc.toString()).toList();
+                              PlanningData dayData = planningData!.getPlanning(day);
+                              List<CalendarData> calendarData = [];
+                              for (int i = 0; i < dayData.locations.length; i++) {
+                                calendarData.add(CalendarData(dayData.locations[i], dayData.dones[i]));
+                              }
+                              return calendarData;
                             }
                             return [];
                             },
                             calendarBuilders: CalendarBuilders(
                             markerBuilder: (context, date, events) {
                               if (events.isNotEmpty) {
+                                CalendarData calendarData = events[0] as CalendarData;
                               return Container(
                                 width: 7,
                                 height: 7,
                                 margin: const EdgeInsets.symmetric(horizontal: 1.5),
                                 decoration: BoxDecoration(
-                                color: Colors.red,
+                                color: calendarData.done ? Colors.green : Colors.red,
                                 shape: BoxShape.circle,
                                 ),
                               );
@@ -198,7 +299,7 @@ class _PlanningScreenState extends State<PlanningScreen> {
                         SizedBox(height: defaultPadding * 3),
                         ElevatedButton(
                           onPressed: () {
-                            _showDialog(context, _selectedDay);
+                            _showDialogAdd(context, _selectedDay);
                           },
                           child: Text("Plan Maintenance"),
                           style: ElevatedButton.styleFrom(
@@ -213,8 +314,10 @@ class _PlanningScreenState extends State<PlanningScreen> {
                         ),
                         SizedBox(height: defaultPadding * 2),
                         ElevatedButton(
-                          onPressed: () {},
-                          child: Text("Delete Maintenance"),
+                          onPressed: () {
+                            _showEditDialog(context, _selectedDay);
+                          },
+                          child: Text("Edit Maintenance"),
                           style: ElevatedButton.styleFrom(
                             shadowColor: Colors.purpleAccent,
                             padding: EdgeInsets.symmetric(
