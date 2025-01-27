@@ -130,6 +130,7 @@ class Preprocessor:
             ((row[var_tel_lat] - location_lat) * 111320) ** 2 +
             ((row[var_tel_lon] - location_lon) * 40075000 * np.cos(np.radians(location_lat)) / 360) ** 2
             ) / M), axis=1)
+        raw_dataset = raw_dataset[raw_dataset["modulation"] != 0]
         # Group by day and process each group
         grouped = raw_dataset.groupby(raw_dataset.index.date)
         for day, group in grouped:
@@ -180,6 +181,7 @@ class Preprocessor:
 
         dataset = pd.DataFrame(index=[0])
         weights = raw_dataset["modulation"]
+        weights = weights / weights.sum()
 
         dataset[FeatureName.TEMPERATURE_MEAN] = self.array_mean(raw_dataset[RawFeatureName.TEMPERATURE.value], weights)
         dataset[FeatureName.HUMIDITY_MEAN] = self.array_mean(raw_dataset[RawFeatureName.HUMIDITY.value], weights)
