@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 import numpy as np
+from pandas import DatetimeIndex
 
 from pgmodel.constants import FeatureName, RawFeatureName
 
@@ -147,13 +148,15 @@ class Preprocessor:
                 index_list_crack.append(non_null_indices_crack[0])
                 first_occurrence_index = non_null_indices_crack[0]
                 mean_crack_severity = group[RawFeatureName.CRACK.value].mean()
-                raw_dataset.loc[group.index[0:], RawFeatureName.CRACK.value] = np.nan
+                to_add = group[group[RawFeatureName.CRACK.value].notna()].index
+                raw_dataset.loc[to_add] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.CRACK.value] = mean_crack_severity
             if RawFeatureName.POTHOLE.value in group and not non_null_indices_pothole.empty:
                 index_list_pothole.append(non_null_indices_pothole[0])
                 first_occurrence_index = non_null_indices_pothole[0]
                 mean_crack_pothole = group[RawFeatureName.POTHOLE.value].mean()
-                raw_dataset.loc[group.index[0:], RawFeatureName.POTHOLE.value] = np.nan
+                to_add = group[group[RawFeatureName.POTHOLE.value].notna()].index
+                raw_dataset.loc[to_add] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.POTHOLE.value] = mean_crack_pothole
 
         raw_dataset = raw_dataset.dropna(how='all')
@@ -189,11 +192,11 @@ class Preprocessor:
                     processed_row = self.process_single_row(raw_dataset.loc[index:last_index])
                     if feature_name == RawFeatureName.CRACK.value:
                         processed_row[FeatureName.CRACK_SEVERITY] = row[RawFeatureName.CRACK.value]
-                        processed_row["crack_target"] = last_row[RawFeatureName.CRACK.value]
+                        processed_row[FeatureName.TARGET] = last_row[RawFeatureName.CRACK.value]
                         crack_rows.append(processed_row.iloc[0])
                     else:
                         processed_row[FeatureName.POTHOLE_SEVERITY] = row[RawFeatureName.POTHOLE.value]
-                        processed_row["pothole_target"] = last_row[RawFeatureName.POTHOLE.value]
+                        processed_row[FeatureName.TARGET] = last_row[RawFeatureName.POTHOLE.value]
                         pothole_rows.append(processed_row.iloc[0])
 
         crack_df = pd.DataFrame(crack_rows)

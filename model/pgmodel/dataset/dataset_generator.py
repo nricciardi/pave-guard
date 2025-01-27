@@ -91,6 +91,9 @@ class DatasetGenerator:
             if "longitude_x" in result_df.columns:
                 result_df["longitude"] = result_df["longitude_x"].fillna(result_df["longitude_y"])
                 result_df = result_df.drop(columns=["longitude_x", "longitude_y"])
+            if "metadata_deviceId_x" in result_df.columns:
+                result_df["deviceId"] = result_df["metadata_deviceId_x"].fillna(result_df["metadata_deviceId_y"])
+                result_df = result_df.drop(columns=["metadata_deviceId_x", "metadata_deviceId_y"])
 
         # Rename columns to match RawFeatureName values
         rename_dict = {

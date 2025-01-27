@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 from datetime import datetime, UTC
 import joblib
 from sklearn.model_selection import train_test_split
-from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME, RawFeatureName
+from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME, RawFeatureName, FeatureName
 from pgmodel.dataset.database_middleware import DatabaseFetcher
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
@@ -161,11 +161,12 @@ if __name__ == '__main__':
 
     crack_dataset, poth_dataset = final_dataset()
 
-    print(dataset)
+    print(crack_dataset)
 
-    X = dataset.drop(columns=[RawFeatureName.CRACK.value, RawFeatureName.POTHOLE.value])
-    Y_crack = dataset[RawFeatureName.CRACK.value]
-    Y_pothole = dataset[RawFeatureName.POTHOLE.value]
+    X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
+    X_poth = poth_dataset.drop(columns=[FeatureName.TARGET])
+    Y_crack = crack_dataset[FeatureName.TARGET]
+    Y_pothole = poth_dataset[FeatureName.TARGET]
 
     model.fit(X, Y_crack, Y_pothole)
 
