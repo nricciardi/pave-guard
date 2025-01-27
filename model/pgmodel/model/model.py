@@ -1,14 +1,19 @@
+import json
 import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from datetime import datetime, UTC
+import joblib
+from sklearn.model_selection import train_test_split
+from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME, RawFeatureName
 from pgmodel.dataset.database_middleware import DatabaseFetcher
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
-import pandas as pd
 from sklearn.base import BaseEstimator
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
+from sklearn.metrics import f1_score
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -62,18 +67,87 @@ def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 class PaveGuardModel:
 
-    def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator):
+    models_info_file_name = "models_info.json"
+    crack_model_file_name = "crack_model"
+    pothole_model_file_name = "pothole_model"
+
+    def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator,
+                 test_size: float = 0.25):
+
         self.crack_model = crack_model
         self.pothole_model = pothole_model
+        self.test_size = test_size
+        self.performances = None
 
-    def fit(self, X: pd.DataFrame, Y_crack: pd.Series, Y_pothole: pd.Series):
-        self.crack_model.fit(X, Y_crack)
-        self.pothole_model.fit(X, Y_pothole)
+    def train(self, X: pd.DataFrame, y_crack: pd.Series, y_pothole: pd.Series) -> dict:
+
+        X_train_crack, X_test_crack, y_train_crack, y_test_crack = train_test_split(X, y_crack,
+                                                            stratify=y_crack,
+                                                            test_size=self.test_size)
+
+        X_train_pothole, X_test_pothole, y_train_pothole, y_test_pothole = train_test_split(X, y_crack,
+                                                                                    stratify=y_crack,
+                                                                                    test_size=self.test_size)
+
+        self.__fit_crack_model(X, y_train_crack)
+        self.__fit_pothole_model(X, y_train_pothole)
+
+        self.performances = {
+            "crack_model_performance": self.__eval_crack_model(X_test_crack, y_test_crack),
+            "pothole_model_performance": self.__eval_crack_model(X_test_pothole, y_test_pothole),
+        }
+
+        return self.performances
 
 
+    def __fit_crack_model(self, X: pd.DataFrame, y: pd.Series):
+        self.crack_model.fit(X, y)
+
+    def __fit_pothole_model(self, X: pd.DataFrame, y: pd.Series):
+        self.pothole_model.fit(X, y)
+
+    def __eval_crack_model(self, X: pd.DataFrame, y: pd.Series) -> float:
+        y_pred = self.crack_model.predict(X)
+
+        return f1_score(y, y_pred)
+
+    def __eval_pothole_model(self, X: pd.DataFrame, y: pd.Series) -> float:
+        y_pred = self.pothole_model.predict(X)
+
+        return f1_score(y, y_pred)
 
 
+    def save_model_db(self, output_dir_path: str) -> str:
 
+
+        models_info_output_file_path = os.path.join(output_dir_path, self.models_info_file_name)
+        crack_model_output_file_path = os.path.join(output_dir_path, self.crack_model_file_name)
+        pothole_model_output_file_path = os.path.join(output_dir_path, self.pothole_model_file_name)
+
+        joblib.dump(self.crack_model, crack_model_output_file_path)
+        joblib.dump(self.pothole_model, pothole_model_output_file_path)
+
+        models_info = {
+            "crack_model_path": crack_model_output_file_path,
+            "pothole_model_path": pothole_model_output_file_path,
+            "performances": self.performances,
+            "updated_at": datetime.now(UTC)
+        }
+
+        with open(models_info_output_file_path, "w") as info_file:
+            json.dump(models_info, info_file, indent=4)
+
+        return models_info_output_file_path
+
+    def restore_model(self, models_info_file_path: str) -> datetime.date:
+
+        with open(models_info_file_path, "r") as models_info_file:
+            models_info = json.load(models_info_file)
+
+            self.crack_model = joblib.load(models_info["crack_model_path"])
+            self.pothole_model = joblib.load(models_info["pothole_model_path"])
+
+            return models_info["updated_at"]
 
 
 
@@ -81,11 +155,24 @@ class PaveGuardModel:
 if __name__ == '__main__':
 
     model = PaveGuardModel(
-        crack_model=DecisionTreeClassifier(),
-        pothole_model=DecisionTreeClassifier(),
+        crack_model=RandomForestClassifier(),
+        pothole_model=RandomForestClassifier(),
     )
 
     crack_dataset, poth_dataset = final_dataset()
 
     print(dataset)
+
+    X = dataset.drop(columns=[RawFeatureName.CRACK.value, RawFeatureName.POTHOLE.value])
+    Y_crack = dataset[RawFeatureName.CRACK.value]
+    Y_pothole = dataset[RawFeatureName.POTHOLE.value]
+
+    model.fit(X, Y_crack, Y_pothole)
+
+    output_path = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
+    models_info_file_path = model.save_model_db(output_path)
+
+    updated_at = model.restore_model(models_info_file_path)
+
+    print(updated_at)
 
