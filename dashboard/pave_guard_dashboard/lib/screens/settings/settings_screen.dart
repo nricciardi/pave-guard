@@ -21,7 +21,34 @@ class SettingsScreen extends StatelessWidget {
           children: [
             Header(data: data, title: "Settings"),
             SizedBox(height: defaultPadding),
-            Center(),
+            ListTile(
+              leading: Icon(Icons.person, size: 30),
+              title: Text('Account', style: TextStyle(fontSize: 18)),
+              onTap: () {
+              // Handle account settings tap
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.notifications, size: 30),
+              title: Text('Notifications', style: TextStyle(fontSize: 18)),
+              onTap: () {
+              // Handle notifications settings tap
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.lock, size: 30),
+              title: Text('Privacy', style: TextStyle(fontSize: 18)),
+              onTap: () {
+              // Handle privacy settings tap
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.help, size: 30),
+              title: Text('Help & Support', style: TextStyle(fontSize: 18)),
+              onTap: () {
+              // Handle help & support settings tap
+              },
+            ),
             SizedBox(height: defaultPadding),
         ]),
       ),

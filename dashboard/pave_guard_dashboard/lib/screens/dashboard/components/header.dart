@@ -12,12 +12,14 @@ class Header extends StatelessWidget {
   final MeData data;
   final String title;
   final bool show_searchbar;
+  final void Function(String)? onSubmitted;
 
   const Header(
     {
       required this.data,
       required this.title,
       this.show_searchbar = true,
+      this.onSubmitted,
       Key? key,
   }) : super(key: key);
 
@@ -38,7 +40,7 @@ class Header extends StatelessWidget {
         if (!Responsive.isMobile(context))
           Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
         if(show_searchbar)
-          Expanded(child: SearchField()),
+          Expanded(child: SearchField(onSubmitted: onSubmitted)),
         ProfileCard(data.getFirstName(), data.getLastName()),
       ],
     );
@@ -106,13 +108,17 @@ class ProfileCard extends StatelessWidget {
 
 class SearchField extends StatelessWidget {
   final TextEditingController _controller = TextEditingController();
+  final void Function(String)? onSubmitted;
 
   SearchField({
+    this.onSubmitted,
     Key? key,
   }) : super(key: key);
 
-  void onTap(BuildContext context){
-    context.read<MenuAppController>().search(_controller.text);
+  void onTap(){
+    if(onSubmitted == null)
+      return;
+    onSubmitted!(_controller.text);
   }
 
   @override
@@ -120,7 +126,7 @@ class SearchField extends StatelessWidget {
     return TextField(
       controller: _controller,
       onSubmitted: (value) {
-        onTap(context);
+        onTap();
       },
       decoration: InputDecoration(
         hintText: "Search",
@@ -132,7 +138,7 @@ class SearchField extends StatelessWidget {
         ),
         suffixIcon: InkWell(
           onTap: () {
-            onTap(context);
+            onTap();
           },
           child: Container(
             padding: EdgeInsets.all(defaultPadding * 0.75),

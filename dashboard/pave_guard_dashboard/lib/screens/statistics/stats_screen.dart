@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:admin/constants.dart';
 import 'package:admin/controllers/query_manager.dart';
 import 'package:admin/screens/dashboard/components/header.dart';
@@ -8,7 +6,6 @@ import 'package:fl_chart/fl_chart.dart';
 
 const double lineChartWidth = 400;
 int granularity = 30;
-bool didGranularityChange = false;
 
 class SeverityData {
   final List<int> severities;
@@ -18,6 +15,7 @@ class SeverityData {
   SeverityData getRecentData(int days, {DateTime? currentDate}) {
     List<int> recentSeverities = [];
     List<DateTime> recentDates = [];
+    if(dates.isEmpty) return SeverityData(recentSeverities, recentDates);
     currentDate ??= dates.reduce((a, b) => a.isAfter(b) ? a : b);
 
     for (int i = 0; i < dates.length; i++) {
@@ -78,7 +76,6 @@ Widget getLineChart(MapEntry<String, SeverityData?> entry) {
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 1,
             getTitlesWidget: (value, meta) {
               return Padding(
                 padding: const EdgeInsets.only(top: 5.0),
@@ -235,9 +232,8 @@ class StateHeader extends StatelessWidget {
 class StatsScreen extends StatefulWidget {
   final MeData data;
   final String token;
-  final String searched_text;
 
-  StatsScreen(this.data, this.token, {required this.searched_text, Key? key})
+  StatsScreen(this.data, this.token, {Key? key})
       : super(key: key);
 
   @override
@@ -248,26 +244,19 @@ class _StatsScreenState extends State<StatsScreen> {
   final List<LocationData> locations = [];
   final Map<LocationData, SeverityData> streets_sev = {};
   final Map<LocationData, SeverityData> streets_poth = {};
-
-  void startGranularityChangeTimer() {
-    Timer.periodic(Duration(minutes: 250), (timer) {
-      if (didGranularityChange) {
-        setState(() {
-          didGranularityChange = false;
-        });
-      }
-    });
-  }
+  late final Header header;
+  String searched_text = "";
 
   @override
   void initState() {
     super.initState();
+
+    header = Header(data: widget.data, title: "Statistics", onSubmitted: (String search) => _onSearchSubmitted(search));
+
     QueryLocationManager queryManager = QueryLocationManager();
     SeverityCrackQueryManager sev_queryManager = SeverityCrackQueryManager();
     SeverityPotholeQueryManager poth_queryManager =
         SeverityPotholeQueryManager();
-
-    startGranularityChangeTimer();
 
     queryManager.sendQuery("", token: widget.token).then((qr) {
       locations.addAll(queryManager.getLocationData(qr));
@@ -291,6 +280,12 @@ class _StatsScreenState extends State<StatsScreen> {
     });
   }
 
+  void _onSearchSubmitted(String search){
+    setState(() {
+      searched_text = search;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (locations.isEmpty || streets_sev.isEmpty || streets_poth.isEmpty) {
@@ -304,7 +299,7 @@ class _StatsScreenState extends State<StatsScreen> {
         padding: EdgeInsets.all(defaultPadding),
         child: Column(
           children: [
-            Header(data: widget.data, title: "Statistics"),
+            header,
             SizedBox(height: defaultPadding),
             StateHeader(slider: Slider(
               value: granularity.toDouble(),
@@ -321,9 +316,9 @@ class _StatsScreenState extends State<StatsScreen> {
             SizedBox(height: defaultPadding),
             Column(
               children: locations.where((loc) {
-                return widget.searched_text == ""
+                return searched_text == ""
                     ? true
-                    : loc.contains(widget.searched_text.toLowerCase());
+                    : loc.contains(searched_text.toLowerCase());
               }).map((loc) {
                 return getCharts(MapEntry(loc.toString(), streets_sev[loc]?.getRecentData(granularity)),
                     MapEntry(loc.toString(), streets_poth[loc]?.getRecentData(granularity)));

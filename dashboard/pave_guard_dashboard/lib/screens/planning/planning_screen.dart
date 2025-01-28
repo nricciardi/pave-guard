@@ -297,37 +297,64 @@ class _PlanningScreenState extends State<PlanningScreen> {
                             ),
                         ),
                         SizedBox(height: defaultPadding * 3),
-                        ElevatedButton(
-                          onPressed: () {
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                          ElevatedButton(
+                            onPressed: () {
                             _showDialogAdd(context, _selectedDay);
-                          },
-                          child: Text("Plan Maintenance"),
-                          style: ElevatedButton.styleFrom(
+                            },
+                            child: Text("Plan Maintenance"),
+                            style: ElevatedButton.styleFrom(
                             shadowColor: Colors.purpleAccent,
                             padding: EdgeInsets.symmetric(
-                                horizontal: 50, vertical: 20),
+                              horizontal: 50, vertical: 20),
                             textStyle: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
+                            ),
                           ),
-                        ),
-                        SizedBox(height: defaultPadding * 2),
-                        ElevatedButton(
-                          onPressed: () {
+                          ElevatedButton(
+                            onPressed: () {
                             _showEditDialog(context, _selectedDay);
-                          },
-                          child: Text("Edit Maintenance"),
-                          style: ElevatedButton.styleFrom(
+                            },
+                            child: Text("Edit Maintenance"),
+                            style: ElevatedButton.styleFrom(
                             shadowColor: Colors.purpleAccent,
                             padding: EdgeInsets.symmetric(
-                                horizontal: 50, vertical: 20),
+                              horizontal: 50, vertical: 20),
                             textStyle: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
+                            ),
                           ),
+                          ],
                         ),
+                        SizedBox(height: defaultPadding * 1.5),
+                        if (planningData != null && !planningData!.getPlanning(_selectedDay).isEmpty()) ...[
+                          SizedBox(height: defaultPadding * 1.5),
+                          Text(
+                            "Planned Maintenances for ${_selectedDay.day}/${_selectedDay.month}/${_selectedDay.year}",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: defaultPadding),
+                          ...planningData!.getPlanning(_selectedDay).locations.map((location) {
+                            int index = planningData!.getPlanning(_selectedDay).locations.indexOf(location);
+                            return ListTile(
+                              title: Text(location.toString()),
+                              subtitle: Text(planningData!.getPlanning(_selectedDay).descriptions[index]),
+                              trailing: Icon(
+                                planningData!.getPlanning(_selectedDay).dones[index] ? Icons.check_circle : Icons.pending,
+                                color: planningData!.getPlanning(_selectedDay).dones[index] ? Colors.green : Colors.red,
+                              ),
+                            );
+                          }).toList(),
+                        ]
                       ],
                     ),
                   ),

@@ -57,13 +57,12 @@ class MainScreen extends StatelessWidget {
                     flex: 5,
                     child: Consumer<MenuAppController>(
                         builder: (context, menuAppController, child) {
-                          String searched_text = menuAppController.getSearch();
                       if (menuAppController.getScreen() ==
                           MenuState.dashboard) {
-                        return DashboardScreen(snapshot.requireData);
+                        return DashboardScreen(snapshot.requireData, token);
                       } else if (menuAppController.getScreen() ==
                           MenuState.statistics) {
-                        return StatsScreen(snapshot.requireData, token, searched_text: searched_text);
+                        return StatsScreen(snapshot.requireData, token);
                       } else if (menuAppController.getScreen() ==
                           MenuState.planning) {
                         return PlanningScreen(snapshot.requireData, token);
