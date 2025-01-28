@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:admin/constants.dart';
 import 'package:admin/controllers/query_manager.dart';
 import 'package:admin/screens/dashboard/components/header.dart';
@@ -8,7 +6,6 @@ import 'package:fl_chart/fl_chart.dart';
 
 const double lineChartWidth = 400;
 int granularity = 30;
-bool didGranularityChange = false;
 
 class SeverityData {
   final List<int> severities;
@@ -248,16 +245,6 @@ class _StatsScreenState extends State<StatsScreen> {
   final Map<LocationData, SeverityData> streets_sev = {};
   final Map<LocationData, SeverityData> streets_poth = {};
 
-  void startGranularityChangeTimer() {
-    Timer.periodic(Duration(minutes: 250), (timer) {
-      if (didGranularityChange) {
-        setState(() {
-          didGranularityChange = false;
-        });
-      }
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -265,8 +252,6 @@ class _StatsScreenState extends State<StatsScreen> {
     SeverityCrackQueryManager sev_queryManager = SeverityCrackQueryManager();
     SeverityPotholeQueryManager poth_queryManager =
         SeverityPotholeQueryManager();
-
-    startGranularityChangeTimer();
 
     queryManager.sendQuery("", token: widget.token).then((qr) {
       locations.addAll(queryManager.getLocationData(qr));
