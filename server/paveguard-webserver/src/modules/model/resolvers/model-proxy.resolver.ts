@@ -1,15 +1,19 @@
-import { Resolver } from "@nestjs/graphql";
+import { Query, Resolver } from "@nestjs/graphql";
+import { PredictionDto } from "../dto/prediction.dto";
+import { ModelService } from "../services/model/model.service";
+import { AdminGuard } from "src/modules/user/guards/admin/admin.guard";
+import { UseGuards } from "@nestjs/common";
 
 
-// @Resolver(() => TelemetryQuery)
-// export class ModelProxyResolver {
-//   constructor(
-//     private readonly telemetryService: TelemetryService,
-//   ) {}
+@Resolver(() => PredictionDto)
+export class ModelProxyResolver {
+  constructor(
+    private readonly modelService: ModelService,
+  ) {}
 
-//   @Query(() => [TelemetryQuery])
-//   @UseGuards(AdminGuard)
-//   async telemetries() {
-//     return this.telemetryService.findAll();
-//   }
-// }
+  @Query(() => [PredictionDto])
+  @UseGuards(AdminGuard)
+  async predictions() {
+    return this.modelService.predictions();
+  }
+}
