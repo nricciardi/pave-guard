@@ -55,7 +55,7 @@ def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
                             is_maintenance_for_road(maintenance, location)]
 
             telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
-            crack, pothole = Preprocessor().process(telemetries, location, maintenances)
+            crack, pothole = Preprocessor().process(telemetries, location, maintenances, to_generate=True)
             db_total_crack.append(crack)
             db_total_pothole.append(pothole)
 
