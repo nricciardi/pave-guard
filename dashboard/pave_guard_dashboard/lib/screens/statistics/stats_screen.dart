@@ -78,7 +78,6 @@ Widget getLineChart(MapEntry<String, SeverityData?> entry) {
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 1,
             getTitlesWidget: (value, meta) {
               return Padding(
                 padding: const EdgeInsets.only(top: 5.0),
