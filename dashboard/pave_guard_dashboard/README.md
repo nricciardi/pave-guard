@@ -125,3 +125,59 @@ The `StatsScreen` class is a stateful widget that represents the main statistics
 
 - **initState()**: Initializes the state, fetches location and severity data, and sets up the timer.
 - **build(BuildContext context)**: Builds the main statistics screen.
+
+## Planning Screen Documentation
+
+The `planning_screen.dart` file defines the `PlanningScreen` widget, which provides an interface for planning and managing maintenance tasks. This screen utilizes the `table_calendar` package to display a calendar and allows users to add and edit maintenance tasks.
+
+### CalendarData Class
+
+The `CalendarData` class holds the location data and the status of the maintenance task (done or not).
+
+#### Properties
+
+- **location**: An instance of `LocationData` representing the location of the maintenance task.
+- **done**: A boolean indicating whether the maintenance task is completed.
+
+#### Constructor
+
+- **CalendarData(this.location, this.done)**: Initializes the `CalendarData` with the given location and status.
+
+### PlanningScreen Class
+
+The `PlanningScreen` class is a stateful widget that represents the main planning screen. It fetches and displays maintenance tasks on a calendar.
+
+#### Properties
+
+- **data**: An instance of `MeData` containing user data.
+- **token**: A string representing the authentication token.
+
+#### Constructor
+
+- **PlanningScreen(this.data, this.token, {Key? key})**: Initializes the `PlanningScreen` with the given user data and token.
+
+#### Methods
+
+##### initState()
+
+Initializes the state, fetches location and planning data.
+
+##### _fetchLocations()
+
+Fetches the list of locations from the server using the `QueryLocationManager`.
+
+##### _fetchPlanningData()
+
+Fetches the planning data from the server using the `PlanningQueryManager`.
+
+##### _showDialogAdd(BuildContext context, DateTime selectedDay)
+
+Displays a dialog for adding a new maintenance task. The user can select a location and enter a description.
+
+##### _showEditDialog(BuildContext context, DateTime selectedDay)
+
+Displays a dialog for editing an existing maintenance task. The user can select a maintenance task, mark it as done, and update the description.
+
+##### build(BuildContext context)
+
+Builds the main planning screen, displaying a calendar and buttons for adding and editing maintenance tasks.
