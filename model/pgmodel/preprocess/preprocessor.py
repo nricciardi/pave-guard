@@ -117,6 +117,15 @@ class Preprocessor:
         lon_diff_meters = (road_lon - lon) * 40075000 * np.cos(np.radians(lat)) / 360
         distance = np.sqrt(lat_diff_meters ** 2 + lon_diff_meters ** 2)
         return distance <= M
+    
+    @staticmethod
+    # Supposed ids = {"id": {"latitude": float, "longitude": float}}
+    def get_ordered_ids(ids: dict[str, dict[str, float]], location_lat: float, location_lon: float) -> list[str]:
+        ids_in_range = {id_: coords for id_, coords in ids.items() if Preprocessor.is_road_in_range(coords["latitude"], coords["longitude"], location_lat, location_lon)}
+        return sorted(ids, key=lambda x: np.sqrt(
+            (ids[x]["latitude"] - location_lat) ** 2 +
+            (ids[x]["longitude"] - location_lon) ** 2
+        ))
 
     def process_to_predict(self, raw_dataset: pd.DataFrame, location_lat: float, location_lon: float) -> pd.DataFrame:
         location = {"longitude": location_lon, "latitude": location_lat}
