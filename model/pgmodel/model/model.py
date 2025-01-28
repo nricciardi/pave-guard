@@ -2,13 +2,14 @@ import json
 import sys
 import os
 from typing import Dict
+from pymongo import MongoClient
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from datetime import datetime, UTC
 import joblib
 from sklearn.model_selection import train_test_split
-from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME, RawFeatureName, FeatureName
+from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME, RawFeatureName, FeatureName, DataframeKey
 from pgmodel.dataset.database_middleware import DatabaseFetcher
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
@@ -67,19 +68,46 @@ def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     return db_total_crack, db_total_pothole
 
-def prophets_dataset():
+def build_prophets_datasets(location: dict):
     dbfetcher = DatabaseFetcher()
 
-    static_guard_telemetries = dbfetcher.static_guard_telemetries_data()
+    static_guard_telemetries = dbfetcher.static_guard_telemetries_data(location)
     locations, crack_telemetries, pothole_telemetries = dbfetcher.dynamic_guard_telemetries_data()
+
+    for index, loc in enumerate(locations):
+        if loc == location:
+            crack_telemetries = crack_telemetries[index]
+            pothole_telemetries = pothole_telemetries[index]
+            break
 
     datasets = {}
 
-    for feature, df in static_guard_telemetries:
+    datasets[RawFeatureName.TEMPERATURE.value] = static_guard_telemetries[DataframeKey.TEMPERATURE.value][["timestamp", "temperature"]]
+    datasets[RawFeatureName.TEMPERATURE.value] = datasets[RawFeatureName.TEMPERATURE.value].rename(columns={"timestamp": "ds", "temperature": "y"})
 
-        df = df[]
+    datasets[RawFeatureName.HUMIDITY.value] = static_guard_telemetries[DataframeKey.HUMIDITY.value][["timestamp", "humidity"]]
+    datasets[RawFeatureName.HUMIDITY.value] = datasets[RawFeatureName.HUMIDITY.value].rename(columns={"timestamp": "ds", "humidity": "y"})
 
-        datasets[feature]
+    datasets[RawFeatureName.RAINFALL.value] = static_guard_telemetries[DataframeKey.RAINFALL.value][["timestamp", "mm"]]
+    datasets[RawFeatureName.RAINFALL.value] = datasets[RawFeatureName.RAINFALL.value].rename(columns={"timestamp": "ds", "mm": "y"})
+
+    datasets[RawFeatureName.TRANSIT_TIME.value] = static_guard_telemetries[DataframeKey.TRANSIT.value][["timestamp", "transitTime"]]
+    datasets[RawFeatureName.TRANSIT_TIME.value] = datasets[RawFeatureName.TRANSIT_TIME.value].rename(columns={"timestamp": "ds", "transitTime": "y"})
+
+    datasets[RawFeatureName.TRANSIT_VELOCITY.value] = static_guard_telemetries[DataframeKey.TRANSIT.value][["timestamp", "velocity"]]
+    datasets[RawFeatureName.TRANSIT_VELOCITY.value] = datasets[RawFeatureName.TRANSIT_VELOCITY.value].rename(columns={"timestamp": "ds", "velocity": "y"})
+
+    datasets[RawFeatureName.TRANSIT_LENGTH.value] = static_guard_telemetries[DataframeKey.TRANSIT.value][["timestamp", "length"]]
+    datasets[RawFeatureName.TRANSIT_LENGTH.value] = datasets[RawFeatureName.TRANSIT_LENGTH.value].rename(columns={"timestamp": "ds", "length": "y"})
+
+    # datasets[RawFeatureName.CRACK.value] = crack_telemetries[["timestamp", "severity"]]
+    # datasets[RawFeatureName.CRACK.value] = datasets[RawFeatureName.CRACK.value].rename(columns={"timestamp": "ds", "severity": "y"})
+    #
+    # datasets[RawFeatureName.POTHOLE.value] = pothole_telemetries[["timestamp", "severity"]]
+    # datasets[RawFeatureName.POTHOLE.value] = datasets[RawFeatureName.POTHOLE.value].rename(columns={"timestamp": "ds", "severity": "y"})
+
+
+    return datasets
 
 
 
@@ -88,25 +116,17 @@ class PaveGuardModel:
     models_info_file_name = "models_info.json"
     crack_model_file_name = "crack_model"
     pothole_model_file_name = "pothole_model"
-    prophet_model_base_file_name = "prophet_model_"
 
     def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator,
-                 test_size: float = 0.25):
+                 test_size: float = 0.25, mongodb_endpoint: str = MONGODB_ENDPOINT):
 
+        self.mongodb_client = MongoClient(mongodb_endpoint)
         self.crack_model = crack_model
         self.pothole_model = pothole_model
-        self.prophet_models: Dict[str, Prophet] = {}
         self.test_size = test_size
         self.performances = None
 
-    def train(self, X_prophet: Dict[str, pd.DataFrame], X_crack: pd.DataFrame, y_crack: pd.Series, X_pothole: pd.DataFrame, y_pothole: pd.Series) -> dict:
-
-        for feature, df in X_prophet:
-            prophet_model = Prophet()
-
-            prophet_model.fit(df)
-
-            self.prophet_models[feature] = prophet_model
+    def train(self, X_crack: pd.DataFrame, y_crack: pd.Series, X_pothole: pd.DataFrame, y_pothole: pd.Series) -> dict:
 
         X_train_crack, X_test_crack, y_train_crack, y_test_crack = train_test_split(X_crack, y_crack, test_size=self.test_size)
 
@@ -121,6 +141,45 @@ class PaveGuardModel:
         }
 
         return self.performances
+
+    def predict(self, location: dict):       # TODO: county can be None
+
+        prophets_datasets = build_prophets_datasets(location)
+
+        prophets_predictions: Dict[str, pd.DataFrame] = {}
+
+        for feature, df in prophets_datasets.items():
+            df['ds'] = pd.to_datetime(df['ds']).dt.tz_localize(None)
+
+            prophet_model = Prophet()
+
+            prophet_model.fit(df)
+
+            future = prophet_model.make_future_dataframe(periods=365)
+
+            forecast = prophet_model.predict(future)
+
+            prophets_predictions[feature] = forecast
+
+        # TODO: prediction
+
+
+        final_crack_predictions = []
+        final_pothole_predictions = []
+
+        assert len(final_crack_predictions), 12
+        assert len(final_pothole_predictions), 12
+
+        db_collection  = self.mongodb_client[DATABASE_NAME].predictions
+
+        db_collection.replace_one(location, {
+            ""
+            **location
+        })
+
+
+
+
 
 
     def __fit_crack_model(self, X: pd.DataFrame, y: pd.Series):
@@ -147,21 +206,12 @@ class PaveGuardModel:
         crack_model_output_file_path = os.path.join(output_dir_path, self.crack_model_file_name)
         pothole_model_output_file_path = os.path.join(output_dir_path, self.pothole_model_file_name)
 
-        prophet_models_path = {}
-        for feature, prophet_model in self.prophet_models:
-            file_path = os.path.join(output_dir_path, f"{self.prophet_model_base_file_name}{feature}")
-            prophet_models_path[feature] = file_path
-
-            joblib.dump(prophet_model, file_path)
-
-
         joblib.dump(self.crack_model, crack_model_output_file_path)
         joblib.dump(self.pothole_model, pothole_model_output_file_path)
 
         models_info = {
             "crack_model_path": crack_model_output_file_path,
             "pothole_model_path": pothole_model_output_file_path,
-            "prophet_models_paths": prophet_models_path,
             "performances": self.performances,
             "updated_at": str(datetime.now(UTC))
         }
@@ -179,9 +229,6 @@ class PaveGuardModel:
             self.crack_model = joblib.load(models_info["crack_model_path"])
             self.pothole_model = joblib.load(models_info["pothole_model_path"])
 
-            for feature, path in models_info["prophet_models_paths"]:
-                self.prophet_models[feature] = joblib.load(path)
-
             return models_info["updated_at"]
 
 
@@ -196,18 +243,26 @@ if __name__ == '__main__':
 
     crack_dataset, pothole_dataset = final_dataset()
 
-    prophets_dataset = prophet_dataset()
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
     X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET])
     y_crack = crack_dataset[FeatureName.TARGET]
     y_pothole = pothole_dataset[FeatureName.TARGET]
 
-    model.train(prophets_dataset, X_crack, y_crack, X_pothole, y_pothole)
+    model.train(X_crack, y_crack, X_pothole, y_pothole)
 
     output_path = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
     models_info_file_path = model.save_model_db(output_path)
 
     updated_at = model.restore_model(models_info_file_path)
 
-    print(updated_at)
+    print("last updated:", updated_at)
 
+
+    pred = model.predict({
+        "road": "road",
+        "city": "city",
+        "county": "county",
+        "state": "state",
+    })
+
+    print(pred)

@@ -217,63 +217,73 @@ class DatabaseFetcher:
 
         return self.__request(query).json()["data"]["locations"]
 
-    def static_guard_telemetries_data(self) -> Dict[str, pd.DataFrame]:
+    def static_guard_telemetries_data(self, location: dict | None = None) -> Dict[str, pd.DataFrame]:
+
+        filters = ""
+        if location is not None:
+            filters = f"""
+                (
+                    road: "{location['road']}",
+                    city: "{location['city']}",
+                    county: "{location['county']}",
+                    state: "{location['state']}"
+                )"""
 
         data = {}
 
-        query = """
-        query {
-          temperatureTelemetries {
+        query = f"""
+        query {{
+          temperatureTelemetries{filters} {{
             temperature,
             latitude,
             longitude,
             timestamp
-          }
-        }
+          }}
+        }}
         """
 
         response = self.__request(query).json()
         data[DataframeKey.TEMPERATURE.value] = pd.DataFrame.from_dict(response["data"]["temperatureTelemetries"])
 
-        query = """
-                query {
-                  humidityTelemetries {
+        query = f"""
+                query {{
+                  humidityTelemetries{filters} {{
                     humidity,
                     latitude,
                     longitude,
                     timestamp
-                  }
-                }
+                  }}
+                }}
                 """
 
         response = self.__request(query).json()
         data[DataframeKey.HUMIDITY.value] = pd.DataFrame.from_dict(response["data"]["humidityTelemetries"])
 
-        query = """
-                query {
-                  rainTelemetries {
+        query = f"""
+                query {{
+                  rainTelemetries{filters} {{
                     mm,
                     latitude,
                     longitude,
                     timestamp
-                  }
-                }
+                  }}
+                }}
                 """
 
         response = self.__request(query).json()
         data[DataframeKey.RAINFALL.value] = pd.DataFrame.from_dict(response["data"]["rainTelemetries"])
 
-        query = """
-                query {
-                  transitTelemetries {
+        query = f"""
+                query {{
+                  transitTelemetries{filters} {{
                     velocity,
                     length,
                     transitTime,
                     latitude,
                     longitude,
                     timestamp
-                  }
-                }
+                  }}
+                }}
                 """
 
         response = self.__request(query).json()
@@ -413,10 +423,10 @@ class DatabaseFetcher:
 
 
 def upload_telemetries():
-    dbfiller = DatabaseFiller(max_telemetries_in_req=5)
+    dbfiller = DatabaseFiller(max_telemetries_in_req=15)
 
     n_days = 30
-    static_guards_ids = ["67975a6f6ca18c7a68c3a91d"]
+    static_guards_ids = ["679251aa95e18aed7f6219ed"]
 
     for device_id in static_guards_ids:
         dbfiller.upload_static_guard_data(
@@ -450,10 +460,4 @@ def upload_telemetries():
 
 
 if __name__ == '__main__':
-    # upload_telemetries()
-
-    dbfetcher = DatabaseFetcher()
-
-    _, _, t = dbfetcher.dynamic_guard_telemetries_data()
-
-    print(type(t[0]))
+    upload_telemetries()

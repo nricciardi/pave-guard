@@ -15,7 +15,7 @@ class DataframeKey(Enum):
     TRANSIT = "transit"
 
 class RawFeatureName(Enum):
-    RAINFALL = "rainfall"
+    RAINFALL = "mm"
     TEMPERATURE = "temperature"
     HUMIDITY = "humidity"
     CRACK = "crack"
