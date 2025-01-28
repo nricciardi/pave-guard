@@ -271,6 +271,9 @@ class SeverityCrackQueryManager extends SeverityQueryManager {
   SeverityData getSeverityData(QueryResult queryResult){
     List<int> severity = [];
     List<DateTime> timestamp = [];
+    if(!checkResults(queryResult)){
+      return SeverityData(severity, timestamp);
+    }
     List<dynamic> data = queryResult.data!["roadCrackTelemetries"];
     for(var telemetries in data){
       severity.add(telemetries["severity"]);
