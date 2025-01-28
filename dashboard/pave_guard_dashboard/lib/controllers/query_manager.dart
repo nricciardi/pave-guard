@@ -347,6 +347,10 @@ class PlanningData {
     return PlanningData(locations, dates, ids, descriptions, dones);
   }
 
+  bool isEmpty(){
+    return locations.isEmpty;
+  }
+
   List<LocationData> getLocations(DateTime day){
     List<LocationData> result = [];
     for(int i = 0; i < dates.length; i++){
