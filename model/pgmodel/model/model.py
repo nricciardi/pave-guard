@@ -72,13 +72,6 @@ def build_prophets_datasets(location: dict):
     dbfetcher = DatabaseFetcher()
 
     static_guard_telemetries = dbfetcher.static_guard_telemetries_data(location)
-    locations, crack_telemetries, pothole_telemetries = dbfetcher.dynamic_guard_telemetries_data()
-
-    for index, loc in enumerate(locations):
-        if loc == location:
-            crack_telemetries = crack_telemetries[index]
-            pothole_telemetries = pothole_telemetries[index]
-            break
 
     datasets = {}
 
@@ -100,13 +93,6 @@ def build_prophets_datasets(location: dict):
     datasets[RawFeatureName.TRANSIT_LENGTH.value] = static_guard_telemetries[DataframeKey.TRANSIT.value][["timestamp", "length"]]
     datasets[RawFeatureName.TRANSIT_LENGTH.value] = datasets[RawFeatureName.TRANSIT_LENGTH.value].rename(columns={"timestamp": "ds", "length": "y"})
 
-    # datasets[RawFeatureName.CRACK.value] = crack_telemetries[["timestamp", "severity"]]
-    # datasets[RawFeatureName.CRACK.value] = datasets[RawFeatureName.CRACK.value].rename(columns={"timestamp": "ds", "severity": "y"})
-    #
-    # datasets[RawFeatureName.POTHOLE.value] = pothole_telemetries[["timestamp", "severity"]]
-    # datasets[RawFeatureName.POTHOLE.value] = datasets[RawFeatureName.POTHOLE.value].rename(columns={"timestamp": "ds", "severity": "y"})
-
-
     return datasets
 
 
@@ -118,9 +104,8 @@ class PaveGuardModel:
     pothole_model_file_name = "pothole_model"
 
     def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator,
-                 test_size: float = 0.25, mongodb_endpoint: str = MONGODB_ENDPOINT):
+                 test_size: float = 0.25):
 
-        self.mongodb_client = MongoClient(mongodb_endpoint)
         self.crack_model = crack_model
         self.pothole_model = pothole_model
         self.test_size = test_size
@@ -142,7 +127,9 @@ class PaveGuardModel:
 
         return self.performances
 
-    def predict(self, location: dict):       # TODO: county can be None
+    def predict(self, location: dict, n_months: int = 12):       # TODO: county can be None
+
+        n_days = n_months * 30
 
         prophets_datasets = build_prophets_datasets(location)
 
@@ -155,7 +142,7 @@ class PaveGuardModel:
 
             prophet_model.fit(df)
 
-            future = prophet_model.make_future_dataframe(periods=365)
+            future = prophet_model.make_future_dataframe(periods=n_days)
 
             forecast = prophet_model.predict(future)
 
@@ -167,18 +154,10 @@ class PaveGuardModel:
         final_crack_predictions = []
         final_pothole_predictions = []
 
-        assert len(final_crack_predictions), 12
-        assert len(final_pothole_predictions), 12
+        assert len(final_crack_predictions), n_months
+        assert len(final_pothole_predictions), n_months
 
-        db_collection  = self.mongodb_client[DATABASE_NAME].predictions
-
-        db_collection.replace_one(location, {
-            ""
-            **location
-        })
-
-
-
+        return final_crack_predictions, final_pothole_predictions
 
 
 
@@ -234,12 +213,60 @@ class PaveGuardModel:
 
 
 
+def make_and_upload_daily_predictions(model: PaveGuardModel):
+    mongodb_client = MongoClient(MONGODB_ENDPOINT)
+
+    dbfetcher = DatabaseFetcher()
+
+    crack_telemetries = dbfetcher.crack_telemetries_by_date()
+    crack_telemetries = crack_telemetries.rename(columns={
+        "metadata_road": "road",
+        "metadata_city": "city",
+        "metadata_county": "county",
+        "metadata_state": "state",
+    })
+
+    pothole_telemetries = dbfetcher.pothole_telemetries_by_date()
+    pothole_telemetries = pothole_telemetries.rename(columns={
+        "metadata_road": "road",
+        "metadata_city": "city",
+        "metadata_county": "county",
+        "metadata_state": "state",
+    })
+
+    # TODO: may be empty
+
+    print(crack_telemetries.columns)
+    print(pothole_telemetries.columns)
+
+    crack_telemetries_aggregated_by_location = crack_telemetries.groupby(["road", "city", "county", "state"])["severity"].mean()
+    pothole_telemetries_aggregated_by_location = pothole_telemetries.groupby(["road", "city", "county", "state"])["severity"].mean()
+
+    # final_crack_predictions, final_pothole_predictions = model.predict(location)
+    #
+    # db_collection = mongodb_client[DATABASE_NAME].predictions
+    #
+    # db_collection.replace_one(location, {
+    #     "updatedAt": str(datetime.now(UTC)),
+    #     "crackSeverityPredictions": final_crack_predictions,
+    #     "potholeSeverityPredictions": final_pothole_predictions,
+    #     **location
+    # })
+
+    print(crack_telemetries_aggregated_by_location)
+
+
+
+
+
 if __name__ == '__main__':
 
     model = PaveGuardModel(
         crack_model=DecisionTreeRegressor(),
         pothole_model=DecisionTreeRegressor(),
     )
+
+    make_and_upload_daily_predictions(model)
 
     crack_dataset, pothole_dataset = final_dataset()
 
@@ -256,13 +283,3 @@ if __name__ == '__main__':
     updated_at = model.restore_model(models_info_file_path)
 
     print("last updated:", updated_at)
-
-
-    pred = model.predict({
-        "road": "road",
-        "city": "city",
-        "county": "county",
-        "state": "state",
-    })
-
-    print(pred)

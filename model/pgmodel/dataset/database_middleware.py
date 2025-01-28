@@ -362,10 +362,9 @@ class DatabaseFetcher:
         }
         """
 
-        res = self.__request(query).json()
-        return res["data"]["planningCalendar"]
+        return self.__request(query).json()["data"]["planningCalendar"]
 
-    def crack_telemetries_by_date(self, date = date.today()):
+    def crack_telemetries_by_date(self, date = date.today()) -> pd.DataFrame:
 
         query = f"""
          query {{
@@ -388,7 +387,7 @@ class DatabaseFetcher:
         }}
         """
 
-        return self.__request(query)["date"]["roadCrackTelemetries"]
+        return pd.json_normalize(self.__request(query).json()["data"]["roadCrackTelemetries"], sep="_")
 
     def pothole_telemetries_by_date(self, date=date.today()):
         query = f"""
@@ -412,7 +411,7 @@ class DatabaseFetcher:
         }}
         """
 
-        return self.__request(query)["date"]["roadPotholeTelemetries"]
+        return pd.json_normalize(self.__request(query).json()["data"]["roadPotholeTelemetries"], sep="_")
 
 
 
