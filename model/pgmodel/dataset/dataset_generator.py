@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from typing import Dict
 import os
+import numpy as np
 import pandas as pd
 import sys
 
@@ -9,7 +10,7 @@ from pgmodel.dataset.generator.crack_generator import CrackGenerator
 from pgmodel.dataset.generator.generator import Generator
 from pgmodel.dataset.generator.seasonal_generator import SeasonalGenerator
 from pgmodel.dataset.generator.rainfall_generator import RainfallGenerator
-from pgmodel.constants import RawFeatureName, DataframeKey
+from pgmodel.constants import RawFeatureName, DataframeKey, M
 from pgmodel.dataset.generator.transit_generator import TransitGenerator
 
 
@@ -48,7 +49,7 @@ class DatasetGenerator:
         return dfs
 
     @classmethod
-    def generate_dynamic_guard_telemetries_data(cls, n_days=30, from_date=date.today()):
+    def generate_dynamic_guard_telemetries_data(cls, latitude: float = 42, longitude: float = 24, n_days=30, from_date=date.today()):
         to_date = date.today() + timedelta(days=n_days)
 
         generators = {}
@@ -59,6 +60,10 @@ class DatasetGenerator:
                                                                   var_name=RawFeatureName.POTHOLE.value)
 
         dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators)
+        M_coord = M / 111000
+        for df in dfs.values():
+            df["latitude"] = np.random.uniform(latitude - M_coord, latitude + M_coord, len(df))
+            df["longitude"] = np.random.uniform(longitude - M_coord, longitude + M_coord, len(df))
 
         return dfs
 

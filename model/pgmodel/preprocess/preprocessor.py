@@ -4,10 +4,7 @@ import pandas as pd
 import numpy as np
 from pandas import DatetimeIndex
 
-from pgmodel.constants import FeatureName, RawFeatureName
-
-# Meters hyperparameter
-M: float = 50 
+from pgmodel.constants import FeatureName, RawFeatureName, M
 
 class Preprocessor:
 

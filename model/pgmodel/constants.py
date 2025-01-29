@@ -48,5 +48,5 @@ class TargetName(Enum):
     POTHOLE_SEVERITY = "pothole_severity_target"
     CRACK_SEVERITY = "crack_severity_target"
     
-    
+M: float = 50
     
