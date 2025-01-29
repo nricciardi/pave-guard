@@ -112,20 +112,24 @@ class Preprocessor:
 
     @staticmethod
     def is_road_in_range(road_lat: float, road_lon: float, lat: float, lon: float) -> bool:
+        modulation = Preprocessor.compute_modulation(road_lat, road_lon, lat, lon)
+        return modulation > 0
+    
+    @staticmethod
+    def compute_modulation(road_lat: float, road_lon: float, lat: float, lon: float) -> float:
         # Degrees to meters
         lat_diff_meters = (road_lat - lat) * 111320
         lon_diff_meters = (road_lon - lon) * 40075000 * np.cos(np.radians(lat)) / 360
         distance = np.sqrt(lat_diff_meters ** 2 + lon_diff_meters ** 2)
-        return distance <= M
+        return max(0, 1 - distance / M)
     
     @staticmethod
     # Supposed ids = {"id": {"latitude": float, "longitude": float}}
-    def get_ordered_ids(ids: dict[str, dict[str, float]], location_lat: float, location_lon: float) -> list[str]:
-        ids_in_range = {id_: coords for id_, coords in ids.items() if Preprocessor.is_road_in_range(coords["latitude"], coords["longitude"], location_lat, location_lon)}
-        return sorted(ids, key=lambda x: np.sqrt(
-            (ids[x]["latitude"] - location_lat) ** 2 +
-            (ids[x]["longitude"] - location_lon) ** 2
-        ))
+    def get_modulated_ids(ids: dict[str, dict[str, float]], location_lat: float, location_lon: float) -> list[str]:
+        ids_to_ret = {
+            id: Preprocessor.compute_modulation(location_lat, location_lon, ids[id]["latitude"], ids[id]["longitude"])
+        }
+        return ids_to_ret
 
     def process_to_predict(self, raw_dataset: pd.DataFrame, location_lat: float, location_lon: float) -> pd.DataFrame:
         location = {"longitude": location_lon, "latitude": location_lat}
