@@ -221,17 +221,23 @@ class DatabaseFetcher:
 
         return self.__request(query).json()["data"]["locations"]
 
-    def static_guard_telemetries_data(self, location: dict | None = None) -> Dict[str, pd.DataFrame]:
+    def static_guard_telemetries_data(self, static_guard_id: str = None, road: str = None, city: str = None, county: str = None, state: str = None) -> Dict[str, pd.DataFrame]:
 
         filters = ""
-        if location is not None:
+        if road is not None and city is not None and county and state is not None:
             filters = f"""
                 (
-                    road: "{location['road']}",
-                    city: "{location['city']}",
-                    county: "{location['county']}",
-                    state: "{location['state']}"
+                    road: "{road}",
+                    city: "{city}",
+                    county: "{county}",
+                    state: "{state}"
                 )"""
+
+        if static_guard_id is not None:
+            filters = f"""
+                        (
+                            deviceId: "{static_guard_id}"
+                        )"""
 
         data = {}
 

@@ -68,10 +68,10 @@ def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     return db_total_crack, db_total_pothole
 
-def build_prophets_datasets(location: dict):
+def build_prophets_datasets(static_guard_id: str):
     dbfetcher = DatabaseFetcher()
 
-    static_guard_telemetries = dbfetcher.static_guard_telemetries_data(location)
+    static_guard_telemetries = dbfetcher.static_guard_telemetries_data(static_guard_id=static_guard_id)
 
     datasets = {}
 
@@ -96,6 +96,26 @@ def build_prophets_datasets(location: dict):
     return datasets
 
 
+def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modulated: Dict[str, float]) -> tuple[
+    pd.DataFrame, pd.DataFrame]:
+    telemetry_types = data[list(data.keys())[0]].keys()
+
+    for id in data.keys():
+        for telemetry_type in data[id].keys():
+            data[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]]
+            data[id][telemetry_type] = data[id][telemetry_type].rename(
+                columns={"yhat": telemetry_type, "ds": "timestamp"})
+            data[id][telemetry_type]["modulation"] = ids_modulated[id]
+
+    dfs = [
+        pd.concat([data[id][telemetry_type] for id in data.keys()]) for telemetry_type in telemetry_types
+    ]
+
+    df = DatasetGenerator.telemetries_to_dataframe(dfs)
+    single_row = Preprocessor().process_single_row(df)
+
+    return single_row, single_row
+
 
 class PaveGuardModel:
 
@@ -106,6 +126,7 @@ class PaveGuardModel:
     def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator,
                  test_size: float = 0.25):
 
+        self.prophet_predictions_cache: Dict[str, Dict[str, pd.DataFrame]] = {}
         self.crack_model = crack_model
         self.pothole_model = pothole_model
         self.test_size = test_size
@@ -127,26 +148,48 @@ class PaveGuardModel:
 
         return self.performances
 
-    def predict(self, location: dict, n_months: int = 12):       # TODO: county can be None
+    def _single_predict(self, road: str, city: str, county: str, state: str, latitude: float, longitude: float, crack: float, pothole: float, n_months: int = 12):
 
         n_days = n_months * 30
 
-        prophets_datasets = build_prophets_datasets(location)
+        dbfetcher = DatabaseFetcher()
 
-        prophets_predictions: Dict[str, pd.DataFrame] = {}
+        static_guards = dbfetcher.static_guards()
 
-        for feature, df in prophets_datasets.items():
-            df['ds'] = pd.to_datetime(df['ds']).dt.tz_localize(None)
+        modulations = Preprocessor.get_modulated_ids(static_guards, latitude, longitude)
 
-            prophet_model = Prophet()
+        for static_guard_id, modulation in modulations.items():
 
-            prophet_model.fit(df)
+            if static_guard_id in self.prophet_predictions_cache:
+                continue
 
-            future = prophet_model.make_future_dataframe(periods=n_days)
+            prophets_datasets = build_prophets_datasets(static_guard_id)
 
-            forecast = prophet_model.predict(future)
+            prophets_predictions: Dict[str, pd.DataFrame] = {}
 
-            prophets_predictions[feature] = forecast
+            for feature, df in prophets_datasets.items():
+                df['ds'] = pd.to_datetime(df['ds']).dt.tz_localize(None)
+
+                prophet_model = Prophet()
+
+                prophet_model.fit(df)
+
+                future = prophet_model.make_future_dataframe(periods=n_days)
+
+                forecast = prophet_model.predict(future)
+
+                prophets_predictions[feature] = forecast
+
+            self.prophet_predictions_cache[static_guard_id] = prophets_predictions
+
+
+        crack_features, pothole_features = process_whole_telemetries(self.prophet_predictions_cache, modulations)
+
+        print(crack_features)
+
+
+
+
 
         # TODO: prediction
 
@@ -159,6 +202,14 @@ class PaveGuardModel:
 
         return final_crack_predictions, final_pothole_predictions
 
+
+    def predict(self, data: pd.DataFrame):
+
+        self.prophet_predictions_cache = {}
+
+        for dynamic_guard_transit in data.to_dict(orient="records"):
+            prediction = self._single_predict(**dynamic_guard_transit)
+            print(prediction)
 
 
     def __fit_crack_model(self, X: pd.DataFrame, y: pd.Series):
@@ -211,24 +262,6 @@ class PaveGuardModel:
             return models_info["updated_at"]
 
 
-def process_whole_telemetries(data: dict[str, dict], ids_modulated: dict[str, float]) -> tuple(pd.Series, pd.Series):
-       
-    telemetry_types = data[list(data.keys())[0]].keys()
-       
-    for id in data.keys():
-        for telemetry_type in data[id].keys():
-            data[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]]
-            data[id][telemetry_type] = data[id][telemetry_type].rename(columns={"yhat": telemetry_type, "ds": "timestamp"})
-            data[id][telemetry_type]["modulation"] = ids_modulated[id]
-            
-    dfs = [
-        pd.concat([data[id][telemetry_type] for id in data.keys()]) for telemetry_type in telemetry_types
-    ]
-    
-    df = DatasetGenerator.telemetries_to_dataframe(dfs)
-    single_row = Preprocessor.process_single_row(df)
-    return (single_row, single_row)
-            
 
 
 def make_and_upload_daily_predictions(model: PaveGuardModel):
@@ -239,20 +272,55 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
     static_guards = dbfetcher.static_guards()
 
     crack_telemetries = dbfetcher.crack_telemetries_by_date()
-    crack_telemetries = crack_telemetries.rename(columns={
-        "metadata_road": "road",
-        "metadata_city": "city",
-        "metadata_county": "county",
-        "metadata_state": "state",
+
+    if crack_telemetries.empty:
+        crack_telemetries = pd.DataFrame(
+            columns=["road", "city", "county", "state", "severity", "latitude", "longitude"])
+    else:
+        crack_telemetries = crack_telemetries.drop(columns=["timestamp"]).rename(columns={
+            "metadata_road": "road",
+            "metadata_city": "city",
+            "metadata_county": "county",
+            "metadata_state": "state",
+            "severity": "crack"
+        })
+
+    pothole_telemetries = dbfetcher.pothole_telemetries_by_date()
+
+    if pothole_telemetries.empty:
+        pothole_telemetries = pd.DataFrame(
+            columns=["road", "city", "county", "state", "severity", "latitude", "longitude"])
+    else:
+        pothole_telemetries = pothole_telemetries.drop(columns=["timestamp"]).rename(columns={
+            "metadata_road": "road",
+            "metadata_city": "city",
+            "metadata_county": "county",
+            "metadata_state": "state",
+            "severity": "pothole"
+        })
+
+    crack_agg = crack_telemetries.groupby(['road', 'city', 'county', 'state'], as_index=False).agg({
+        'crack': 'mean',
+        'latitude': 'mean',
+        'longitude': 'mean'
     })
 
-    # pothole_telemetries = dbfetcher.pothole_telemetries_by_date()
-    # pothole_telemetries = pothole_telemetries.rename(columns={
-    #     "metadata_road": "road",
-    #     "metadata_city": "city",
-    #     "metadata_county": "county",
-    #     "metadata_state": "state",
-    # })
+    pothole_agg = pothole_telemetries.groupby(['road', 'city', 'county', 'state'], as_index=False).agg({
+        'pothole': 'mean',
+        'latitude': 'mean',
+        'longitude': 'mean'
+    })
+
+    data = pd.merge(crack_agg, pothole_agg, on=['road', 'city', 'county', 'state'], how='outer').fillna(0)
+
+    data['latitude'] = data[['latitude_x', 'latitude_y']].mean(axis=1)
+    data['longitude'] = data[['longitude_x', 'longitude_y']].mean(axis=1)
+
+    data = data.drop(columns=['latitude_x', 'latitude_y', 'longitude_x', 'longitude_y'])
+
+    model.predict(data)
+
+
 
     # TODO: may be empty
 
@@ -286,8 +354,6 @@ if __name__ == '__main__':
         pothole_model=DecisionTreeRegressor(),
     )
 
-    make_and_upload_daily_predictions(model)
-
     crack_dataset, pothole_dataset = final_dataset()
 
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
@@ -303,3 +369,5 @@ if __name__ == '__main__':
     updated_at = model.restore_model(models_info_file_path)
 
     print("last updated:", updated_at)
+
+    make_and_upload_daily_predictions(model)
