@@ -49,7 +49,7 @@ class DatasetGenerator:
         return dfs
 
     @classmethod
-    def generate_dynamic_guard_telemetries_data(cls, latitude: float = 42, longitude: float = 24, n_days=30, from_date=date.today()):
+    def generate_dynamic_guard_telemetries_data(cls, latitude: float, longitude: float, n_days=30, from_date=date.today()):
         to_date = date.today() + timedelta(days=n_days)
 
         generators = {}
