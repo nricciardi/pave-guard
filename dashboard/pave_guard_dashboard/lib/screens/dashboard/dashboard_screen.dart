@@ -241,12 +241,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Prediction(12, 80, 90),
       ],
       });
+      /*
+      PredictionQueryManager predictionQueryManager = PredictionQueryManager();
+      predictionQueryManager.sendQuery("", token: widget.token);
+      */
       predictions = Predictions({
         for (var entry in predictions!.predictions.entries)
         if (entry.key.contains(searched_text))
           entry.key: entry.value
       });
-    predictions = Predictions({
+      predictions = Predictions({
       for (var entry in predictions!.predictions.entries.toList()
       ..sort((a, b) => (b.value.fold(0, (sum, p) => sum + p.severity_crack + p.severity_pothole))
       .compareTo(a.value.fold(0, (sum, p) => sum + p.severity_crack + p.severity_pothole))))
