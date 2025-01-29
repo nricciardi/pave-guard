@@ -364,6 +364,24 @@ class DatabaseFetcher:
 
         return self.__request(query).json()["data"]["planningCalendar"]
 
+
+    def static_guards(self) -> List[Dict]:
+        query = """
+        query {
+          staticGuards {
+            id,
+            road,
+            city,
+            county,
+            state,
+            latitude,
+            longitude
+          }
+        }
+        """
+
+        return self.__request(query).json()["data"]["staticGuards"]
+
     def crack_telemetries_by_date(self, date = date.today()) -> pd.DataFrame:
 
         query = f"""
@@ -421,11 +439,8 @@ class DatabaseFetcher:
         return requests.post(self.graphql_endpoint, json={"query": query}, headers=headers)
 
 
-def upload_telemetries():
+def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[dict], n_days = 30):
     dbfiller = DatabaseFiller(max_telemetries_in_req=15)
-
-    n_days = 30
-    static_guards_ids = ["679251aa95e18aed7f6219ed"]
 
     for device_id in static_guards_ids:
         dbfiller.upload_static_guard_data(
@@ -433,17 +448,7 @@ def upload_telemetries():
             DatasetGenerator.generate_static_guard_telemetries_data(n_days)
         )
 
-    dynamic_guards = [
-        {
-            "device_id": "6795478c9d7d3a6e9a46ada3",
-            "road": "road",
-            "city": "city",
-            "county": "county",
-            "state": "state",
-            "latitude": 24,
-            "longitude": 42,
-        }
-    ]
+
 
     for dynamic_guard in dynamic_guards:
         dbfiller.upload_dynamic_guard_data(
@@ -459,4 +464,23 @@ def upload_telemetries():
 
 
 if __name__ == '__main__':
-    upload_telemetries()
+
+    static_guards_ids = ["679251aa95e18aed7f6219ed"]
+
+    dynamic_guards = [
+        {
+            "device_id": "6795478c9d7d3a6e9a46ada3",
+            "road": "road",
+            "city": "city",
+            "county": "county",
+            "state": "state",
+            "latitude": 24,
+            "longitude": 42,
+        }
+    ]
+
+    upload_telemetries(static_guards_ids, dynamic_guards)
+
+    # dbfetcher = DatabaseFetcher()
+    #
+    # print(dbfetcher.static_guards())

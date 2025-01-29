@@ -218,6 +218,8 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
     dbfetcher = DatabaseFetcher()
 
+    static_guards = dbfetcher.static_guards()
+
     crack_telemetries = dbfetcher.crack_telemetries_by_date()
     crack_telemetries = crack_telemetries.rename(columns={
         "metadata_road": "road",
@@ -226,21 +228,21 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
         "metadata_state": "state",
     })
 
-    pothole_telemetries = dbfetcher.pothole_telemetries_by_date()
-    pothole_telemetries = pothole_telemetries.rename(columns={
-        "metadata_road": "road",
-        "metadata_city": "city",
-        "metadata_county": "county",
-        "metadata_state": "state",
-    })
+    # pothole_telemetries = dbfetcher.pothole_telemetries_by_date()
+    # pothole_telemetries = pothole_telemetries.rename(columns={
+    #     "metadata_road": "road",
+    #     "metadata_city": "city",
+    #     "metadata_county": "county",
+    #     "metadata_state": "state",
+    # })
 
     # TODO: may be empty
 
-    print(crack_telemetries.columns)
-    print(pothole_telemetries.columns)
+    # print(crack_telemetries.columns)
+    # print(pothole_telemetries.columns)
 
-    crack_telemetries_aggregated_by_location = crack_telemetries.groupby(["road", "city", "county", "state"])["severity"].mean()
-    pothole_telemetries_aggregated_by_location = pothole_telemetries.groupby(["road", "city", "county", "state"])["severity"].mean()
+    # crack_telemetries_aggregated_by_location = crack_telemetries.groupby(["road", "city", "county", "state"])["severity"].mean()
+    # pothole_telemetries_aggregated_by_location = pothole_telemetries.groupby(["road", "city", "county", "state"])["severity"].mean()
 
     # final_crack_predictions, final_pothole_predictions = model.predict(location)
     #
@@ -253,7 +255,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
     #     **location
     # })
 
-    print(crack_telemetries_aggregated_by_location)
+    # print(crack_telemetries_aggregated_by_location)
 
 
 
