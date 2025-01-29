@@ -131,12 +131,7 @@ class Preprocessor:
         }
         return ids_to_ret
 
-    def process_to_predict(self, raw_dataset: pd.DataFrame, location_lat: float, location_lon: float) -> pd.DataFrame:
-        location = {"longitude": location_lon, "latitude": location_lat}
-        maintenances = [{}]
-        return self.process(raw_dataset, location, maintenances, to_generate=False)
-
-    def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], maintenances: list[dict], to_generate: bool,
+    def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], maintenances: list[dict],
                 consecutive_measures_only: bool = True) -> pd.DataFrame:
 
         index_list_crack = []
@@ -177,32 +172,13 @@ class Preprocessor:
             ) else 0, axis=1
         )
 
-        return self.partition_and_process(raw_dataset, index_list_crack, index_list_pothole, to_generate=to_generate, consecutive_measures_only=consecutive_measures_only)
+        return self.partition_and_process(raw_dataset, index_list_crack, index_list_pothole, consecutive_measures_only=consecutive_measures_only)
 
 
-    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list_crack: list, index_list_pothole: list, to_generate: bool = True, consecutive_measures_only: bool = True) -> pd.DataFrame:
+    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list_crack: list, index_list_pothole: list, consecutive_measures_only: bool = True) -> pd.DataFrame:
 
         crack_rows = []
-        pothole_rows = []
-        
-        if not to_generate:
-            index_c = index_list_crack[0]
-            last_index_c = index_list_crack[-1]
-            index_p = index_list_pothole[0]
-            last_index_p = index_list_pothole[-1]
-            
-            processed_row = self.process_single_row(raw_dataset.loc[index_c:last_index_c])
-            processed_row[FeatureName.CRACK_SEVERITY] = row[RawFeatureName.CRACK.value]
-            processed_row[FeatureName.TARGET] = last_row[RawFeatureName.CRACK.value]
-            crack_rows.append(processed_row.iloc[0])
-            
-            processed_row = self.process_single_row(raw_dataset.loc[index_p:last_index_p])
-            processed_row[FeatureName.POTHOLE_SEVERITY] = row[RawFeatureName.POTHOLE.value]
-            processed_row[FeatureName.TARGET] = last_row[RawFeatureName.POTHOLE.value]
-            pothole_rows.append(processed_row.iloc[0])
-
-            
-            
+        pothole_rows = []    
 
         for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
             for i in range(0, len(index_list) - 1):
@@ -261,7 +237,9 @@ class Preprocessor:
         dataset[FeatureName.TRANSIT_DURING_RAINFALL] = self.transit_during_rainfall(raw_dataset)
         dataset[FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL] = self.transit_heavy_during_rainfall(raw_dataset)
 
-        dataset[FeatureName.CRACK_SEVERITY] = self.array_mean(raw_dataset[RawFeatureName.CRACK.value], weights) if raw_dataset[RawFeatureName.CRACK.value].size > 0 else np.nan
-        dataset[FeatureName.POTHOLE_SEVERITY] = self.array_sum(raw_dataset[RawFeatureName.POTHOLE.value], weights) if raw_dataset[RawFeatureName.POTHOLE.value].size > 0 else np.nan
+        if RawFeatureName.CRACK.value in raw_dataset:
+            dataset[FeatureName.CRACK_SEVERITY] = self.array_mean(raw_dataset[RawFeatureName.CRACK.value], weights) if raw_dataset[RawFeatureName.CRACK.value].size > 0 else np.nan
+        if RawFeatureName.POTHOLE.value in raw_dataset:
+            dataset[FeatureName.POTHOLE_SEVERITY] = self.array_sum(raw_dataset[RawFeatureName.POTHOLE.value], weights) if raw_dataset[RawFeatureName.POTHOLE.value].size > 0 else np.nan
 
         return dataset

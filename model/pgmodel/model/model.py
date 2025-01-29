@@ -211,6 +211,24 @@ class PaveGuardModel:
             return models_info["updated_at"]
 
 
+def process_whole_telemetries(data: dict[str, dict], ids_modulated: dict[str, float]) -> tuple(pd.Series, pd.Series):
+       
+    telemetry_types = data[list(data.keys())[0]].keys()
+       
+    for id in data.keys():
+        for telemetry_type in data[id].keys():
+            data[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]]
+            data[id][telemetry_type] = data[id][telemetry_type].rename(columns={"yhat": telemetry_type, "ds": "timestamp"})
+            data[id][telemetry_type]["modulation"] = ids_modulated[id]
+            
+    dfs = [
+        pd.concat([data[id][telemetry_type] for id in data.keys()]) for telemetry_type in telemetry_types
+    ]
+    
+    df = DatasetGenerator.telemetries_to_dataframe(dfs)
+    single_row = Preprocessor.process_single_row(df)
+    return (single_row, single_row)
+            
 
 
 def make_and_upload_daily_predictions(model: PaveGuardModel):
