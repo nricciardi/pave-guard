@@ -145,17 +145,9 @@ class Preprocessor:
         var_tel_lat = "latitude"
         location_lon = location["longitude"]
         location_lat = location["latitude"]
-        streets_in_range = raw_dataset.apply(lambda row: self.is_road_in_range(location_lat, location_lon, row[var_tel_lat], row[var_tel_lon]), axis=1)
-        raw_dataset = raw_dataset[
-            streets_in_range |
-            raw_dataset[RawFeatureName.CRACK.value].notna() |
-            raw_dataset[RawFeatureName.POTHOLE.value].notna()
-        ]
         raw_dataset.loc[:, 'modulation'] = raw_dataset.apply(
-            lambda row: max(0, 1 - np.sqrt(
-            ((row[var_tel_lat] - location_lat) * 111320) ** 2 +
-            ((row[var_tel_lon] - location_lon) * 40075000 * np.cos(np.radians(location_lat)) / 360) ** 2
-            ) / M), axis=1)
+            lambda row: self.compute_modulation(location_lat, location_lon, row[var_tel_lat], row[var_tel_lon]), axis=1
+            )
         raw_dataset = raw_dataset[raw_dataset["modulation"] != 0]
         # Group by day and process each group
         grouped = raw_dataset.groupby(raw_dataset.index.date)
