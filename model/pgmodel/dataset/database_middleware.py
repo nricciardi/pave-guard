@@ -5,6 +5,8 @@ import sys
 from datetime import date
 import os
 
+from pgmodel.preprocess.preprocessor import Preprocessor
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from pgmodel.constants import RawFeatureName, DataframeKey, GRAPHQL_ENDPOINT
@@ -31,6 +33,8 @@ class DatabaseFiller:
     def upload_dynamic_guard_data(self, device_id: str, road: str, city: str, county: str | None, state: str, latitude: float,
                                   longitude: float, dataframes: Dict[str, pd.DataFrame]):
         mutations = []
+
+        # TODO: lat/long must change
 
         mutations.extend(self.build_crack_mutations(device_id, road, city, county, state, latitude, longitude, dataframes[DataframeKey.CRACK.value]))
         mutations.extend(self.build_pothole_mutations(device_id, road, city, county, state, latitude, longitude, dataframes[DataframeKey.POTHOLE.value]))
@@ -365,7 +369,7 @@ class DatabaseFetcher:
         return self.__request(query).json()["data"]["planningCalendar"]
 
 
-    def static_guards(self) -> List[Dict]:
+    def static_guards(self, as_dict: bool = True) -> List[Dict] | Dict:
         query = """
         query {
           staticGuards {
@@ -380,7 +384,17 @@ class DatabaseFetcher:
         }
         """
 
-        return self.__request(query).json()["data"]["staticGuards"]
+        data = self.__request(query).json()["data"]["staticGuards"]
+
+        if not as_dict:
+            return data
+
+        result = {}
+        for sg in data:
+            result[sg["id"]] = sg
+
+        return result
+
 
     def crack_telemetries_by_date(self, date = date.today()) -> pd.DataFrame:
 
@@ -479,8 +493,15 @@ if __name__ == '__main__':
         }
     ]
 
-    upload_telemetries(static_guards_ids, dynamic_guards)
+    # upload_telemetries(static_guards_ids, dynamic_guards)
 
-    # dbfetcher = DatabaseFetcher()
-    #
-    # print(dbfetcher.static_guards())
+    dbfetcher = DatabaseFetcher()
+
+    static_guards = dbfetcher.static_guards()
+
+    print(static_guards)
+
+    modulations = Preprocessor.get_modulated_ids(static_guards, 10, 10)
+
+    print(modulations)
+

@@ -125,10 +125,12 @@ class Preprocessor:
     
     @staticmethod
     # Supposed ids = {"id": {"latitude": float, "longitude": float}}
-    def get_modulated_ids(ids: dict[str, dict[str, float]], location_lat: float, location_lon: float) -> list[str]:
+    def get_modulated_ids(ids: dict[str, dict[str, float]], location_lat: float, location_lon: float) -> dict[str, float]:
         ids_to_ret = {
-            id: Preprocessor.compute_modulation(location_lat, location_lon, ids[id]["latitude"], ids[id]["longitude"])
+            static_guard_id: Preprocessor.compute_modulation(location_lat, location_lon, lat_long["latitude"], lat_long["longitude"])
+            for static_guard_id, lat_long in ids.items()
         }
+
         return ids_to_ret
 
     def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], maintenances: list[dict],
