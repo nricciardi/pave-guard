@@ -1,10 +1,10 @@
+import 'package:admin/screens/dashboard/dashboard_screen.dart';
 import 'package:admin/screens/statistics/stats_screen.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../data/env_manager.dart';
 
 class MeData {
-
   String firstName;
   String lastName;
   String createdAt;
@@ -13,28 +13,38 @@ class MeData {
 
   MeData(this.firstName, this.lastName, this.createdAt, this.email, this.id);
 
-  String getFirstName(){ return firstName; }
-  String getLastName(){ return lastName; }
-  String getCreatedAt(){ return createdAt; }
-  String getEmail(){ return email; }
-  String getId(){ return id; }
+  String getFirstName() {
+    return firstName;
+  }
 
+  String getLastName() {
+    return lastName;
+  }
+
+  String getCreatedAt() {
+    return createdAt;
+  }
+
+  String getEmail() {
+    return email;
+  }
+
+  String getId() {
+    return id;
+  }
 }
 
 abstract class QueryAbstractManager {
-
-  Future<QueryResult> sendQuery(data, {String token = ""}) async{
-
+  Future<QueryResult> sendQuery(data, {String token = ""}) async {
     final String query = getQuery(data, token: token);
     final String link = 'http://${EnvManager.getUrl()}:3000/graphql';
     final HttpLink httpLink;
-    
-    if(token == ""){
+
+    if (token == "") {
       httpLink = HttpLink(link);
     } else {
-      httpLink = HttpLink(link, defaultHeaders: Map.of(
-        {"Authorization": "Bearer $token"}
-      ));
+      httpLink = HttpLink(link,
+          defaultHeaders: Map.of({"Authorization": "Bearer $token"}));
     }
 
     final GraphQLClient client = GraphQLClient(
@@ -49,66 +59,56 @@ abstract class QueryAbstractManager {
     QueryResult result = await client.query(options);
 
     return result;
-
   }
 
-  String getQuery(data, {String token=""});
-  bool checkData(data, {String token=""});
+  String getQuery(data, {String token = ""});
+  bool checkData(data, {String token = ""});
   bool checkResults(QueryResult queryResult);
-
 }
 
-class LoginManager extends QueryAbstractManager{
-
+class LoginManager extends QueryAbstractManager {
   @override
-  bool checkData(data, {token=""}) {
-    
-    if(data is! LoginData){
+  bool checkData(data, {token = ""}) {
+    if (data is! LoginData) {
       return false;
     }
 
     return true;
-
   }
 
   @override
-  String getQuery(data, {token=""}) {
-    
+  String getQuery(data, {token = ""}) {
     return '''query {
         login(
         email: "${data.name}",
         password: "${data.password}",
       ) {token} }''';
-
   }
 
-  String getToken(QueryResult queryResult){
-
+  String getToken(QueryResult queryResult) {
     return queryResult.data!["login"]["token"];
-
   }
-  
+
   @override
   bool checkResults(QueryResult queryResult) {
-    try{
+    try {
       queryResult.data!["login"]["token"];
       return true;
-    } catch(e) { return false; }
+    } catch (e) {
+      return false;
+    }
   }
-
 }
 
 class MeQueryManager extends QueryAbstractManager {
-
   @override
-  bool checkData(data, {token=""}) {
+  bool checkData(data, {token = ""}) {
     return token != "";
   }
 
   @override
-  String getQuery(data, {token=""}) {
-    
-    if(!checkData(data, token: token)){
+  String getQuery(data, {token = ""}) {
+    if (!checkData(data, token: token)) {
       return "";
     }
 
@@ -119,28 +119,29 @@ class MeQueryManager extends QueryAbstractManager {
         email,
         id }
     }''';
-
   }
 
   @override
-  bool checkResults(QueryResult queryResult){
-
+  bool checkResults(QueryResult queryResult) {
     try {
       if (!queryResult.data!.containsKey("me")) {
         return false;
       }
       return true;
-    } catch(e) { return false; }
-
+    } catch (e) {
+      return false;
+    }
   }
 
-  MeData getMeData(QueryResult queryResult){
-
+  MeData getMeData(QueryResult queryResult) {
     Map<String, dynamic> data = queryResult.data!["me"];
-    return MeData(data["firstName"], data["lastName"], data["createdAt"].toString().substring(0, 10), data["email"], data["id"]);
-
+    return MeData(
+        data["firstName"],
+        data["lastName"],
+        data["createdAt"].toString().substring(0, 10),
+        data["email"],
+        data["id"]);
   }
-
 }
 
 class LocationData {
@@ -155,14 +156,14 @@ class LocationData {
     return "$road\n$city ($state)";
   }
 
-  bool contains(String text){
-    return road!.toLowerCase().contains(text.toLowerCase()) || city!.toLowerCase().contains(text.toLowerCase()) || state!.toLowerCase().contains(text.toLowerCase());
+  bool contains(String text) {
+    return road!.toLowerCase().contains(text.toLowerCase()) ||
+        city!.toLowerCase().contains(text.toLowerCase()) ||
+        state!.toLowerCase().contains(text.toLowerCase());
   }
-
 }
 
 class QueryLocationManager extends QueryAbstractManager {
-
   @override
   bool checkData(data, {String token = ""}) {
     return token != "";
@@ -170,11 +171,14 @@ class QueryLocationManager extends QueryAbstractManager {
 
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    try{
-      if(queryResult.data!["location"] == null){
+    try {
+      if (queryResult.data!["location"] == null) {
         return false;
-      } return true;
-    } catch(e) { return false; }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -189,28 +193,31 @@ class QueryLocationManager extends QueryAbstractManager {
               }""";
   }
 
-  List<LocationData> getLocationData(QueryResult queryResult){
+  List<LocationData> getLocationData(QueryResult queryResult) {
     List<LocationData> locations = [];
     List<dynamic> data = queryResult.data!["locations"];
-    for(var location in data){
-      locations.add(LocationData(road: location["road"], city: location["city"], county: location["county"], state: location["state"]));
+    for (var location in data) {
+      locations.add(LocationData(
+          road: location["road"],
+          city: location["city"],
+          county: location["county"],
+          state: location["state"]));
     }
     return locations;
   }
-  
 }
 
-abstract class SeverityQueryManager extends QueryAbstractManager{
-
+abstract class SeverityQueryManager extends QueryAbstractManager {
   @override
   bool checkData(data, {String token = ""}) {
-    if(data is! LocationData) return false;
+    if (data is! LocationData) return false;
     return token != "";
   }
 
-  Future<Map<LocationData, SeverityData>> getSeveritiesForLocations(List<LocationData> locations, String token) async {
+  Future<Map<LocationData, SeverityData>> getSeveritiesForLocations(
+      List<LocationData> locations, String token) async {
     Map<LocationData, SeverityData> result = {};
-    for(LocationData location in locations){
+    for (LocationData location in locations) {
       QueryResult queryResult = await sendQuery(location, token: token);
       result[location] = getSeverityData(queryResult);
     }
@@ -218,11 +225,15 @@ abstract class SeverityQueryManager extends QueryAbstractManager{
   }
 
   SeverityData getSeverityData(QueryResult queryResult);
-  SeverityData severitiesAveragedByDay(List<int> severity, List<DateTime> timestamp){
+  SeverityData severitiesAveragedByDay(
+      List<int> severity, List<DateTime> timestamp) {
     Map<DateTime, List<int>> dailySeverities = {};
     for (int i = 0; i < timestamp.length; i++) {
-      DateTime date = DateTime(timestamp[i].year, timestamp[i].month, timestamp[i].day);
-      if (!dailySeverities.containsKey(date)) { dailySeverities[date] = [];}
+      DateTime date =
+          DateTime(timestamp[i].year, timestamp[i].month, timestamp[i].day);
+      if (!dailySeverities.containsKey(date)) {
+        dailySeverities[date] = [];
+      }
       dailySeverities[date]!.add(severity[i]);
     }
 
@@ -238,18 +249,19 @@ abstract class SeverityQueryManager extends QueryAbstractManager{
     timestamp = uniqueDates;
     return SeverityData(severity, timestamp);
   }
-
 }
 
 class SeverityCrackQueryManager extends SeverityQueryManager {
-
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    try{
-      if(queryResult.data!["roadCrackTelemetries"] == null){
+    try {
+      if (queryResult.data!["roadCrackTelemetries"] == null) {
         return false;
-      } return true;
-    } catch(e) { return false; }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -268,31 +280,32 @@ class SeverityCrackQueryManager extends SeverityQueryManager {
   }
 
   @override
-  SeverityData getSeverityData(QueryResult queryResult){
+  SeverityData getSeverityData(QueryResult queryResult) {
     List<int> severity = [];
     List<DateTime> timestamp = [];
-    if(!checkResults(queryResult)){
+    if (!checkResults(queryResult)) {
       return SeverityData(severity, timestamp);
     }
     List<dynamic> data = queryResult.data!["roadCrackTelemetries"];
-    for(var telemetries in data){
+    for (var telemetries in data) {
       severity.add(telemetries["severity"]);
       timestamp.add(DateTime.parse(telemetries["timestamp"]));
     }
-    return severitiesAveragedByDay(severity, timestamp);    
+    return severitiesAveragedByDay(severity, timestamp);
   }
-
 }
 
 class SeverityPotholeQueryManager extends SeverityQueryManager {
-
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    try{
-      if(queryResult.data!["roadPotholeTelemetries"] == null){
+    try {
+      if (queryResult.data!["roadPotholeTelemetries"] == null) {
         return false;
-      } return true;
-    } catch(e) { return false; }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -311,17 +324,16 @@ class SeverityPotholeQueryManager extends SeverityQueryManager {
   }
 
   @override
-  SeverityData getSeverityData(QueryResult queryResult){
+  SeverityData getSeverityData(QueryResult queryResult) {
     List<int> severity = [];
     List<DateTime> timestamp = [];
     List<dynamic> data = queryResult.data!["roadPotholeTelemetries"];
-    for(var telemetries in data){
+    for (var telemetries in data) {
       severity.add(telemetries["severity"]);
       timestamp.add(DateTime.parse(telemetries["timestamp"]));
     }
     return severitiesAveragedByDay(severity, timestamp);
   }
-
 }
 
 class PlanningData {
@@ -330,16 +342,19 @@ class PlanningData {
   List<String> ids;
   List<String> descriptions;
   List<bool> dones;
-  PlanningData(this.locations, this.dates, this.ids, this.descriptions, this.dones);
+  PlanningData(
+      this.locations, this.dates, this.ids, this.descriptions, this.dones);
 
-  PlanningData getPlanning(DateTime day){
+  PlanningData getPlanning(DateTime day) {
     List<LocationData> locations = [];
     List<DateTime> dates = [];
     List<String> ids = [];
     List<String> descriptions = [];
     List<bool> dones = [];
-    for(int i = 0; i < this.dates.length; i++){
-      if(this.dates[i].year == day.year && this.dates[i].month == day.month && this.dates[i].day == day.day){
+    for (int i = 0; i < this.dates.length; i++) {
+      if (this.dates[i].year == day.year &&
+          this.dates[i].month == day.month &&
+          this.dates[i].day == day.day) {
         locations.add(this.locations[i]);
         dates.add(this.dates[i]);
         ids.add(this.ids[i]);
@@ -350,37 +365,40 @@ class PlanningData {
     return PlanningData(locations, dates, ids, descriptions, dones);
   }
 
-  bool isEmpty(){
+  bool isEmpty() {
     return locations.isEmpty;
   }
 
-  List<LocationData> getLocations(DateTime day){
+  List<LocationData> getLocations(DateTime day) {
     List<LocationData> result = [];
-    for(int i = 0; i < dates.length; i++){
-      if(dates[i].year == day.year && dates[i].month == day.month && dates[i].day == day.day){
+    for (int i = 0; i < dates.length; i++) {
+      if (dates[i].year == day.year &&
+          dates[i].month == day.month &&
+          dates[i].day == day.day) {
         result.add(locations[i]);
       }
     }
     return result;
   }
-
 }
 
 class PlanningQueryManager extends QueryAbstractManager {
-
   @override
   bool checkData(data, {String token = ""}) {
-    if(data !is LocationData) return false;
+    if (data! is LocationData) return false;
     return token != "";
   }
 
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    try{
-      if(queryResult.data!["planningCalendar"] == null){
+    try {
+      if (queryResult.data!["planningCalendar"] == null) {
         return false;
-      } return true;
-    } catch(e) { return false; }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -399,24 +417,29 @@ class PlanningQueryManager extends QueryAbstractManager {
               }""";
   }
 
-  PlanningData getPlanningData(QueryResult queryResult){
+  PlanningData getPlanningData(QueryResult queryResult) {
     List<LocationData> locations = [];
     List<DateTime> dates = [];
     List<String> descriptions = [];
     List<String> ids = [];
     List<bool> dones = [];
     List<dynamic> data = queryResult.data!["planningCalendar"];
-    for(var planning in data){
-      locations.add(LocationData(road: planning["road"], city: planning["city"], county: planning["county"], state: planning["state"]));
+    for (var planning in data) {
+      locations.add(LocationData(
+          road: planning["road"],
+          city: planning["city"],
+          county: planning["county"],
+          state: planning["state"]));
       dates.add(DateTime.parse(planning["date"]));
-      if(planning["description"] == null) descriptions.add("");
-      else descriptions.add(planning["description"]);
+      if (planning["description"] == null)
+        descriptions.add("");
+      else
+        descriptions.add(planning["description"]);
       ids.add(planning["id"]);
       dones.add(planning["done"]);
     }
     return PlanningData(locations, dates, ids, descriptions, dones);
   }
-
 }
 
 class AddPlanningData {
@@ -427,20 +450,22 @@ class AddPlanningData {
 }
 
 class AddPlanningQueryManager extends QueryAbstractManager {
-
   @override
   bool checkData(data, {String token = ""}) {
-    if(data is! AddPlanningData) return false;
+    if (data is! AddPlanningData) return false;
     return token != "";
   }
 
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    try{
-      if(queryResult.data!["addPlanning"] == null){
+    try {
+      if (queryResult.data!["addPlanning"] == null) {
         return false;
-      } return true;
-    } catch(e) { return false; }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -459,7 +484,6 @@ class AddPlanningQueryManager extends QueryAbstractManager {
                 ){ id }
               }""";
   }
-
 }
 
 class EditPlanningData {
@@ -469,21 +493,23 @@ class EditPlanningData {
   EditPlanningData(this.id, this.description, this.done);
 }
 
-class EditPlanningQueryManager extends QueryAbstractManager{
-  
+class EditPlanningQueryManager extends QueryAbstractManager {
   @override
-  bool checkData(data, {String token = ""}){
-    if(data is! EditPlanningData) return false;
+  bool checkData(data, {String token = ""}) {
+    if (data is! EditPlanningData) return false;
     return token != "";
   }
 
   @override
   bool checkResults(QueryResult<Object?> queryResult) {
-    try{
-      if(queryResult.data!["editPlanning"] == null){
+    try {
+      if (queryResult.data!["editPlanning"] == null) {
         return false;
-      } return true;
-    } catch(e) { return false; }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -496,6 +522,62 @@ class EditPlanningQueryManager extends QueryAbstractManager{
                   done: ${editData.done}
                 ){ id }
               }""";
+  }
+}
+
+class PredictionQueryManager extends QueryAbstractManager {
+  @override
+  bool checkData(data, {String token = ""}) {
+    return token != "";
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try {
+      if (queryResult.data!["predictions"] == null) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    return """query {
+              predictions {
+                road,
+                city,
+                county,
+                state,
+                crackSeverityPredictions,
+                potholeSeverityPredictions,
+              }
+            }""";
+  }
+
+  Predictions getPredictions(QueryResult qr){
+    List<dynamic> data = qr.data!["predictions"];
+    Map<LocationData, List<Prediction>> preds = {};
+    for (var prediction in data) {
+      LocationData location = LocationData(
+          road: prediction["road"],
+          city: prediction["city"],
+          county: prediction["county"],
+          state: prediction["state"]
+        );
+      List<Prediction> local_preds = [];
+      for(int i = 0; i < 3; i++){
+        local_preds.add(Prediction(
+          i >= 2 ? 12 : 3*i + 3,
+          prediction["crackSeverityPredictions"][i],
+          prediction["potholeSeverityPredictions"][i]
+        ));
+      }
+      preds[location] = local_preds;
+    }
+    return Predictions(preds);
   }
 
 }
