@@ -96,7 +96,7 @@ def build_prophets_datasets(static_guard_id: str):
     return datasets
 
 
-def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modulated: Dict[str, float]) -> tuple[
+def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modulated: Dict[str, float], n_days: int) -> tuple[
     pd.DataFrame, pd.DataFrame]:
     telemetry_types = data[list(data.keys())[0]].keys()
 
@@ -115,6 +115,19 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
     single_row = Preprocessor().process_single_row(df)
 
     return single_row, single_row
+
+def build_eval_data(crack: float, pothole: float, data: Dict[str, Dict[str, pd.DataFrame]], ids_modulated: Dict[str, float], n_days: int) -> tuple[
+    pd.DataFrame, pd.DataFrame]:
+
+    crack_record, pothole_record = process_whole_telemetries(data, ids_modulated, n_days)
+
+    crack_record[FeatureName.CRACK_SEVERITY] = crack
+    crack_record[FeatureName.POTHOLE_SEVERITY] = pothole
+
+    pothole_record[FeatureName.CRACK_SEVERITY] = crack
+    pothole_record[FeatureName.POTHOLE_SEVERITY] = pothole
+
+    return crack_record, pothole_record
 
 
 class PaveGuardModel:
@@ -150,7 +163,8 @@ class PaveGuardModel:
 
     def _single_predict(self, road: str, city: str, county: str, state: str, latitude: float, longitude: float, crack: float, pothole: float, n_months: int = 12):
 
-        n_days = n_months * 30
+        day_in_a_month = 30
+        n_days = day_in_a_month * n_months
 
         dbfetcher = DatabaseFetcher()
 
@@ -183,7 +197,17 @@ class PaveGuardModel:
             self.prophet_predictions_cache[static_guard_id] = prophets_predictions
 
 
-        crack_features, pothole_features = process_whole_telemetries(self.prophet_predictions_cache, modulations)
+        n_days = 0
+        for m in range(n_months):
+            n_days += day_in_a_month
+            crack_features, pothole_features = build_eval_data(crack, pothole, self.prophet_predictions_cache, modulations, n_days)
+
+
+
+
+
+
+
 
         print(crack_features)
 
