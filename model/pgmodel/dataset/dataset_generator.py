@@ -13,50 +13,11 @@ from pgmodel.dataset.generator.rainfall_generator import RainfallGenerator
 from pgmodel.constants import RawFeatureName, DataframeKey, M
 from pgmodel.dataset.generator.transit_generator import TransitGenerator
 
-locations: list[dict] = [
-    {
-        "road": "Via Antonio Araldi",
-        "city": "Modena",
-        "county": "Modena",
-        "state": "Emilia-Romagna",
-        "latitude": 44.631169,
-        "longitude": 10.946299,
-        "variation": 1000
-    },
-    {
-        "road": "Via Barbato Zanoni",
-        "city": "Modena",
-        "county": "Modena",
-        "state": "Emilia-Romagna",
-        "latitude": 44.630059,
-        "longitude": 10.950163,
-        "variation": 50
-    },
-    {
-        "road": "Via Glauco Gottardi",
-        "city": "Modena",
-        "county": "Modena",
-        "state": "Emilia-Romagna",
-        "latitude": 44.632163, 
-        "longitude": 10.948782,
-        "variation": 100
-    },
-    {
-        "road": "Via Pietro Vivarelli",
-        "city": "Modena",
-        "county": "Modena",
-        "state": "Emilia-Romagna",
-        "latitude": 44.628619,
-        "longitude": 10.947372,
-        "variation": 100
-    }
-]
-
 class DatasetGenerator:
 
     @classmethod
-    def generate_static_guard_telemetries_data(cls, n_days = 30, from_date = date.today()):
-        to_date = date.today() + timedelta(days=n_days)
+    def generate_static_guard_telemetries_data(cls, n_days = 30, to_date = date.today()):
+        from_date = to_date - timedelta(days=n_days)
 
         generators = {}
         generators[DataframeKey.TEMPERATURE.value] = SeasonalGenerator(magnitude=25, min_value=-20, max_value=40,
@@ -84,8 +45,8 @@ class DatasetGenerator:
         return dfs
 
     @classmethod
-    def generate_dynamic_guard_telemetries_data(cls, n_days=30, from_date=date.today()):
-        to_date = date.today() + timedelta(days=n_days)
+    def generate_dynamic_guard_telemetries_data(cls, locations, n_days=30, to_date=date.today()):
+        from_date = to_date - timedelta(days=n_days)
 
         generators = {}
 

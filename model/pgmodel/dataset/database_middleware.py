@@ -467,19 +467,19 @@ class DatabaseFetcher:
         return requests.post(self.graphql_endpoint, json={"query": query}, headers=headers)
 
 
-def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[dict], n_days = 30):
+def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], locations, n_days = 30):
     dbfiller = DatabaseFiller(max_telemetries_in_req=15)
 
     for device_id in dynamic_guards:
         dbfiller.upload_dynamic_guard_data(
             device_id,
-            DatasetGenerator.generate_dynamic_guard_telemetries_data(n_days)
+            DatasetGenerator.generate_dynamic_guard_telemetries_data(locations, n_days=n_days)
         )
 
     for device_id in static_guards_ids:
         dbfiller.upload_static_guard_data(
             device_id,
-            DatasetGenerator.generate_static_guard_telemetries_data(n_days)
+            DatasetGenerator.generate_static_guard_telemetries_data(n_days=n_days)
         )
 
 
@@ -491,7 +491,46 @@ if __name__ == '__main__':
         "67363b89abbf408669327a88",
     ]
 
-    upload_telemetries(static_guards_ids, dynamic_guards)
+    locations: list[dict] = [
+        {
+            "road": "Via Antonio Araldi",
+            "city": "Modena",
+            "county": "Modena",
+            "state": "Emilia-Romagna",
+            "latitude": 44.631169,
+            "longitude": 10.946299,
+            "variation": 1000
+        },
+        {
+            "road": "Via Barbato Zanoni",
+            "city": "Modena",
+            "county": "Modena",
+            "state": "Emilia-Romagna",
+            "latitude": 44.630059,
+            "longitude": 10.950163,
+            "variation": 50
+        },
+        {
+            "road": "Via Glauco Gottardi",
+            "city": "Modena",
+            "county": "Modena",
+            "state": "Emilia-Romagna",
+            "latitude": 44.632163,
+            "longitude": 10.948782,
+            "variation": 100
+        },
+        {
+            "road": "Via Pietro Vivarelli",
+            "city": "Modena",
+            "county": "Modena",
+            "state": "Emilia-Romagna",
+            "latitude": 44.628619,
+            "longitude": 10.947372,
+            "variation": 100
+        }
+    ]
+
+    upload_telemetries(static_guards_ids, dynamic_guards, locations)
 
     dbfetcher = DatabaseFetcher()
 
