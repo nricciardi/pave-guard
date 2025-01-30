@@ -22,3 +22,10 @@
 4. Bridge Dynamic: YOLO (come acquisisce), come acquisisce dati dal Microcontrollore, come li manda (HTTP)
 5. Dashboard: Flutter (perchè estensibile e multi-piattaforma), le sezioni, che dati prendono e come visualizzano
 3. Container: deploy docker
+
+
+Live Demo: mentre vengono presentate le slide mostriamo il relativo dispositivo/componente
+
+Static guard: matrice led + fotocelllule per transiti + rain gauge
+Dynamic guard: Aggiungere nel bridge se viene rilevata una buca e crack (mettere immagine sul pc per mostrare che le rileva?)
+Dashboard: storico + planning + predizioni
