@@ -57,7 +57,7 @@ class DatasetGenerator:
 
         dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators)
         for df in dfs.values():
-            location_idxs = np.random.uniform(0, len(locations), len(df)).astype(int)
+            location_idxs = np.random.randint(0, len(locations), len(df))
             variations = [np.random.uniform(-locations[idx]["variation"], locations[idx]["variation"]) / 111320 for idx in location_idxs]
             df["latitude"] = np.array([locations[idx]["latitude"] + variations[i] for i, idx in enumerate(location_idxs)])
             df["longitude"] = np.array([locations[idx]["longitude"] + variations[i] for i, idx in enumerate(location_idxs)])

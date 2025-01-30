@@ -527,6 +527,15 @@ if __name__ == '__main__':
             "latitude": 44.628619,
             "longitude": 10.947372,
             "variation": 100
+        },
+        {
+            "road": "Via Rodolfo Gelmini",
+            "city": "Modena",
+            "county": "Modena",
+            "state": "Emilia-Romagna",
+            "latitude": 44.628187, 
+            "longitude": 10.950903,
+            "variation": 50
         }
     ]
 
@@ -541,28 +550,3 @@ if __name__ == '__main__':
     # modulations = Preprocessor.get_modulated_ids(static_guards, 10, 10)
     #
     # print(modulations)
-
-mutation {
-  createStaticGuard(
-    road: "Via Rodolfo Gelmini",
-    county: "Modena",
-    city: "Modena",
-    state: "Emilia-Romagna",
-    latitude: 44.628279,
-    longitude: 10.951016,
-    serialNumber: "mario"
-  ){ id }
-}
-
-mutation {
-  createStaticGuard(
-    road: "Via Pietro Vivarelli",
-    county: "Modena",
-    city: "Modena",
-    state: "Emilia-Romagna",
-    latitude: 44.628367,
-    longitude: 10.947556,
-    serialNumber: "luigi"
-  ){ id }
-}
-
