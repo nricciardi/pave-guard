@@ -1,8 +1,5 @@
 from enum import Enum
 
-def build_mongodb_endpoint(username: str, password: str) -> str:
-    return f"mongodb://{username}:{password}@localhost:27017/"
-
 GRAPHQL_ENDPOINT = "http://localhost:3000/graphql"
 DATABASE_NAME = "paveguard"
 

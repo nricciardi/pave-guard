@@ -11,6 +11,7 @@
 - [ ] "indice" slides
 - [ ] Stesura testo slides
 - [ ] Creazione slides
+- [ ] Predizione del giorno prima
 
 
 

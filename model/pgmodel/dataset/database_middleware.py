@@ -196,6 +196,19 @@ class DatabaseFiller:
 
         return mutations
 
+    def upload_prediction(self, prediction):
+        self.upload_data([f"""
+                    createPrediction(
+                        road: "{prediction['road']}",
+                        city: "{prediction['city']}",
+                        county: "{prediction['county']}",
+                        state: "{prediction['state']}",
+                        updatedAt: "{prediction['updatedAt']}",
+                        crackSeverityPredictions: {prediction["crackSeverityPredictions"]},
+                        potholeSeverityPredictions: {prediction["potholeSeverityPredictions"]},
+                    ) {{ road }}
+                    """.strip()])
+
 
 class DatabaseFetcher:
 
