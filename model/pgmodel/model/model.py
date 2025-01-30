@@ -389,7 +389,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 
 
-def train(output: str):
+def train(output_path: str):
     crack_dataset, pothole_dataset = final_dataset()
 
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
@@ -406,7 +406,9 @@ def train(output: str):
 
 if __name__ == '__main__':
     output_path_fil = "C:\\Users\\filip\\Desktop\\Universita\\Anno IV - Semestre I\\IOT\\pave-guard\\model\\pgmodel\\model\\saved_model"
-    models_info_file_path = f"{output_path_fil}\\models_info.json"
+    models_info_file_path_fil = f"{output_path_fil}\\models_info.json"
+    output_path_nic = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
+    models_info_file_path_nic = f"{output_path_nic}/models_info.json"
 
     model = PaveGuardModel(
         crack_model=Pipeline(steps=[
@@ -425,10 +427,19 @@ if __name__ == '__main__':
         }
     )
 
-    train(output_path_fil)
+    train(output_path_nic)
 
-    updated_at = model.restore_model(models_info_file_path)
+    updated_at = model.restore_model(models_info_file_path_nic)
 
     print("last updated:", updated_at)
 
-    make_and_upload_daily_predictions(model)
+    crack_weights = model.crack_model.best_estimator_[-1].coef_
+    pothole_weights = model.pothole_model.best_estimator_[-1].coef_
+
+    crack_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.SUBZERO_TEMPERATURE_MEAN: 'subzero_temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>, <FeatureName.TARGET: 'crack_final_severity'>".split(","))
+    pothole_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.SUBZERO_TEMPERATURE_MEAN: 'subzero_temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>, <FeatureName.TARGET: 'crack_final_severity'>".split(","))
+
+    print(dict(zip(crack_columns, crack_weights)))
+    print(dict(zip(pothole_columns, pothole_weights)))
+
+    # make_and_upload_daily_predictions(model)
