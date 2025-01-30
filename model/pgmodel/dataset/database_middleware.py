@@ -542,3 +542,27 @@ if __name__ == '__main__':
 
     print(modulations)
 
+mutation {
+  createStaticGuard(
+    road: "Via Rodolfo Gelmini",
+    county: "Modena",
+    city: "Modena",
+    state: "Emilia-Romagna",
+    latitude: 44.628279,
+    longitude: 10.951016,
+    serialNumber: "mario"
+  ){ id }
+}
+
+mutation {
+  createStaticGuard(
+    road: "Via Pietro Vivarelli",
+    county: "Modena",
+    city: "Modena",
+    state: "Emilia-Romagna",
+    latitude: 44.628367,
+    longitude: 10.947556,
+    serialNumber: "luigi"
+  ){ id }
+}
+
