@@ -102,10 +102,10 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
     my_dfs = {}
 
     for idk in data.keys():
+        my_dfs[idk] = {}
         for telemetry_type in data[idk].keys():
-            my_dfs[idk] = {}
             my_dfs[idk][telemetry_type] = data[idk][telemetry_type][["yhat", "ds"]].copy()
-            my_dfs[idk][telemetry_type] = data[idk][telemetry_type].rename(
+            my_dfs[idk][telemetry_type] = my_dfs[idk][telemetry_type].rename(
                 columns={"yhat": telemetry_type, "ds": "timestamp"})
             my_dfs[idk][telemetry_type]["modulation"] = ids_modulated[idk]
 
@@ -221,17 +221,37 @@ class PaveGuardModel:
         return final_crack_predictions, final_pothole_predictions
 
 
-    def predict(self, data: pd.DataFrame):
+    def predict(self, data: pd.DataFrame) -> list[dict]:
 
         self.prophet_predictions_cache = {}
 
+        predictions: list[dict] = []
+
         for dynamic_guard_transit in data.to_dict(orient="records"):
+
+            print(f"predict using: {dynamic_guard_transit}")
+
             final_crack_predictions, final_pothole_predictions = self._single_predict(
                 latitude=dynamic_guard_transit["latitude"],
                 longitude=dynamic_guard_transit["longitude"],
                 crack=dynamic_guard_transit["crack"],
                 pothole=dynamic_guard_transit["pothole"],
             )
+
+            predictions.append({
+                "road": dynamic_guard_transit["road"],
+                "city": dynamic_guard_transit["city"],
+                "county": dynamic_guard_transit["county"],
+                "state": dynamic_guard_transit["state"],
+                "crackSeverityPredictions": final_crack_predictions,
+                "potholeSeverityPredictions": final_pothole_predictions
+            })
+
+        return predictions
+
+
+
+
 
 
 
@@ -343,32 +363,10 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
     data = data.drop(columns=['latitude_x', 'latitude_y', 'longitude_x', 'longitude_y'])
 
-    print(data)
-
-    model.predict(data)
+    predictions = model.predict(data)
 
 
 
-    # TODO: may be empty
-
-    # print(crack_telemetries.columns)
-    # print(pothole_telemetries.columns)
-
-    # crack_telemetries_aggregated_by_location = crack_telemetries.groupby(["road", "city", "county", "state"])["severity"].mean()
-    # pothole_telemetries_aggregated_by_location = pothole_telemetries.groupby(["road", "city", "county", "state"])["severity"].mean()
-
-    # final_crack_predictions, final_pothole_predictions = model.predict(location)
-    #
-    # db_collection = mongodb_client[DATABASE_NAME].predictions
-    #
-    # db_collection.replace_one(location, {
-    #     "updatedAt": str(datetime.now(UTC)),
-    #     "crackSeverityPredictions": final_crack_predictions,
-    #     "potholeSeverityPredictions": final_pothole_predictions,
-    #     **location
-    # })
-
-    # print(crack_telemetries_aggregated_by_location)
 
 
 
