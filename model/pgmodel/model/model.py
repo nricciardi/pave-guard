@@ -99,16 +99,17 @@ def build_prophets_datasets(static_guard_id: str):
 def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modulated: Dict[str, float], n_days: int) -> tuple[
     pd.DataFrame, pd.DataFrame]:
     telemetry_types = data[list(data.keys())[0]].keys()
+    my_dfs = {}
 
     for id in data.keys():
         for telemetry_type in data[id].keys():
-            data[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]]
-            data[id][telemetry_type] = data[id][telemetry_type].rename(
+            my_dfs[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]]
+            my_dfs[id][telemetry_type] = data[id][telemetry_type].rename(
                 columns={"yhat": telemetry_type, "ds": "timestamp"})
-            data[id][telemetry_type]["modulation"] = ids_modulated[id]
+            my_dfs[id][telemetry_type]["modulation"] = ids_modulated[id]
 
     dfs = [
-        pd.concat([data[id][telemetry_type] for id in data.keys()]) for telemetry_type in telemetry_types
+        pd.concat([my_dfs[id][telemetry_type] for id in data.keys()]) for telemetry_type in telemetry_types
     ]
 
     df = DatasetGenerator.telemetries_to_dataframe(dfs, n_days=n_days)
