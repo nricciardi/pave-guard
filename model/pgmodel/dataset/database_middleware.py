@@ -30,14 +30,13 @@ class DatabaseFiller:
 
         self.upload_data(mutations)
 
-    def upload_dynamic_guard_data(self, device_id: str, road: str, city: str, county: str | None, state: str, latitude: float,
-                                  longitude: float, dataframes: Dict[str, pd.DataFrame]):
+    def upload_dynamic_guard_data(self, device_id: str, road: str, city: str, county: str | None, state: str, dataframes: Dict[str, pd.DataFrame]):
         mutations = []
 
         # TODO: lat/long must change
 
-        mutations.extend(self.build_crack_mutations(device_id, road, city, county, state, latitude, longitude, dataframes[DataframeKey.CRACK.value]))
-        mutations.extend(self.build_pothole_mutations(device_id, road, city, county, state, latitude, longitude, dataframes[DataframeKey.POTHOLE.value]))
+        mutations.extend(self.build_crack_mutations(device_id, road, city, county, state, dataframes[DataframeKey.CRACK.value]))
+        mutations.extend(self.build_pothole_mutations(device_id, road, city, county, state, dataframes[DataframeKey.POTHOLE.value]))
 
         self.upload_data(mutations)
 
@@ -162,8 +161,8 @@ class DatabaseFiller:
                         city: "{city}",
                         county: "{county}",
                         state: "{state}",
-                        latitude: {latitude},
-                        longitude: {longitude},
+                        latitude: {float(row["latitude"])},
+                        longitude: {float(row["longitude"])},
                         timestamp: "{row['timestamp']}",
                         severity: {float(row[RawFeatureName.CRACK.value])},
                     ) {{ id }}
@@ -189,8 +188,8 @@ class DatabaseFiller:
                         city: "{city}",
                         county: "{county}",
                         state: "{state}",
-                        latitude: {latitude},
-                        longitude: {longitude},
+                        latitude: {float(row["latitude"])},
+                        longitude: {float(row["longitude"])},
                         timestamp: "{row['timestamp']}",
                         severity: {float(row[RawFeatureName.POTHOLE.value])},
                     ) {{ id }}
