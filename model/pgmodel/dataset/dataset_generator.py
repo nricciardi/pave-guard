@@ -47,6 +47,7 @@ class DatasetGenerator:
     @classmethod
     def generate_dynamic_guard_telemetries_data(cls, locations, n_days=30, to_date=date.today()):
         from_date = to_date - timedelta(days=n_days)
+        to_date = to_date + timedelta(days=1)
 
         generators = {}
 

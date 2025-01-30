@@ -401,8 +401,8 @@ def train(output: str):
 
 
 if __name__ == '__main__':
-    output_path = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
-    models_info_file_path = f"{output_path}/models_info.json"
+    output_path_fil = "C:\\Users\\filip\\Desktop\\Universita\\Anno IV - Semestre I\\IOT\\pave-guard\\model\\pgmodel\\model\\saved_model"
+    models_info_file_path = f"{output_path_fil}\\models_info.json"
 
     model = PaveGuardModel(
         crack_model=DecisionTreeRegressor(),

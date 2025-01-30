@@ -485,10 +485,10 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], 
 
 if __name__ == '__main__':
 
-    static_guards_ids = ["679b622834220629bc94425c"]
+    static_guards_ids = ["679b5aa1035483aacfcfe2ad"]
 
     dynamic_guards = [  
-        "6795478c9d7d3a6e9a46ada3",
+        "67236c0933a3695fb68e81db",
     ]
 
     locations: list[dict] = [
