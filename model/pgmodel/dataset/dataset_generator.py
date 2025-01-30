@@ -95,7 +95,7 @@ class DatasetGenerator:
         if n_days is not None:
             start_date = min(df['timestamp'].min() for df in telemetries)
             end_date = start_date + pd.Timedelta(days=n_days)
-            telemetries = [df[(df['timestamp'] >= start_date) & (df['timestamp'] <= end_date)] for df in telemetries]
+            telemetries = [df[(df['timestamp'] >= start_date) & (df['timestamp'] <= end_date)].copy() for df in telemetries]
             
         timestamps = pd.concat([df['timestamp'] for df in telemetries]).drop_duplicates().sort_values()
         result_df = pd.DataFrame({'timestamp': timestamps})
