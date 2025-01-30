@@ -104,7 +104,7 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
     for id in data.keys():
         for telemetry_type in data[id].keys():
             my_dfs[id] = {}
-            my_dfs[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]]
+            my_dfs[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]].copy()
             my_dfs[id][telemetry_type] = data[id][telemetry_type].rename(
                 columns={"yhat": telemetry_type, "ds": "timestamp"})
             my_dfs[id][telemetry_type]["modulation"] = ids_modulated[id]
@@ -163,7 +163,7 @@ class PaveGuardModel:
 
         return self.performances
 
-    def _single_predict(self, road: str, city: str, county: str, state: str, latitude: float, longitude: float, crack: float, pothole: float, n_months: int = 12):
+    def _single_predict(self, latitude: float, longitude: float, crack: float, pothole: float, n_months: int = 12):
 
         day_in_a_month = 30
         n_days = day_in_a_month * n_months
@@ -226,7 +226,16 @@ class PaveGuardModel:
         self.prophet_predictions_cache = {}
 
         for dynamic_guard_transit in data.to_dict(orient="records"):
-            final_crack_predictions, final_pothole_predictions = self._single_predict(**dynamic_guard_transit)
+            final_crack_predictions, final_pothole_predictions = self._single_predict(
+                latitude=dynamic_guard_transit["latitude"],
+                longitude=dynamic_guard_transit["longitude"],
+                crack=dynamic_guard_transit["crack"],
+                pothole=dynamic_guard_transit["pothole"],
+            )
+
+
+
+
 
 
 
