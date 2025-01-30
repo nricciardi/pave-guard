@@ -165,9 +165,12 @@ class Preprocessor:
 
         raw_dataset = raw_dataset.dropna(how='all')
         # Add maintenance info
-        maintenance_dates = {maintenance['date'].date() for maintenance in maintenances}
         raw_dataset = raw_dataset.assign(
-            maintenance=lambda df: df.index.date.isin(maintenance_dates).astype(int)
+        maintenance=raw_dataset.apply(
+            lambda row: 1 if any(
+                maintenance['date'].date() == row.name.date() for maintenance in maintenances
+                ) else 0, axis=1
+            )
         )
 
         return self.partition_and_process(raw_dataset, index_list_crack, index_list_pothole, consecutive_measures_only=consecutive_measures_only)
