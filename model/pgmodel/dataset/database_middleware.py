@@ -2,7 +2,7 @@ import pandas as pd
 from typing import Dict, List, Tuple
 import requests
 import sys
-from datetime import date
+from datetime import date, timedelta
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -410,7 +410,7 @@ class DatabaseFetcher:
         return result
 
 
-    def crack_telemetries_by_date(self, date = date.today()) -> pd.DataFrame:
+    def crack_telemetries_by_date(self, date = date.today() - timedelta(days=1)) -> pd.DataFrame:
 
         query = f"""
          query {{
@@ -435,7 +435,7 @@ class DatabaseFetcher:
 
         return pd.json_normalize(self.__request(query).json()["data"]["roadCrackTelemetries"], sep="_")
 
-    def pothole_telemetries_by_date(self, date=date.today()):
+    def pothole_telemetries_by_date(self, date=date.today() - timedelta(days=1)):
         query = f"""
          query {{
           roadPotholeTelemetries(

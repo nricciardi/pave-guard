@@ -239,9 +239,17 @@ class Preprocessor:
             dataset[FeatureName.RAINFALL_QUANTITY] = self.array_sum(raw_dataset[RawFeatureName.RAINFALL.value], weights)
             dataset[FeatureName.STORM_TOTAL] = self.get_storms(raw_dataset[RawFeatureName.RAINFALL.value])
             raw_dataset = raw_dataset.copy()
-            raw_dataset.loc[:, FeatureName.IS_RAINING.value] = np.array(
-            [1 if self.is_raining_at_time(raw_dataset[~np.isnan(raw_dataset[RawFeatureName.RAINFALL.value])].index, pd.to_datetime(timestamp)) else 0 for timestamp in raw_dataset.index]
-        )
+
+            rainfall_indices = raw_dataset.loc[~raw_dataset[RawFeatureName.RAINFALL.value].isna()].index
+
+            raw_dataset.loc[:, FeatureName.IS_RAINING.value] = raw_dataset.index.to_series().apply(
+                lambda timestamp: int(self.is_raining_at_time(rainfall_indices, pd.to_datetime(timestamp)))
+            )
+
+            # Belzebù:
+            # raw_dataset.loc[:, FeatureName.IS_RAINING.value] = np.array(
+            #     [1 if self.is_raining_at_time(raw_dataset[~np.isnan(raw_dataset[RawFeatureName.RAINFALL.value])].index, pd.to_datetime(timestamp)) else 0 for timestamp in raw_dataset.index]
+            # )
         else:
             dataset[FeatureName.RAINFALL_QUANTITY] = 0
             dataset[FeatureName.STORM_TOTAL] = 0
