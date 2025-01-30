@@ -485,7 +485,7 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], 
 
 if __name__ == '__main__':
 
-    static_guards_ids = ["679251aa95e18aed7f6219ed"]
+    static_guards_ids = ["679b622834220629bc94425c"]
 
     dynamic_guards = [  
         "6795478c9d7d3a6e9a46ada3",
@@ -541,28 +541,28 @@ if __name__ == '__main__':
     # modulations = Preprocessor.get_modulated_ids(static_guards, 10, 10)
     #
     # print(modulations)
-
-mutation {
-  createStaticGuard(
-    road: "Via Rodolfo Gelmini",
-    county: "Modena",
-    city: "Modena",
-    state: "Emilia-Romagna",
-    latitude: 44.628279,
-    longitude: 10.951016,
-    serialNumber: "mario"
-  ){ id }
-}
-
-mutation {
-  createStaticGuard(
-    road: "Via Pietro Vivarelli",
-    county: "Modena",
-    city: "Modena",
-    state: "Emilia-Romagna",
-    latitude: 44.628367,
-    longitude: 10.947556,
-    serialNumber: "luigi"
-  ){ id }
-}
+#
+# mutation {
+#   createStaticGuard(
+#     road: "Via Rodolfo Gelmini",
+#     county: "Modena",
+#     city: "Modena",
+#     state: "Emilia-Romagna",
+#     latitude: 44.628279,
+#     longitude: 10.951016,
+#     serialNumber: "mario"
+#   ){ id }
+# }
+#
+# mutation {
+#   createStaticGuard(
+#     road: "Via Pietro Vivarelli",
+#     county: "Modena",
+#     city: "Modena",
+#     state: "Emilia-Romagna",
+#     latitude: 44.628367,
+#     longitude: 10.947556,
+#     serialNumber: "luigi"
+#   ){ id }
+# }
 
