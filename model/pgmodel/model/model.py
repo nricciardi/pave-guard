@@ -198,28 +198,20 @@ class PaveGuardModel:
 
 
         n_days = 0
+
+        final_crack_predictions: list[float] = []
+        final_pothole_predictions: list[float] = []
+
         for m in range(n_months):
             n_days += day_in_a_month
             crack_features, pothole_features = build_eval_data(crack, pothole, self.prophet_predictions_cache, modulations, n_days)
 
+            crack_pred = self.crack_model.predict(crack_features)
+            pothole_pred = self.pothole_model.predict(pothole_features)
 
+            final_crack_predictions.append(crack_pred)
+            final_pothole_predictions.append(pothole_pred)
 
-
-
-
-
-
-        print(crack_features)
-
-
-
-
-
-        # TODO: prediction
-
-
-        final_crack_predictions = []
-        final_pothole_predictions = []
 
         assert len(final_crack_predictions), n_months
         assert len(final_pothole_predictions), n_months
@@ -232,8 +224,8 @@ class PaveGuardModel:
         self.prophet_predictions_cache = {}
 
         for dynamic_guard_transit in data.to_dict(orient="records"):
-            prediction = self._single_predict(**dynamic_guard_transit)
-            print(prediction)
+            final_crack_predictions, final_pothole_predictions = self._single_predict(**dynamic_guard_transit)
+
 
 
     def __fit_crack_model(self, X: pd.DataFrame, y: pd.Series):
@@ -339,6 +331,8 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
     data['longitude'] = data[['longitude_x', 'longitude_y']].mean(axis=1)
 
     data = data.drop(columns=['latitude_x', 'latitude_y', 'longitude_x', 'longitude_y'])
+
+    print(data)
 
     model.predict(data)
 
