@@ -5,10 +5,8 @@ import sys
 from datetime import date
 import os
 
-from pgmodel.preprocess.preprocessor import Preprocessor
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
+from pgmodel.preprocess.preprocessor import Preprocessor
 from pgmodel.constants import RawFeatureName, DataframeKey, GRAPHQL_ENDPOINT
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 
@@ -30,7 +28,7 @@ class DatabaseFiller:
 
         self.upload_data(mutations)
 
-    def upload_dynamic_guard_data(self, device_id: str, road: str, city: str, county: str | None, state: str, dataframes: Dict[str, pd.DataFrame]):
+    def upload_dynamic_guard_data(self, device_id: str, dataframes: Dict[str, pd.DataFrame]):
         mutations = []
 
         # TODO: lat/long must change
@@ -146,8 +144,7 @@ class DatabaseFiller:
 
         return mutations
 
-    def build_crack_mutations(self, device_id: str, road: str, city: str, county: str, state: str, latitude: float,
-                                  longitude: float, dataframe: pd.DataFrame):
+    def build_crack_mutations(self, device_id: str, dataframe: pd.DataFrame):
 
         mutations = []
 
@@ -157,10 +154,10 @@ class DatabaseFiller:
                 mutations.append(f"""
                     temperature{index}: createRoadCrackTelemetry(
                         deviceId: "{device_id}",
-                        road: "{road}",
-                        city: "{city}",
-                        county: "{county}",
-                        state: "{state}",
+                        road: "{row['road']}",
+                        city: "{row['city']}",
+                        county: "{row['county']}",
+                        state: "{row['state']}",
                         latitude: {float(row["latitude"])},
                         longitude: {float(row["longitude"])},
                         timestamp: "{row['timestamp']}",
@@ -469,15 +466,9 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[dict],
 
 
 
-    for dynamic_guard in dynamic_guards:
+    for device_id in dynamic_guards:
         dbfiller.upload_dynamic_guard_data(
-            dynamic_guard["device_id"],
-            dynamic_guard["road"],
-            dynamic_guard["city"],
-            dynamic_guard["county"],
-            dynamic_guard["state"],
-            dynamic_guard["latitude"],
-            dynamic_guard["longitude"],
+            device_id,
             DatasetGenerator.generate_dynamic_guard_telemetries_data(n_days)
         )
 
@@ -486,29 +477,12 @@ if __name__ == '__main__':
 
     static_guards_ids = ["679251aa95e18aed7f6219ed", "679251aa95e18aed7f7219e3"]
 
-    dynamic_guards = [
-        {
-            "device_id": "6795478c9d7d3a6e9a46ada3",
-            "road": "Via Antonio Araldi",
-            "city": "Modena",
-            "county": "Modena",
-            "state": "Emilia-Romagna",
-            "latitude": 44.631169,
-            "longitude": 10.946299,
-        },
-        {
-            "device_id": "6795478c9d7d3a6e9a46bfr3",
-            "road": "Via Barbato Zanoni",
-            "city": "Modena",
-            "county": "Modena",
-            "state": "Emilia-Romagna",
-            "latitude": 44.630059, 
-            "longitude": 10.950163,
-        }
-        
+    dynamic_guards = [  
+        "6795478c9d7d3a6e9a46ada3",
+        "6795478c9d7d3a6e9a46bfr3",
     ]
 
-    # upload_telemetries(static_guards_ids, dynamic_guards)
+    upload_telemetries(static_guards_ids, dynamic_guards)
 
     dbfetcher = DatabaseFetcher()
 

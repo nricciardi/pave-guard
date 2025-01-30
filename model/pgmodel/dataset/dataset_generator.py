@@ -13,14 +13,44 @@ from pgmodel.dataset.generator.rainfall_generator import RainfallGenerator
 from pgmodel.constants import RawFeatureName, DataframeKey, M
 from pgmodel.dataset.generator.transit_generator import TransitGenerator
 
-
-possible_dynamic_centers: list[tuple[float, float]] = [
-    (44.627650, 10.949806),
-    (44.629460, 10.946722),
-    (44.631892, 10.947128),
-    (44.629943, 10.950502)
+locations: list[dict] = [
+    {
+        "road": "Via Antonio Araldi",
+        "city": "Modena",
+        "county": "Modena",
+        "state": "Emilia-Romagna",
+        "latitude": 44.631169,
+        "longitude": 10.946299,
+        "variation": 1000
+    },
+    {
+        "road": "Via Barbato Zanoni",
+        "city": "Modena",
+        "county": "Modena",
+        "state": "Emilia-Romagna",
+        "latitude": 44.630059,
+        "longitude": 10.950163,
+        "variation": 50
+    },
+    {
+        "road": "Via Glauco Gottardi",
+        "city": "Modena",
+        "county": "Modena",
+        "state": "Emilia-Romagna",
+        "latitude": 44.632163, 
+        "longitude": 10.948782,
+        "variation": 100
+    },
+    {
+        "road": "Via Pietro Vivarelli",
+        "city": "Modena",
+        "county": "Modena",
+        "state": "Emilia-Romagna",
+        "latitude": 44.628619,
+        "longitude": 10.947372,
+        "variation": 100
+    }
 ]
-
 
 class DatasetGenerator:
 
@@ -65,12 +95,15 @@ class DatasetGenerator:
                                                                   var_name=RawFeatureName.POTHOLE.value)
 
         dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators)
-        M_coord = M / 111000
         for df in dfs.values():
-            latitude = np.random.choice([center[0] for center in possible_dynamic_centers])
-            longitude = np.random.choice([center[1] for center in possible_dynamic_centers])
-            df["latitude"] = np.random.uniform(latitude - M_coord, latitude + M_coord, len(df))
-            df["longitude"] = np.random.uniform(longitude - M_coord, longitude + M_coord, len(df))
+            location_idxs = np.random.uniform(0, len(locations), len(df)).astype(int)
+            variations = [np.random.uniform(-locations[idx]["variation"], locations[idx]["variation"]) for idx in location_idxs]
+            df["latitude"] = np.array([locations[idx]["latitude"] + variations[i] for i, idx in enumerate(location_idxs)])
+            df["longitude"] = np.array([locations[idx]["longitude"] + variations[i] for i, idx in enumerate(location_idxs)])
+            df["road"] = [locations[idx]["road"] for idx in location_idxs]
+            df["city"] = [locations[idx]["city"] for idx in location_idxs]
+            df["county"] = [locations[idx]["county"] for idx in location_idxs]
+            df["state"] = [locations[idx]["state"] for idx in location_idxs]
 
         return dfs
 
