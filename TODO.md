@@ -1,5 +1,23 @@
 
 
+- [ ] Test static guard
+- [ ] Test dynamic guard
+- [ ] Test modello
+- [ ] Generazioni dati
+- [ ] Caricamento dati su server remoto
+- [ ] Test server remoto
+- [ ] Test dashboard con server remoto
+- [ ] Brainstorming slide
+- [ ] "indice" slides
+- [ ] Stesura testo slides
+- [ ] Creazione slides
+
+
+
+
+
+
+
 
 - [x] API server per inserire/eliminare/visualizzare gli interventi svolti
 - [x] Gestione dei dati degli interventi svolti (lato modello)

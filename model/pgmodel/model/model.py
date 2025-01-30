@@ -269,8 +269,6 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
     dbfetcher = DatabaseFetcher()
 
-    static_guards = dbfetcher.static_guards()
-
     crack_telemetries = dbfetcher.crack_telemetries_by_date()
 
     if crack_telemetries.empty:
