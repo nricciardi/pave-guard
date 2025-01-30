@@ -67,6 +67,8 @@ class DatasetGenerator:
         dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators)
         M_coord = M / 111000
         for df in dfs.values():
+            latitude = np.random.choice([center[0] for center in possible_dynamic_centers])
+            longitude = np.random.choice([center[1] for center in possible_dynamic_centers])
             df["latitude"] = np.random.uniform(latitude - M_coord, latitude + M_coord, len(df))
             df["longitude"] = np.random.uniform(longitude - M_coord, longitude + M_coord, len(df))
 
