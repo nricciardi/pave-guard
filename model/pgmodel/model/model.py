@@ -111,7 +111,7 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
         pd.concat([data[id][telemetry_type] for id in data.keys()]) for telemetry_type in telemetry_types
     ]
 
-    df = DatasetGenerator.telemetries_to_dataframe(dfs)
+    df = DatasetGenerator.telemetries_to_dataframe(dfs, n_days=n_days)
     single_row = Preprocessor().process_single_row(df)
 
     return single_row, single_row
