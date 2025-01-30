@@ -252,6 +252,8 @@ class PaveGuardModel:
                 "potholeSeverityPredictions": list(final_pothole_predictions)
             })
 
+            break
+
         return predictions
 
 
