@@ -101,16 +101,16 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
     telemetry_types = data[list(data.keys())[0]].keys()
     my_dfs = {}
 
-    for id in data.keys():
-        for telemetry_type in data[id].keys():
-            my_dfs[id] = {}
-            my_dfs[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]].copy()
-            my_dfs[id][telemetry_type] = data[id][telemetry_type].rename(
+    for idk in data.keys():
+        for telemetry_type in data[idk].keys():
+            my_dfs[idk] = {}
+            my_dfs[idk][telemetry_type] = data[idk][telemetry_type][["yhat", "ds"]].copy()
+            my_dfs[idk][telemetry_type] = data[idk][telemetry_type].rename(
                 columns={"yhat": telemetry_type, "ds": "timestamp"})
-            my_dfs[id][telemetry_type]["modulation"] = ids_modulated[id]
+            my_dfs[idk][telemetry_type]["modulation"] = ids_modulated[idk]
 
     dfs = [
-        pd.concat([my_dfs[id][telemetry_type] for id in data.keys()]) for telemetry_type in telemetry_types
+        pd.concat([my_dfs[idk][telemetry_type] for idk in data.keys()]) for telemetry_type in telemetry_types
     ]
 
     df = DatasetGenerator.telemetries_to_dataframe(dfs, n_days=n_days)
