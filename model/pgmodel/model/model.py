@@ -40,6 +40,9 @@ def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     for location, crack_telemetries_of_loc, pothole_telemetries_of_loc in zip(locations, crack_telemetries, pothole_telemetries):
 
+        if crack_telemetries_of_loc.empty or pothole_telemetries_of_loc.empty:
+            continue
+
         try:
             crack_severity = crack_telemetries_of_loc.rename(columns={"severity": "crack"})
             pothole_severity = pothole_telemetries_of_loc.rename(columns={"severity": "pothole"})
@@ -223,13 +226,13 @@ class PaveGuardModel:
         return final_crack_predictions, final_pothole_predictions
 
 
-    def predict(self, data: pd.DataFrame) -> list[dict]:
+    def predict(self, dynamic_guard_transits: pd.DataFrame) -> list[dict]:
 
         self.prophet_predictions_cache = {}
 
         predictions: list[dict] = []
 
-        for dynamic_guard_transit in data.to_dict(orient="records"):
+        for dynamic_guard_transit in dynamic_guard_transits.to_dict(orient="records"):
 
             print(f"predict using: {dynamic_guard_transit}")
 
@@ -381,17 +384,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 
 
-
-
-
-
-if __name__ == '__main__':
-
-    model = PaveGuardModel(
-        crack_model=DecisionTreeRegressor(),
-        pothole_model=DecisionTreeRegressor(),
-    )
-
+def train(output: str):
     crack_dataset, pothole_dataset = final_dataset()
 
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
@@ -401,11 +394,25 @@ if __name__ == '__main__':
 
     model.train(X_crack, y_crack, X_pothole, y_pothole)
 
+    models_info_file_path = model.save_model_db(output_path)
+
+    return model
+
+
+
+if __name__ == '__main__':
     output_path = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
-    # models_info_file_path = model.save_model_db(output_path)
+    models_info_file_path = f"{output_path}/models_info.json"
 
-    # updated_at = model.restore_model(models_info_file_path)
+    model = PaveGuardModel(
+        crack_model=DecisionTreeRegressor(),
+        pothole_model=DecisionTreeRegressor(),
+    )
 
-    # print("last updated:", updated_at)
+    # train(output_path)
+
+    updated_at = model.restore_model(models_info_file_path)
+
+    print("last updated:", updated_at)
 
     make_and_upload_daily_predictions(model)
