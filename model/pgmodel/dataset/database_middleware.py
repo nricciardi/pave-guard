@@ -484,18 +484,28 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[dict],
 
 if __name__ == '__main__':
 
-    static_guards_ids = ["679251aa95e18aed7f6219ed"]
+    static_guards_ids = ["679251aa95e18aed7f6219ed", "679251aa95e18aed7f7219e3"]
 
     dynamic_guards = [
         {
             "device_id": "6795478c9d7d3a6e9a46ada3",
-            "road": "road",
-            "city": "city",
-            "county": "county",
-            "state": "state",
-            "latitude": 24,
-            "longitude": 42,
+            "road": "Via Antonio Araldi",
+            "city": "Modena",
+            "county": "Modena",
+            "state": "Emilia-Romagna",
+            "latitude": 44.631169,
+            "longitude": 10.946299,
+        },
+        {
+            "device_id": "6795478c9d7d3a6e9a46bfr3",
+            "road": "Via Barbato Zanoni",
+            "city": "Modena",
+            "county": "Modena",
+            "state": "Emilia-Romagna",
+            "latitude": 44.630059, 
+            "longitude": 10.950163,
         }
+        
     ]
 
     # upload_telemetries(static_guards_ids, dynamic_guards)
