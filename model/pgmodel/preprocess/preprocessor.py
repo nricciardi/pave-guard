@@ -216,21 +216,43 @@ class Preprocessor:
         else:
             weights = weights / weights.sum()
 
-        dataset[FeatureName.TEMPERATURE_MEAN] = self.array_mean(raw_dataset[RawFeatureName.TEMPERATURE.value], weights)
-        dataset[FeatureName.HUMIDITY_MEAN] = self.array_mean(raw_dataset[RawFeatureName.HUMIDITY.value], weights)
+        if RawFeatureName.TEMPERATURE.value in raw_dataset:
+            dataset[FeatureName.TEMPERATURE_MEAN] = self.array_mean(raw_dataset[RawFeatureName.TEMPERATURE.value], weights)
+            dataset[FeatureName.SUBZERO_TEMPERATURE_MEAN] = self.subzero_temperature_mean(raw_dataset[RawFeatureName.TEMPERATURE.value],
+                                                                                          weights)
+            dataset[FeatureName.DELTA_TEMPERATURE] = self.get_delta_temperatures(raw_dataset[RawFeatureName.TEMPERATURE.value])
+        else:
+            dataset[FeatureName.TEMPERATURE_MEAN] = 0
+            dataset[FeatureName.SUBZERO_TEMPERATURE_MEAN] = 0
+            dataset[FeatureName.DELTA_TEMPERATURE] = 0
+            
+        if RawFeatureName.HUMIDITY.value in raw_dataset:
+            dataset[FeatureName.HUMIDITY_MEAN] = self.array_mean(raw_dataset[RawFeatureName.HUMIDITY.value], weights)
+        else:
+            dataset[FeatureName.HUMIDITY_MEAN] = 0
+            
         dataset[FeatureName.DAYS] = self.get_days(raw_dataset.index)
-        dataset[FeatureName.SUBZERO_TEMPERATURE_MEAN] = self.subzero_temperature_mean(raw_dataset[RawFeatureName.TEMPERATURE.value], weights)
-        dataset[FeatureName.RAINFALL_QUANTITY] = self.array_sum(raw_dataset[RawFeatureName.RAINFALL.value], weights)
-
-        dataset[FeatureName.STORM_TOTAL] = self.get_storms(raw_dataset[RawFeatureName.RAINFALL.value])
-        dataset[FeatureName.DELTA_TEMPERATURE] = self.get_delta_temperatures(raw_dataset[RawFeatureName.TEMPERATURE.value])
-
-        dataset[FeatureName.TRANSIT_TOTAL] = self.array_count(raw_dataset[RawFeatureName.TRANSIT_TIME.value])
-
-        heavy_transit: np.ndarray = np.array([1 for length in raw_dataset[RawFeatureName.TRANSIT_LENGTH.value] if self.is_vehicle_heavy(length)])
-        raw_dataset.loc[:, FeatureName.IS_RAINING.value] = np.array(
+        
+        if RawFeatureName.RAINFALL.value in raw_dataset:
+            dataset[FeatureName.RAINFALL_QUANTITY] = self.array_sum(raw_dataset[RawFeatureName.RAINFALL.value], weights)
+            dataset[FeatureName.STORM_TOTAL] = self.get_storms(raw_dataset[RawFeatureName.RAINFALL.value])
+            raw_dataset.loc[:, FeatureName.IS_RAINING.value] = np.array(
             [1 if self.is_raining_at_time(raw_dataset[~np.isnan(raw_dataset[RawFeatureName.RAINFALL.value])].index, pd.to_datetime(timestamp)) else 0 for timestamp in raw_dataset.index]
         )
+        else:
+            dataset[FeatureName.RAINFALL_QUANTITY] = 0
+            dataset[FeatureName.STORM_TOTAL] = 0
+            raw_dataset[FeatureName.IS_RAINING.value] = 0
+            
+        if RawFeatureName.TRANSIT_TIME.value in raw_dataset:
+            dataset[FeatureName.TRANSIT_TOTAL] = self.array_count(raw_dataset[RawFeatureName.TRANSIT_TIME.value])
+        else:
+            dataset[FeatureName.TRANSIT_TOTAL] = 0
+
+        if RawFeatureName.TRANSIT_LENGTH.value in raw_dataset:
+            heavy_transit: np.ndarray = np.array([1 for length in raw_dataset[RawFeatureName.TRANSIT_LENGTH.value] if self.is_vehicle_heavy(length)])
+        else:
+            heavy_transit = np.array([])
 
         dataset[FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL] = self.array_count(heavy_transit)
         dataset[FeatureName.TRANSIT_DURING_RAINFALL] = self.transit_during_rainfall(raw_dataset)

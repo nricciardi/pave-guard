@@ -14,7 +14,12 @@ from pgmodel.constants import RawFeatureName, DataframeKey, M
 from pgmodel.dataset.generator.transit_generator import TransitGenerator
 
 
-
+possible_dynamic_centers: list[tuple[float, float]] = [
+    (44.627650, 10.949806),
+    (44.629460, 10.946722),
+    (44.631892, 10.947128),
+    (44.629943, 10.950502)
+]
 
 
 class DatasetGenerator:
@@ -49,7 +54,7 @@ class DatasetGenerator:
         return dfs
 
     @classmethod
-    def generate_dynamic_guard_telemetries_data(cls, latitude: float, longitude: float, n_days=30, from_date=date.today()):
+    def generate_dynamic_guard_telemetries_data(cls, n_days=30, from_date=date.today()):
         to_date = date.today() + timedelta(days=n_days)
 
         generators = {}
