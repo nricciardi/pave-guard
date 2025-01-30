@@ -9,7 +9,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 from datetime import datetime, UTC
 import joblib
 from sklearn.model_selection import train_test_split
-from pgmodel.constants import MONGODB_ENDPOINT, DATABASE_NAME, RawFeatureName, FeatureName, DataframeKey
+from pgmodel.constants import DATABASE_NAME, RawFeatureName, FeatureName, DataframeKey, \
+    build_mongodb_endpoint
 from pgmodel.dataset.database_middleware import DatabaseFetcher
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
@@ -205,14 +206,17 @@ class PaveGuardModel:
         final_pothole_predictions: list[float] = []
 
         for m in range(n_months):
+
+            print(f"predict {m + 1} month")
+
             n_days += day_in_a_month
             crack_features, pothole_features = build_eval_data(crack, pothole, self.prophet_predictions_cache, modulations, n_days)
 
             crack_pred = self.crack_model.predict(crack_features)
             pothole_pred = self.pothole_model.predict(pothole_features)
 
-            final_crack_predictions.append(crack_pred)
-            final_pothole_predictions.append(pothole_pred)
+            final_crack_predictions.append(float(crack_pred[0]))
+            final_pothole_predictions.append(float(pothole_pred[0]))
 
 
         assert len(final_crack_predictions), n_months
@@ -243,8 +247,8 @@ class PaveGuardModel:
                 "city": dynamic_guard_transit["city"],
                 "county": dynamic_guard_transit["county"],
                 "state": dynamic_guard_transit["state"],
-                "crackSeverityPredictions": final_crack_predictions,
-                "potholeSeverityPredictions": final_pothole_predictions
+                "crackSeverityPredictions": list(final_crack_predictions),
+                "potholeSeverityPredictions": list(final_pothole_predictions)
             })
 
         return predictions
@@ -311,8 +315,13 @@ class PaveGuardModel:
 
 
 
-def make_and_upload_daily_predictions(model: PaveGuardModel):
-    mongodb_client = MongoClient(MONGODB_ENDPOINT)
+def make_and_upload_daily_predictions(mongodb_username: str, mongodb_password: str, model: PaveGuardModel):
+
+    mongodb_endpoint = build_mongodb_endpoint(mongodb_username, mongodb_password)
+
+    print(mongodb_endpoint)
+
+    mongodb_client = MongoClient(mongodb_endpoint)
 
     dbfetcher = DatabaseFetcher()
 
@@ -365,6 +374,22 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
     predictions = model.predict(data)
 
+    predictions_collection = mongodb_client[DATABASE_NAME].predictions
+
+    for prediction in predictions:
+
+        print(f"upload on DB: {prediction}")
+
+        predictions_collection.replace_one({
+            "road": prediction["road"],
+            "city": prediction["city"],
+            "county": prediction["county"],
+            "state": prediction["state"],
+        }, {
+            "updatedAt": str(datetime.now(UTC)),
+            **prediction
+        })
+
 
 
 
@@ -373,6 +398,9 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 
 if __name__ == '__main__':
+
+    mongodb_username = sys.argv[1]
+    mongodb_password = sys.argv[2]
 
     model = PaveGuardModel(
         crack_model=DecisionTreeRegressor(),
@@ -395,4 +423,4 @@ if __name__ == '__main__':
 
     # print("last updated:", updated_at)
 
-    make_and_upload_daily_predictions(model)
+    make_and_upload_daily_predictions(mongodb_username, mongodb_password, model)
