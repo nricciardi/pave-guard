@@ -425,7 +425,7 @@ if __name__ == '__main__':
         }
     )
 
-    train(output_path)
+    train(output_path_fil)
 
     updated_at = model.restore_model(models_info_file_path)
 

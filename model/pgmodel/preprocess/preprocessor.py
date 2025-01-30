@@ -270,8 +270,13 @@ class Preprocessor:
         dataset[FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL] = self.transit_heavy_during_rainfall(raw_dataset)
 
         if RawFeatureName.CRACK.value in raw_dataset:
-            dataset[FeatureName.CRACK_SEVERITY] = self.array_mean(raw_dataset[RawFeatureName.CRACK.value], weights) if raw_dataset[RawFeatureName.CRACK.value].size > 0 else np.nan
+            candidate = self.array_mean(raw_dataset[RawFeatureName.CRACK.value], weights) if raw_dataset[RawFeatureName.CRACK.value].size > 0 else 0
+            if candidate is np.nan:
+                candidate = 0
+            dataset[FeatureName.CRACK_SEVERITY] = candidate
         if RawFeatureName.POTHOLE.value in raw_dataset:
-            dataset[FeatureName.POTHOLE_SEVERITY] = self.array_sum(raw_dataset[RawFeatureName.POTHOLE.value], weights) if raw_dataset[RawFeatureName.POTHOLE.value].size > 0 else np.nan
-
+            candidate = self.array_sum(raw_dataset[RawFeatureName.POTHOLE.value], weights) if raw_dataset[RawFeatureName.POTHOLE.value].size > 0 else 0
+            if candidate is np.nan:
+                candidate = 0
+            dataset[FeatureName.POTHOLE_SEVERITY] = candidate
         return dataset
