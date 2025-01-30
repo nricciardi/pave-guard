@@ -5,10 +5,8 @@ import sys
 from datetime import date
 import os
 
-from pgmodel.preprocess.preprocessor import Preprocessor
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
+from pgmodel.preprocess.preprocessor import Preprocessor
 from pgmodel.constants import RawFeatureName, DataframeKey, GRAPHQL_ENDPOINT
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 
@@ -30,13 +28,13 @@ class DatabaseFiller:
 
         self.upload_data(mutations)
 
-    def upload_dynamic_guard_data(self, device_id: str, road: str, city: str, county: str | None, state: str, dataframes: Dict[str, pd.DataFrame]):
+    def upload_dynamic_guard_data(self, device_id: str, dataframes: Dict[str, pd.DataFrame]):
         mutations = []
 
         # TODO: lat/long must change
 
-        mutations.extend(self.build_crack_mutations(device_id, road, city, county, state, dataframes[DataframeKey.CRACK.value]))
-        mutations.extend(self.build_pothole_mutations(device_id, road, city, county, state, dataframes[DataframeKey.POTHOLE.value]))
+        mutations.extend(self.build_crack_mutations(device_id, dataframes[DataframeKey.CRACK.value]))
+        mutations.extend(self.build_pothole_mutations(device_id, dataframes[DataframeKey.POTHOLE.value]))
 
         self.upload_data(mutations)
 
@@ -146,8 +144,7 @@ class DatabaseFiller:
 
         return mutations
 
-    def build_crack_mutations(self, device_id: str, road: str, city: str, county: str, state: str, latitude: float,
-                                  longitude: float, dataframe: pd.DataFrame):
+    def build_crack_mutations(self, device_id: str, dataframe: pd.DataFrame):
 
         mutations = []
 
@@ -157,10 +154,10 @@ class DatabaseFiller:
                 mutations.append(f"""
                     temperature{index}: createRoadCrackTelemetry(
                         deviceId: "{device_id}",
-                        road: "{road}",
-                        city: "{city}",
-                        county: "{county}",
-                        state: "{state}",
+                        road: "{row['road']}",
+                        city: "{row['city']}",
+                        county: "{row['county']}",
+                        state: "{row['state']}",
                         latitude: {float(row["latitude"])},
                         longitude: {float(row["longitude"])},
                         timestamp: "{row['timestamp']}",
@@ -173,8 +170,7 @@ class DatabaseFiller:
 
         return mutations
 
-    def build_pothole_mutations(self, device_id: str, road: str, city: str, county: str | None, state: str, latitude: float,
-                                  longitude: float, dataframe: pd.DataFrame):
+    def build_pothole_mutations(self, device_id: str, dataframe: pd.DataFrame):
 
         mutations = []
 
@@ -184,10 +180,10 @@ class DatabaseFiller:
                 mutations.append(f"""
                     temperature{index}: createRoadPotholeTelemetry(
                         deviceId: "{device_id}",
-                        road: "{road}",
-                        city: "{city}",
-                        county: "{county}",
-                        state: "{state}",
+                        road: "{row['road']}",
+                        city: "{row['city']}",
+                        county: "{row['county']}",
+                        state: "{row['state']}",
                         latitude: {float(row["latitude"])},
                         longitude: {float(row["longitude"])},
                         timestamp: "{row['timestamp']}",
@@ -461,6 +457,12 @@ class DatabaseFetcher:
 def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[dict], n_days = 30):
     dbfiller = DatabaseFiller(max_telemetries_in_req=15)
 
+    for device_id in dynamic_guards:
+        dbfiller.upload_dynamic_guard_data(
+            device_id,
+            DatasetGenerator.generate_dynamic_guard_telemetries_data(n_days)
+        )
+
     for device_id in static_guards_ids:
         dbfiller.upload_static_guard_data(
             device_id,
@@ -468,37 +470,16 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[dict],
         )
 
 
-
-    for dynamic_guard in dynamic_guards:
-        dbfiller.upload_dynamic_guard_data(
-            dynamic_guard["device_id"],
-            dynamic_guard["road"],
-            dynamic_guard["city"],
-            dynamic_guard["county"],
-            dynamic_guard["state"],
-            dynamic_guard["latitude"],
-            dynamic_guard["longitude"],
-            DatasetGenerator.generate_dynamic_guard_telemetries_data(n_days)
-        )
-
-
 if __name__ == '__main__':
 
-    static_guards_ids = ["679251aa95e18aed7f6219ed"]
+    static_guards_ids = ["679251aa95e18aed7f6219ed", "679251aa95e18aed7f7219e3"]
 
-    dynamic_guards = [
-        {
-            "device_id": "6795478c9d7d3a6e9a46ada3",
-            "road": "road",
-            "city": "city",
-            "county": "county",
-            "state": "state",
-            "latitude": 24,
-            "longitude": 42,
-        }
+    dynamic_guards = [  
+        "6795478c9d7d3a6e9a46ada3",
+        "6795478c9d7d3a6e9a46bfr3",
     ]
 
-    # upload_telemetries(static_guards_ids, dynamic_guards)
+    upload_telemetries(static_guards_ids, dynamic_guards)
 
     dbfetcher = DatabaseFetcher()
 
