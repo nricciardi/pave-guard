@@ -485,10 +485,10 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], 
 
 if __name__ == '__main__':
 
-    static_guards_ids = ["679b5aa1035483aacfcfe2ad"]
+    static_guards_ids = ["679251aa95e18aed7f6219ed"]
 
     dynamic_guards = [  
-        "67363b89abbf408669327a88",
+        "6795478c9d7d3a6e9a46ada3",
     ]
 
     locations: list[dict] = [
@@ -532,15 +532,15 @@ if __name__ == '__main__':
 
     upload_telemetries(static_guards_ids, dynamic_guards, locations)
 
-    dbfetcher = DatabaseFetcher()
-
-    static_guards = dbfetcher.static_guards()
-
-    print(static_guards)
-
-    modulations = Preprocessor.get_modulated_ids(static_guards, 10, 10)
-
-    print(modulations)
+    # dbfetcher = DatabaseFetcher()
+    #
+    # static_guards = dbfetcher.static_guards()
+    #
+    # print(static_guards)
+    #
+    # modulations = Preprocessor.get_modulated_ids(static_guards, 10, 10)
+    #
+    # print(modulations)
 
 mutation {
   createStaticGuard(
