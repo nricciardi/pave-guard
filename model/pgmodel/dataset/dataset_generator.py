@@ -28,8 +28,8 @@ class DatasetGenerator:
 
         humidities = []
         for i in range(0, n_days * 48):
-            humidities.append(generators[RawFeatureName.HUMIDITY.value].generate_next_value(
-                humidities[-1] if len(humidities) > 0 else 0, from_date.today().__add__(timedelta(days=i))))
+            humidities.append(generators[DataframeKey.HUMIDITY.value].generate_next_value(
+                humidities[-1] if len(humidities) > 0 else 0, from_date + timedelta(minutes=30 * i)))
         humidity_mean = sum(humidities) / len(humidities)
 
         generators[DataframeKey.RAINFALL.value] = (
