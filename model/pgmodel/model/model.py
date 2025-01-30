@@ -402,10 +402,10 @@ if __name__ == '__main__':
     model.train(X_crack, y_crack, X_pothole, y_pothole)
 
     output_path = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
-    models_info_file_path = model.save_model_db(output_path)
+    # models_info_file_path = model.save_model_db(output_path)
 
-    updated_at = model.restore_model(models_info_file_path)
+    # updated_at = model.restore_model(models_info_file_path)
 
-    print("last updated:", updated_at)
+    # print("last updated:", updated_at)
 
     make_and_upload_daily_predictions(model)
