@@ -103,6 +103,7 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
 
     for id in data.keys():
         for telemetry_type in data[id].keys():
+            my_dfs[id] = {}
             my_dfs[id][telemetry_type] = data[id][telemetry_type][["yhat", "ds"]]
             my_dfs[id][telemetry_type] = data[id][telemetry_type].rename(
                 columns={"yhat": telemetry_type, "ds": "timestamp"})
