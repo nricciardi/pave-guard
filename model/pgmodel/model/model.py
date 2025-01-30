@@ -2,16 +2,14 @@ import json
 import sys
 import os
 from typing import Dict
-from pymongo import MongoClient
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from datetime import datetime, UTC
 import joblib
 from sklearn.model_selection import train_test_split
-from pgmodel.constants import DATABASE_NAME, RawFeatureName, FeatureName, DataframeKey, \
-    build_mongodb_endpoint
-from pgmodel.dataset.database_middleware import DatabaseFetcher
+from pgmodel.constants import DATABASE_NAME, RawFeatureName, FeatureName, DataframeKey
+from pgmodel.dataset.database_middleware import DatabaseFetcher, DatabaseFiller
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
 from sklearn.base import BaseEstimator
@@ -315,13 +313,7 @@ class PaveGuardModel:
 
 
 
-def make_and_upload_daily_predictions(mongodb_username: str, mongodb_password: str, model: PaveGuardModel):
-
-    mongodb_endpoint = build_mongodb_endpoint(mongodb_username, mongodb_password)
-
-    print(mongodb_endpoint)
-
-    mongodb_client = MongoClient(mongodb_endpoint)
+def make_and_upload_daily_predictions(model: PaveGuardModel):
 
     dbfetcher = DatabaseFetcher()
 
@@ -374,21 +366,17 @@ def make_and_upload_daily_predictions(mongodb_username: str, mongodb_password: s
 
     predictions = model.predict(data)
 
-    predictions_collection = mongodb_client[DATABASE_NAME].predictions
-
     for prediction in predictions:
 
-        print(f"upload on DB: {prediction}")
-
-        predictions_collection.replace_one({
-            "road": prediction["road"],
-            "city": prediction["city"],
-            "county": prediction["county"],
-            "state": prediction["state"],
-        }, {
+        prediction = {
             "updatedAt": str(datetime.now(UTC)),
             **prediction
-        })
+        }
+
+        print(f"upload prediction: {prediction}")
+
+        dbfiller = DatabaseFiller()
+        dbfiller.upload_prediction(prediction)
 
 
 
@@ -398,9 +386,6 @@ def make_and_upload_daily_predictions(mongodb_username: str, mongodb_password: s
 
 
 if __name__ == '__main__':
-
-    mongodb_username = sys.argv[1]
-    mongodb_password = sys.argv[2]
 
     model = PaveGuardModel(
         crack_model=DecisionTreeRegressor(),
@@ -423,4 +408,4 @@ if __name__ == '__main__':
 
     # print("last updated:", updated_at)
 
-    make_and_upload_daily_predictions(mongodb_username, mongodb_password, model)
+    make_and_upload_daily_predictions(model)
