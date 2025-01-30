@@ -33,8 +33,8 @@ class DatabaseFiller:
 
         # TODO: lat/long must change
 
-        mutations.extend(self.build_crack_mutations(device_id, road, city, county, state, dataframes[DataframeKey.CRACK.value]))
-        mutations.extend(self.build_pothole_mutations(device_id, road, city, county, state, dataframes[DataframeKey.POTHOLE.value]))
+        mutations.extend(self.build_crack_mutations(device_id, dataframes[DataframeKey.CRACK.value]))
+        mutations.extend(self.build_pothole_mutations(device_id, dataframes[DataframeKey.POTHOLE.value]))
 
         self.upload_data(mutations)
 
@@ -170,8 +170,7 @@ class DatabaseFiller:
 
         return mutations
 
-    def build_pothole_mutations(self, device_id: str, road: str, city: str, county: str | None, state: str, latitude: float,
-                                  longitude: float, dataframe: pd.DataFrame):
+    def build_pothole_mutations(self, device_id: str, dataframe: pd.DataFrame):
 
         mutations = []
 
@@ -181,10 +180,10 @@ class DatabaseFiller:
                 mutations.append(f"""
                     temperature{index}: createRoadPotholeTelemetry(
                         deviceId: "{device_id}",
-                        road: "{road}",
-                        city: "{city}",
-                        county: "{county}",
-                        state: "{state}",
+                        road: "{row['road']}",
+                        city: "{row['city']}",
+                        county: "{row['county']}",
+                        state: "{row['state']}",
                         latitude: {float(row["latitude"])},
                         longitude: {float(row["longitude"])},
                         timestamp: "{row['timestamp']}",
@@ -458,18 +457,16 @@ class DatabaseFetcher:
 def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[dict], n_days = 30):
     dbfiller = DatabaseFiller(max_telemetries_in_req=15)
 
-    for device_id in static_guards_ids:
-        dbfiller.upload_static_guard_data(
-            device_id,
-            DatasetGenerator.generate_static_guard_telemetries_data(n_days)
-        )
-
-
-
     for device_id in dynamic_guards:
         dbfiller.upload_dynamic_guard_data(
             device_id,
             DatasetGenerator.generate_dynamic_guard_telemetries_data(n_days)
+        )
+
+    for device_id in static_guards_ids:
+        dbfiller.upload_static_guard_data(
+            device_id,
+            DatasetGenerator.generate_static_guard_telemetries_data(n_days)
         )
 
 
