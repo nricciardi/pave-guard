@@ -164,6 +164,7 @@ class Preprocessor:
                 raw_dataset.at[first_occurrence_index, RawFeatureName.POTHOLE.value] = mean_crack_pothole
 
         raw_dataset = raw_dataset.dropna(how='all')
+        raw_dataset = raw_dataset.copy()
         # Add maintenance info
         raw_dataset['maintenance'] = raw_dataset.apply(
             lambda row: 1 if any(
@@ -236,6 +237,7 @@ class Preprocessor:
         if RawFeatureName.RAINFALL.value in raw_dataset:
             dataset[FeatureName.RAINFALL_QUANTITY] = self.array_sum(raw_dataset[RawFeatureName.RAINFALL.value], weights)
             dataset[FeatureName.STORM_TOTAL] = self.get_storms(raw_dataset[RawFeatureName.RAINFALL.value])
+            raw_dataset = raw_dataset.copy()
             raw_dataset.loc[:, FeatureName.IS_RAINING.value] = np.array(
             [1 if self.is_raining_at_time(raw_dataset[~np.isnan(raw_dataset[RawFeatureName.RAINFALL.value])].index, pd.to_datetime(timestamp)) else 0 for timestamp in raw_dataset.index]
         )
