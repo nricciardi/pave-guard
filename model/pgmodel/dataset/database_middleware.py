@@ -472,11 +472,10 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[dict],
 
 if __name__ == '__main__':
 
-    static_guards_ids = ["679251aa95e18aed7f6219ed", "679251aa95e18aed7f7219e3"]
+    static_guards_ids = ["679b5aa1035483aacfcfe2ad"]
 
     dynamic_guards = [  
-        "6795478c9d7d3a6e9a46ada3",
-        "6795478c9d7d3a6e9a46bfr3",
+        "67363b89abbf408669327a88",
     ]
 
     upload_telemetries(static_guards_ids, dynamic_guards)
