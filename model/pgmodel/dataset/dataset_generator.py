@@ -67,6 +67,8 @@ class DatasetGenerator:
         dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators)
         M_coord = M / 111000
         for df in dfs.values():
+            latitude = np.random.choice([center[0] for center in possible_dynamic_centers])
+            longitude = np.random.choice([center[1] for center in possible_dynamic_centers])
             df["latitude"] = np.random.uniform(latitude - M_coord, latitude + M_coord, len(df))
             df["longitude"] = np.random.uniform(longitude - M_coord, longitude + M_coord, len(df))
 
@@ -84,11 +86,17 @@ class DatasetGenerator:
         return dfs
 
     @classmethod
-    def telemetries_to_dataframe(cls, telemetries: list[pd.DataFrame]) -> pd.DataFrame:
+    def telemetries_to_dataframe(cls, telemetries: list[pd.DataFrame], n_days: int | None = None) -> pd.DataFrame:
         
         # Gets out all timestamps
         for df in telemetries:
             df['timestamp'] = pd.to_datetime(df['timestamp'])
+        # Filters dataframes by n_days
+        if n_days is not None:
+            start_date = min(df['timestamp'].min() for df in telemetries)
+            end_date = start_date + pd.Timedelta(days=n_days)
+            telemetries = [df[(df['timestamp'] >= start_date) & (df['timestamp'] <= end_date)] for df in telemetries]
+            
         timestamps = pd.concat([df['timestamp'] for df in telemetries]).drop_duplicates().sort_values()
         result_df = pd.DataFrame({'timestamp': timestamps})
         
