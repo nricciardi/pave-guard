@@ -8,12 +8,16 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 from datetime import datetime, UTC
 import joblib
 from sklearn.model_selection import train_test_split
-from pgmodel.constants import DATABASE_NAME, RawFeatureName, FeatureName, DataframeKey
+from pgmodel.constants import RawFeatureName, FeatureName, DataframeKey
 from pgmodel.dataset.database_middleware import DatabaseFetcher, DatabaseFiller
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
 from sklearn.base import BaseEstimator
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 from prophet import Prophet
@@ -140,9 +144,11 @@ class PaveGuardModel:
     crack_model_file_name = "crack_model"
     pothole_model_file_name = "pothole_model"
 
-    def __init__(self, crack_model: BaseEstimator, pothole_model: BaseEstimator,
+    def __init__(self, crack_model: BaseEstimator, crack_param_grid: dict, pothole_model: BaseEstimator, pothole_param_grid: dict,
                  test_size: float = 0.25):
 
+        self.crack_param_grid = crack_param_grid
+        self.pothole_param_grid = pothole_param_grid
         self.prophet_predictions_cache: Dict[str, Dict[str, pd.DataFrame]] = {}
         self.crack_model = crack_model
         self.pothole_model = pothole_model
@@ -208,10 +214,14 @@ class PaveGuardModel:
 
         for m in range(n_months):
 
-            print(f"predict {m + 1} month")
-
             n_days += day_in_a_month
             crack_features, pothole_features = build_eval_data(crack, pothole, self.prophet_predictions_cache, modulations, n_days)
+
+            print(f"predict {m + 1} month using:")
+            print("crack_features:")
+            print(crack_features.columns)
+            print(crack_features.iloc[0].to_list())
+
 
             crack_pred = self.crack_model.predict(crack_features)
             pothole_pred = self.pothole_model.predict(pothole_features)
@@ -252,24 +262,17 @@ class PaveGuardModel:
                 "potholeSeverityPredictions": list(final_pothole_predictions)
             })
 
-            break
 
         return predictions
 
 
 
-
-
-
-
-
-
-
-
     def __fit_crack_model(self, X: pd.DataFrame, y: pd.Series):
+        self.crack_model = GridSearchCV(estimator=self.crack_model, param_grid=self.crack_param_grid, scoring="neg_mean_squared_error")
         self.crack_model.fit(X, y)
 
     def __fit_pothole_model(self, X: pd.DataFrame, y: pd.Series):
+        self.pothole_model = GridSearchCV(estimator=self.pothole_model, param_grid=self.pothole_param_grid, scoring="neg_mean_squared_error")
         self.pothole_model.fit(X, y)
 
     def __eval_crack_model(self, X: pd.DataFrame, y: pd.Series) -> float:
@@ -401,17 +404,28 @@ def train(output: str):
     return model
 
 
-
 if __name__ == '__main__':
     output_path = "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model"
     models_info_file_path = f"{output_path}/models_info.json"
 
     model = PaveGuardModel(
-        crack_model=DecisionTreeRegressor(),
-        pothole_model=DecisionTreeRegressor(),
+        crack_model=Pipeline(steps=[
+            ("preprocessing", StandardScaler()),
+            ("model", LinearRegression())
+        ]),
+        crack_param_grid={
+            "model__positive": [True, False],
+        },
+        pothole_model=Pipeline(steps=[
+            ("preprocessing", StandardScaler()),
+            ("model", LinearRegression())
+        ]),
+        pothole_param_grid={
+            "model__positive": [True, False],
+        }
     )
 
-    # train(output_path)
+    train(output_path)
 
     updated_at = model.restore_model(models_info_file_path)
 
