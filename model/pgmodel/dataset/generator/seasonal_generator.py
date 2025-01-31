@@ -17,7 +17,7 @@ class SeasonalGenerator(IndependentGenerator):
         day_of_year = int(timestamp.strftime("%j"))
         return np.sin(2 * np.pi / self.period * (day_of_year - self.phi))
 
-    def generate_next_value(self, previous_value, timestamp: date, **kwargs):
+    def generate_next_value(self, previous_value, timestamp: date, df = None, **kwargs):
 
         modulation = self.__modulation(timestamp)
 

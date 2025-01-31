@@ -46,7 +46,7 @@ class DatasetGenerator:
         return dfs
 
     @classmethod
-    def generate_dynamic_guard_telemetries_data(cls, locations, n_days=30, to_date=date.today()):
+    def generate_dynamic_guard_telemetries_data(cls, locations, n_days=30, to_date=date.today(), df_to_use = None):
         from_date = to_date - timedelta(days=n_days)
         to_date = to_date + timedelta(days=1)
 
@@ -57,7 +57,7 @@ class DatasetGenerator:
                                                                   probability_detection=0.2,
                                                                   var_name=RawFeatureName.POTHOLE.value)
 
-        dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators)
+        dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators, df_to_use=df_to_use)
         for df in dfs.values():
             location_idxs = np.random.randint(0, len(locations), len(df))
             variations = [np.random.uniform(-locations[idx]["variation"], locations[idx]["variation"]) / 111320 for idx in location_idxs]
@@ -71,12 +71,12 @@ class DatasetGenerator:
         return dfs
 
     @classmethod
-    def generate_dfs(cls, from_date: date, to_date: date, generators: Dict[str, Generator], **kwargs) -> dict[str, pd.DataFrame]:
+    def generate_dfs(cls, from_date: date, to_date: date, generators: Dict[str, Generator], df_to_use = None, **kwargs) -> dict[str, pd.DataFrame]:
 
         dfs = {}
 
         for name, generator in generators.items():
-            df: pd.DataFrame = generator.generate(from_date=from_date, to_date=to_date, **kwargs)
+            df: pd.DataFrame = generator.generate(from_date=from_date, to_date=to_date, df=df_to_use, **kwargs)
             dfs[name] = df
         
         return dfs

@@ -30,14 +30,14 @@ class TransitGenerator(IndependentGenerator):
         self.timestamp_callback = timestamp_callback
         self.max_speed_change = max_speed_change
 
-    def generate_next_value(self, previous_value, timestamp: date, **kwargs) -> Transit:
+    def generate_next_value(self, previous_value, timestamp: date, df = None, **kwargs) -> Transit:
         length = np.random.uniform(3, 15)
         speed = previous_value + np.random.uniform(-self.max_speed_change, self.max_speed_change)
         speed = speed if speed > 20 else 20
         time = Transit.get_time(length, speed)
         return Transit(length, time, speed)
 
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, df = None, **kwargs) -> pd.DataFrame:
         
         new_timestamps = self.timestamp_callback(day, 0.95, 0.3, 15, 5, 0.99)
         previous_value = 40.
@@ -54,6 +54,6 @@ class TransitGenerator(IndependentGenerator):
         }
         return pd.DataFrame(data)
 
-    def generate(self, from_date: date, to_date: date, seed_value = None, **kwargs) -> pd.DataFrame:
+    def generate(self, from_date: date, to_date: date, seed_value = None, df = None, **kwargs) -> pd.DataFrame:
         to_return = super().generate(from_date, to_date, seed_value, **kwargs)
         return to_return
