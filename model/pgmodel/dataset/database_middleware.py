@@ -485,10 +485,10 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], 
 
 if __name__ == '__main__':
 
-    static_guards_ids = ["679b5aa1035483aacfcfe2ad"]
+    static_guards_ids = ["679b622834220629bc94425c"]
 
     dynamic_guards = [  
-        "67236c0933a3695fb68e81db",
+        "6795478c9d7d3a6e9a46ada3",
     ]
 
     locations: list[dict] = [
@@ -539,7 +539,8 @@ if __name__ == '__main__':
         }
     ]
 
-    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=365)
+    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=30)
+
 
     # dbfetcher = DatabaseFetcher()
     #
