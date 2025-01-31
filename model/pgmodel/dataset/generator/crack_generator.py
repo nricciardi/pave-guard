@@ -26,7 +26,7 @@ class CrackGenerator(IndependentGenerator):
 
     def __init__(self, timespace_callback: Callable[[date, int], np.ndarray] = random_timespace,
                  min_cracks: int = 1, max_cracks: int = 20, cracks_gravity_average: int = 30,
-                 probability_detection: float = 0.5, max_change: float = 30,
+                 probability_detection: float = 0.5, max_change: float = 5,
                  cracks_gravity_deviation=20, **kwargs):
 
         super().__init__(timestamp_callback=timespace_callback, max_change=max_change, **kwargs)
