@@ -41,26 +41,29 @@ class DatabaseFiller:
 
     def upload_data(self, mutations: list[str]):
 
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from itertools import islice
+
         headers = {"Content-Type": "application/json"}
 
-        while len(mutations) > 0:
-
-            counter = 0
-            body = []
-            while len(mutations) > 0 and counter < self.max_telemetries_in_req:
-
-                body.append(mutations.pop())
-                counter += 1
-
-            query = f"mutation {{ {','.join(body)} }}"
-
+        def send_request(batch):
+            query = f"mutation {{ {' '.join(batch)} }}"
             response = requests.post(self.graphql_endpoint, json={"query": query}, headers=headers)
-
-            print(response)
 
             if response.status_code != 200:
                 print(query)
                 print(response.text)
+
+            return response
+
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = [
+                executor.submit(send_request, mutations[i:i + self.max_telemetries_in_req])
+                for i in range(0, len(mutations), self.max_telemetries_in_req)
+            ]
+
+            for future in as_completed(futures):
+                print(future.result())  # Process completed requests
 
 
     def build_temperature_mutations(self, device_id: str, dataframe: pd.DataFrame):
