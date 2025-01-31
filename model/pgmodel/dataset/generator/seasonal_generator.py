@@ -23,4 +23,4 @@ class SeasonalGenerator(IndependentGenerator):
 
         next_value = self.magnitude * modulation + self.mean_value + np.random.uniform(-self.max_change, self.max_change)
         next_value = max(self.min_value, min(self.max_value, next_value))
-        return np.random.choice([next_value, previous_value])
+        return next_value
