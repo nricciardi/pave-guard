@@ -581,3 +581,188 @@ class PredictionQueryManager extends QueryAbstractManager {
   }
 
 }
+
+class Temperature {
+  DateTime date;
+  double temperature;
+  Temperature(this.date, this.temperature);
+}
+
+class TemperatureTelemetryQueryManager extends QueryAbstractManager {
+
+  @override
+  bool checkData(data, {String token = ""}) {
+    if(data is! LocationData) return false;
+    return token != "";
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try {
+      if (queryResult.data!["temperatureTelemetries"] == null) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    return """query {
+                temperatureTelemetries(
+                  road: "${data.road}",
+                  city: "${data.city}",
+                  county: "${data.county}",
+                  state: "${data.state}"
+                ){
+                  timestamp,
+                  temperature
+                }
+    }
+          """;
+  }
+
+  List<Temperature> getTemperatures(QueryResult qr){
+    List<dynamic> data = qr.data!["temperatureTelemetries"];
+    List<Temperature> temps = [];
+    for (var telemetry in data) {
+      temps.add(Temperature(DateTime.parse(telemetry["timestamp"]), telemetry["temperature"].toDouble()));
+    }
+    Map<DateTime, List<double>> dailyTemperatures = {};
+    for (var temp in temps) {
+      DateTime date = DateTime(temp.date.year, temp.date.month, temp.date.day);
+      if (!dailyTemperatures.containsKey(date)) {
+      dailyTemperatures[date] = [];
+      }
+      dailyTemperatures[date]!.add(temp.temperature);
+    }
+
+    List<Temperature> averagedTemps = [];
+    dailyTemperatures.forEach((date, temperatures) {
+      double sum = temperatures.reduce((a, b) => a + b);
+      averagedTemps.add(Temperature(date, sum / temperatures.length));
+    });
+
+    temps = averagedTemps;
+    return temps;
+  }
+
+}
+
+class Humidity{
+  DateTime date;
+  double humidity;
+  Humidity(this.date, this.humidity);
+}
+
+class HumidityTelemetryQueryManager extends QueryAbstractManager{
+  
+  @override
+  bool checkData(data, {String token = ""}) {
+    if(data is! LocationData) return false;
+    return token != "";
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try {
+      if (queryResult.data!["temperatureTelemetries"] == null) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    return """query {
+                humidityTelemetries(
+                  road: "${data.road}",
+                  city: "${data.city}",
+                  county: "${data.county}",
+                  state: "${data.state}"
+                ){
+                  timestamp,
+                  humidity
+                }
+    }
+          """;
+  }
+
+  List<Humidity> getHumidity(QueryResult qr){
+    List<dynamic> data = qr.data!["humidityTelemetries"];
+    List<Humidity> hums = [];
+    for (var telemetry in data) {
+      hums.add(Humidity(DateTime.parse(telemetry["timestamp"]), telemetry["humidity"].toDouble()));
+    }
+    Map<DateTime, List<double>> dailyHumidity = {};
+    for (var hum in hums) {
+      DateTime date = DateTime(hum.date.year, hum.date.month, hum.date.day);
+      if (!dailyHumidity.containsKey(date)) {
+        dailyHumidity[date] = [];
+      }
+      dailyHumidity[date]!.add(hum.humidity);
+    }
+
+    List<Humidity> averagedHums = [];
+    dailyHumidity.forEach((date, humidities) {
+      double sum = humidities.reduce((a, b) => a + b);
+      averagedHums.add(Humidity(date, sum / humidities.length));
+    });
+
+    hums = averagedHums;
+    return hums;
+  }
+
+}
+
+class Telemetries {
+  List<Temperature> temperatures;
+  List<Humidity> humidities;
+  Telemetries(this.temperatures, this.humidities);
+
+  Telemetries getRecentData(int n_days){
+    List<Temperature> temps = [];
+    List<Humidity> hums = [];
+    DateTime now = DateTime.now();
+    for(Temperature temp in temperatures){
+      if(now.difference(temp.date).inDays <= n_days){
+        temps.add(temp);
+      }
+    }
+    for(Humidity hum in humidities){
+      if(now.difference(hum.date).inDays <= n_days){
+        hums.add(hum);
+      }
+    }
+    return Telemetries(temps, hums);
+  }
+}
+
+class TelemetryQueryManager {
+
+  static Future<Telemetries> getTelemetries(LocationData location, String token) async {
+    TemperatureTelemetryQueryManager tempManager = TemperatureTelemetryQueryManager();
+    HumidityTelemetryQueryManager humManager = HumidityTelemetryQueryManager();
+    List<Temperature> temps = [];
+    List<Humidity> hums = [];
+    QueryResult tempQr = await tempManager.sendQuery(location, token: token);
+    temps = tempManager.getTemperatures(tempQr);
+    QueryResult humQr = await humManager.sendQuery(location, token: token);
+    hums = humManager.getHumidity(humQr);
+    return Telemetries(temps, hums);
+  }
+
+  static Future<Map<LocationData, Telemetries>> getTelemetriesForLocations(List<LocationData> locations, String token) async {
+    Map<LocationData, Telemetries> result = {};
+    for(LocationData location in locations){
+      result[location] = await getTelemetries(location, token);
+    }
+    return result;
+  }
+
+}

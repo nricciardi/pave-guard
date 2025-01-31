@@ -15,8 +15,8 @@ class SideMenu extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              //color: const Color.fromARGB(222, 220, 220, 211),
+              //color: Theme.of(context).primaryColor,
+              color: const Color.fromARGB(222, 237, 237, 228),
             ),
             child: Center(
               child: Text(
@@ -24,13 +24,13 @@ class SideMenu extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  /*
+                  // color: Colors.white,
+                  
                   foreground: Paint()
                     ..shader = const LinearGradient(
                       colors: <Color>[Colors.blue, Colors.purple],
                     ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
-                    */
+                    
                 ),
               ),
             ),
