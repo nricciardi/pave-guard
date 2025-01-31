@@ -131,7 +131,7 @@ class Preprocessor:
         return ids_to_ret
 
     def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], maintenances: list[dict],
-                consecutive_measures_only: bool = True) -> pd.DataFrame:
+                consecutive_measures_only: bool = False) -> pd.DataFrame:
 
         index_list_crack = []
         index_list_pothole = []
@@ -183,12 +183,17 @@ class Preprocessor:
 
         for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
             for i in range(0, len(index_list) - 1):
+                if i % 10 != 0:
+                    continue
                 index = index_list[i]
                 row = raw_dataset.loc[index]
                 if not self.is_row_to_process(row, feature_name):
                     continue
                 # Set the first row, I look for another one
                 for j in range(i+1, i+2 if consecutive_measures_only else len(index_list)):
+                    if not consecutive_measures_only:
+                        if j % 10 != 0:
+                            continue
                     last_index = index_list[j]
                     last_row = raw_dataset.loc[last_index]
                     if last_row['maintenance'] == 1:

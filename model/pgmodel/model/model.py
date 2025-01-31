@@ -69,8 +69,15 @@ def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
             print("error:", key_error)
             print(location)
 
-    db_total_crack = pd.concat(db_total_crack, ignore_index=True)
-    db_total_pothole = pd.concat(db_total_pothole, ignore_index=True)
+    if db_total_crack:
+        db_total_crack = pd.concat(db_total_crack, ignore_index=True)
+    else:
+        db_total_crack = pd.DataFrame()
+
+    if db_total_pothole:
+        db_total_pothole = pd.concat(db_total_pothole, ignore_index=True)
+    else:
+        db_total_pothole = pd.DataFrame()
 
     return db_total_crack, db_total_pothole
 
@@ -391,6 +398,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 def train(output_path: str):
     crack_dataset, pothole_dataset = final_dataset()
+    crack_dataset.to_csv(os.join(output_path, "crack_dataset.csv"))
 
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
     X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET])
@@ -427,9 +435,9 @@ if __name__ == '__main__':
         }
     )
 
-    train(output_path_nic)
+    train(output_path_fil)
 
-    updated_at = model.restore_model(models_info_file_path_nic)
+    updated_at = model.restore_model(output_path_fil)
 
     print("last updated:", updated_at)
 
