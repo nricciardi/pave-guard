@@ -22,8 +22,9 @@ class DatasetGenerator:
         generators = {}
         generators[DataframeKey.TEMPERATURE.value] = SeasonalGenerator(magnitude=25, min_value=-20, max_value=40,
                                                                          mean_value=18, seed_value=10,
+                                                                         max_change=0.1,
                                                                          var_name=RawFeatureName.TEMPERATURE.value)
-        generators[DataframeKey.HUMIDITY.value] = SeasonalGenerator(mean_value=50, magnitude=50,
+        generators[DataframeKey.HUMIDITY.value] = SeasonalGenerator(mean_value=50, magnitude=50, max_change=0.1,
                                                                       var_name=RawFeatureName.HUMIDITY.value)
 
         humidities = []
