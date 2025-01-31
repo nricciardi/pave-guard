@@ -49,6 +49,13 @@ Therefore, adopting PaveGuard we can save a lot of moneys also reducing emergenc
 Obviously, more maintenances imply safer roads, decreasing road accident risks. 
 
 
+## Future plans
+
+To improve capabilities of our system, we have planed to include a solar panel to make our devices energy-independent.
+
+In addiction, given that currently we already track vehicles transits, we want to improve traffic analysis, in order to help maintenances scheduling.
+
+
 
 
 

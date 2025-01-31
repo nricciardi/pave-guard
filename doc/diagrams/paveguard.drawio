@@ -1,0 +1,63 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0" version="26.0.8">
+  <diagram name="Page-1" id="txTOLlNM27OkJ3GqCPOo">
+    <mxGraphModel dx="1221" dy="766" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="FGLDaiwebDbNA00ETND8-11" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="FGLDaiwebDbNA00ETND8-16" target="FGLDaiwebDbNA00ETND8-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="440" y="141.85074626865674" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;" edge="1" parent="1" source="FGLDaiwebDbNA00ETND8-2" target="FGLDaiwebDbNA00ETND8-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-2" value="&lt;font face=&quot;Comic Sans MS&quot;&gt;DynamicGuard&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE8F8;strokeColor=#FF99FF;" vertex="1" parent="1">
+          <mxGeometry x="159" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-3" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot; face=&quot;Comic Sans MS&quot;&gt;DynamicBridge&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="319" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-13" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;" edge="1" parent="1" source="FGLDaiwebDbNA00ETND8-4" target="FGLDaiwebDbNA00ETND8-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;" edge="1" parent="1" source="FGLDaiwebDbNA00ETND8-4" target="FGLDaiwebDbNA00ETND8-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;" edge="1" parent="1" source="FGLDaiwebDbNA00ETND8-4" target="FGLDaiwebDbNA00ETND8-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-4" value="&lt;div&gt;&lt;font face=&quot;Comic Sans MS&quot;&gt;Server&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 10px;&quot; face=&quot;Comic Sans MS&quot;&gt;(backend)&lt;br&gt;&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="662" y="151" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-5" value="&lt;font face=&quot;Comic Sans MS&quot;&gt;Dashboard&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="990" y="151" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-9" value="Internet" style="verticalLabelPosition=bottom;sketch=0;aspect=fixed;html=1;verticalAlign=top;strokeColor=none;align=center;outlineConnect=0;shape=mxgraph.citrix.cloud;" vertex="1" parent="1">
+          <mxGeometry x="500" y="150" width="95" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-10" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="FGLDaiwebDbNA00ETND8-3" target="FGLDaiwebDbNA00ETND8-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;" edge="1" parent="1" source="FGLDaiwebDbNA00ETND8-15" target="FGLDaiwebDbNA00ETND8-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-15" value="&lt;font face=&quot;Comic Sans MS&quot;&gt;StaticGuard&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="159" y="60" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-16" value="&lt;font face=&quot;Comic Sans MS&quot;&gt;StaticBridge&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="320" y="60" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;" edge="1" parent="1" source="FGLDaiwebDbNA00ETND8-18" target="FGLDaiwebDbNA00ETND8-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-18" value="Internet" style="verticalLabelPosition=bottom;sketch=0;aspect=fixed;html=1;verticalAlign=top;strokeColor=none;align=center;outlineConnect=0;shape=mxgraph.citrix.cloud;" vertex="1" parent="1">
+          <mxGeometry x="843" y="150" width="95" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="FGLDaiwebDbNA00ETND8-21" value="Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="683" y="240" width="78" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
