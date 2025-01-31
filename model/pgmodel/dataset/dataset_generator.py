@@ -20,7 +20,7 @@ class DatasetGenerator:
         from_date = to_date - timedelta(days=n_days)
 
         generators = {}
-        generators[DataframeKey.TEMPERATURE.value] = SeasonalGenerator(magnitude=18, min_value=-20, max_value=40,
+        generators[DataframeKey.TEMPERATURE.value] = SeasonalGenerator(magnitude=20, min_value=-20, max_value=40,
                                                                          mean_value=18, seed_value=10,
                                                                          max_change=0.1,
                                                                          var_name=RawFeatureName.TEMPERATURE.value)
