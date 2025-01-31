@@ -21,7 +21,7 @@
         <mxCell id="Zu1WbOFwV2hiM9HSU3Zj-6" value="&lt;font face=&quot;Comic Sans MS&quot;&gt;StaticBridge&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
           <mxGeometry x="481" y="168" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="Zu1WbOFwV2hiM9HSU3Zj-12" value="&lt;span style=&quot;color: rgb(77, 77, 77);&quot;&gt;Single board&lt;font style=&quot;font-size: 10px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;opacity=50;" vertex="1" parent="1">
+        <mxCell id="Zu1WbOFwV2hiM9HSU3Zj-12" value="&lt;span style=&quot;color: rgb(77, 77, 77);&quot;&gt;&lt;span style=&quot;color: rgb(77, 77, 77);&quot;&gt;Single board&lt;font style=&quot;font-size: 10px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;opacity=50;" vertex="1" parent="1">
           <mxGeometry x="310" y="110" width="310" height="150" as="geometry" />
         </mxCell>
       </root>

@@ -56,6 +56,15 @@ To improve capabilities of our system, we have planed to include a solar panel t
 In addiction, given that currently we already track vehicles transits, we want to improve traffic analysis, in order to help maintenances scheduling.
 
 
+## PaveGuard system: Overview
+
+PaveGuard system, as already mentioned, is composed by many components.
+
+StaticGuards and DynamicGuards use sensors to obtain telemetries from environment and exploit bridges to send them to backed over Internet.
+
+
+
+
 
 
 
