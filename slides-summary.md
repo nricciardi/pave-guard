@@ -62,11 +62,44 @@ PaveGuard system, as already mentioned, is composed by many components.
 
 StaticGuards and DynamicGuards use sensors to obtain telemetries from environment and exploit bridges to send them to backed over Internet.
 
+Backend mainly performs two actions: receives telemetries from devices, storing them into database, and serves our clients.
+
+Thanks to backend's API, the model and dashboard can get data. Model use data to perform predictions, dashboard visualizes them.
 
 
+## StaticGuard
+
+StaticGuard device is placed on a road lamp, in order to capture traffic telemetries from above. 
+
+It uses a micro-controller and a set of sensors to collect information about:
+
+- Temperature
+- Humidity
+- Rainfall
+- Transits of its road 
+
+These information are sent using its bridge to remote server.
+
+Bridge is integrated into micro-controller and it allows to establish a Wi-Fi connection.
+
+Information about environment will be used to provide some historical data for all nearby streets.
 
 
+## DynamicGuard
 
+TODO
+
+## Backend
+
+TODO
+
+## Dashboard
+
+TODO
+
+## Model
+
+TODO
 
 
 
