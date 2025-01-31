@@ -31,6 +31,9 @@ def is_maintenance_for_road(maintenance, location) -> bool:
 
 
 def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
+
+    print("generating final dataset (train dataset)...")
+
     dbfetcher = DatabaseFetcher()
 
     static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
@@ -43,6 +46,8 @@ def final_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
     db_total_pothole: list[pd.DataFrame] = []
 
     for location, crack_telemetries_of_loc, pothole_telemetries_of_loc in zip(locations, crack_telemetries, pothole_telemetries):
+
+        print(f"processing: {location}")
 
         if crack_telemetries_of_loc.empty or pothole_telemetries_of_loc.empty:
             continue
@@ -168,7 +173,10 @@ class PaveGuardModel:
 
         X_train_pothole, X_test_pothole, y_train_pothole, y_test_pothole = train_test_split(X_pothole, y_pothole, test_size=self.test_size)
 
+        print("fit crack model...")
         self.__fit_crack_model(X_train_crack, y_train_crack)
+
+        print("fit pothole model...")
         self.__fit_pothole_model(X_train_pothole, y_train_pothole)
 
         self.performances = {
@@ -225,9 +233,9 @@ class PaveGuardModel:
             crack_features, pothole_features = build_eval_data(crack, pothole, self.prophet_predictions_cache, modulations, n_days)
 
             print(f"predict {m + 1} month using:")
-            print("crack_features:")
-            print(crack_features.columns)
-            print(crack_features.iloc[0].to_list())
+            # print("crack_features:")
+            # print(crack_features.columns)
+            # print(crack_features.iloc[0].to_list())
 
 
             crack_pred = self.crack_model.predict(crack_features)
@@ -435,9 +443,9 @@ if __name__ == '__main__':
         }
     )
 
-    train(output_path_fil)
+    train(model, output_path_nic)
 
-    updated_at = model.restore_model(output_path_fil)
+    updated_at = model.restore_model(models_info_file_path_nic)
 
     print("last updated:", updated_at)
 
