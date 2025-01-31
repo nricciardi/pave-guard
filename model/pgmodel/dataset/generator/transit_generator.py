@@ -31,7 +31,7 @@ class TransitGenerator(IndependentGenerator):
         self.max_speed_change = max_speed_change
 
     def generate_next_value(self, previous_value, timestamp: date, **kwargs) -> Transit:
-        length = np.random.uniform(2.5, 5)
+        length = np.random.uniform(3, 15)
         speed = previous_value + np.random.uniform(-self.max_speed_change, self.max_speed_change)
         speed = speed if speed > 20 else 20
         time = Transit.get_time(length, speed)

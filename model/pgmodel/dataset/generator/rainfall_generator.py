@@ -51,7 +51,7 @@ class RainfallGenerator(Generator, ABC):
 
     def __init__(self, var_name: str = "rain", timestamp_callback: Callable[[date, float, float], np.ndarray] = generate_aggregate_timespace,
                  humidity_mean: float = 50, rain_aggressivity_mean: float = 0.5, rain_duration_average_minutes: float = 70,
-                 rain_duration_variance: float = 30, rain_click_measure: float = 3, **kwargs):
+                 rain_duration_variance: float = 30, rain_click_measure: float = 0.3, **kwargs):
 
         super().__init__(**kwargs)
 

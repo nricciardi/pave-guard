@@ -101,7 +101,7 @@ class Preprocessor:
                 (data <= timestamp + delta)).any()
 
     def is_vehicle_heavy(self, vehicle_length: float) -> bool:
-        return vehicle_length >= 4
+        return vehicle_length >= 7.5
 
     def is_row_to_process(self, row: pd.Series, feature_name: str) -> bool:
         is_crack_present = pd.notna(row[feature_name])
