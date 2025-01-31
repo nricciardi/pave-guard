@@ -40,9 +40,16 @@ PaveGuard is composed by different components.
 
 ## Advantages of PaveGuard
 
-We can suddivide 
+The advantages of PaveGuard are, first of all, very low production and installation costs.
 
-Savings: PaveGuard reduce emergency maintenances and the overall number of interventions.
+In addiction, we must consider that PaveGuard system performs a fully-automated track of road conditions, reducing number of needed humans supervisors. 
+
+Therefore, adopting PaveGuard we can save a lot of moneys also reducing emergency maintenances thanks to preventive maintenance.
+
+Obviously, more maintenances imply safer roads, decreasing road accident risks. 
+
+
+
 
 
 
