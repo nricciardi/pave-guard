@@ -152,14 +152,14 @@ class Preprocessor:
                 index_list_crack.append(non_null_indices_crack[0])
                 first_occurrence_index = non_null_indices_crack[0]
                 mean_crack_severity = group[RawFeatureName.CRACK.value].mean()
-                to_add = group[group[RawFeatureName.CRACK.value].notna()].index
+                to_add = group[group[RawFeatureName.CRACK.value].notna()].index.difference([first_occurrence_index])
                 raw_dataset.loc[to_add] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.CRACK.value] = mean_crack_severity
             if RawFeatureName.POTHOLE.value in group and not non_null_indices_pothole.empty:
                 index_list_pothole.append(non_null_indices_pothole[0])
                 first_occurrence_index = non_null_indices_pothole[0]
                 mean_crack_pothole = group[RawFeatureName.POTHOLE.value].mean()
-                to_add = group[group[RawFeatureName.POTHOLE.value].notna()].index
+                to_add = group[group[RawFeatureName.POTHOLE.value].notna()].index.difference([first_occurrence_index])
                 raw_dataset.loc[to_add] = np.nan
                 raw_dataset.at[first_occurrence_index, RawFeatureName.POTHOLE.value] = mean_crack_pothole
 
