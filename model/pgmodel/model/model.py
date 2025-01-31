@@ -450,13 +450,13 @@ if __name__ == '__main__':
     model = PaveGuardModel(
         crack_model=Pipeline(steps=[
             # ("preprocessing", Normalizer()),
-            # ("kbest", SelectKBest()),
-            ("model", DecisionTreeRegressor())
+            ("kbest", SelectKBest()),
+            ("model", SVR())
         ]),
         crack_param_grid={
             # "model__positive": [True, False],
 
-            # "kbest__k": range(3, 10),
+            "kbest__k": range(3, 10),
 
             # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
             # "model__max_depth": (None, 2, 3, 4, 5, 6, 7),
@@ -468,20 +468,20 @@ if __name__ == '__main__':
             # "model__weights": ("uniform", "distance", None),
             # "model__algorithm": ("auto", "ball_tree", "kd_tree", "brute"),
 
-            # "model__C": (0.1, 0.4, 0.7, 1, 1.2, 1.5),
-            # "model__kernel": ("linear", "rbf"),
-            # "model__epsilon": (0.05, 0.1, 0.15, 0.2),
+            "model__C": (0.1, 0.4, 0.7, 1, 1.2, 1.5),
+            "model__kernel": ("linear", "rbf"),
+            "model__epsilon": (0.05, 0.1, 0.15, 0.2),
 
         },
         pothole_model=Pipeline(steps=[
             # ("preprocessing", Normalizer()),
-            # ("kbest", SelectKBest()),
-            ("model", DecisionTreeRegressor())
+            ("kbest", SelectKBest()),
+            ("model", SVR())
         ]),
         pothole_param_grid={
             # "model__positive": [True, False],
 
-            # "kbest__k": range(3, 10),
+            "kbest__k": range(3, 10),
 
             # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
             # "model__max_depth": (None, 2, 3, 4, 5, 6, 7),
@@ -493,9 +493,9 @@ if __name__ == '__main__':
             # "model__weights": ("uniform", "distance", None),
             # "model__algorithm": ("auto", "ball_tree", "kd_tree", "brute"),
 
-            # "model__C": (0.1, 0.4, 0.7, 1, 1.2, 1.5),
-            # "model__kernel": ("linear", "rbf"),
-            # "model__epsilon": (0.05, 0.1, 0.15, 0.2),
+            "model__C": (0.1, 0.4, 0.7, 1, 1.2, 1.5),
+            "model__kernel": ("linear", "rbf"),
+            "model__epsilon": (0.05, 0.1, 0.15, 0.2),
         }
     )
 
@@ -514,14 +514,14 @@ if __name__ == '__main__':
     print(model.crack_model.best_params_)
     print(model.pothole_model.best_params_)
 
-    crack_weights = model.crack_model.best_estimator_[-1].coef_
-    pothole_weights = model.pothole_model.best_estimator_[-1].coef_
-
-    print("crack model:")
-    print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
-
-    print("pothole model:")
-    print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
+    # crack_weights = model.crack_model.best_estimator_[-1].coef_
+    # pothole_weights = model.pothole_model.best_estimator_[-1].coef_
+    #
+    # print("crack model:")
+    # print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
+    #
+    # print("pothole model:")
+    # print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
 
 
     # make_and_upload_daily_predictions(model)

@@ -91,7 +91,22 @@ TODO
 
 ## Backend
 
-TODO
+Backend is the component that stores and manages information of the entire system.
+It is composed by more remote modules.
+
+It stores information about users. There are two types of accounts:
+
+- Administrators
+- Citizens, that are common accounts
+
+It creates digital representation of devices, acquiring and storing information about devices.
+Each DynamicGuard is associated to citizen’s account.
+StaticGuards don’t have a owner and administrators can see their information using the dashboard.
+
+In addiction, it manages data produced by devices and provides their telemetries through API, in order to allow other components (e.g. the model) to use them.
+
+
+
 
 ## Dashboard
 
@@ -99,7 +114,13 @@ TODO
 
 ## Model
 
-TODO
+The Model is the game-changer component of our system.
+It exploits information about environment and actual road conditions, acquired by devices, to make predictions about future state of the roads.
+
+The model is able to improve its performances, processing new data incoming from devices continuously.
+
+The model provides predictions about future state of the roads, in order to allow administrators to plan targeted interventions.
+
 
 
 
