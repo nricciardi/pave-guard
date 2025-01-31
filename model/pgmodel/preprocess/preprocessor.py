@@ -187,7 +187,7 @@ class Preprocessor:
 
         for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
             for i in range(0, len(index_list) - 1):
-                if i % 10 != 0:
+                if i % 10 != 0 and not consecutive_measures_only:
                     continue
                 index = index_list[i]
                 row = raw_dataset.loc[index]
