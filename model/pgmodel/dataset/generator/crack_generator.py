@@ -46,4 +46,5 @@ class CrackGenerator(IndependentGenerator):
         values = []
         for timestamp in timestamps:
             values.append(self.generate_next_value(0, timestamp))
+        self.cracks = [crack + np.random.uniform(0, 0.2) for crack in self.cracks]
         return pd.DataFrame({'timestamp': timestamps, self.var_name: values})
