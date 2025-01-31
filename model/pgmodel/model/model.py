@@ -398,7 +398,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 def train(output_path: str):
     crack_dataset, pothole_dataset = final_dataset()
-    crack_dataset.to_csv(os.join(output_path, "crack_dataset.csv"))
+    crack_dataset.to_csv(os.path(output_path, "crack_dataset.csv"))
 
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
     X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET])
