@@ -468,8 +468,8 @@ class DatabaseFetcher:
         return requests.post(self.graphql_endpoint, json={"query": query}, headers=headers)
 
 
-def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], locations, n_days = 100):
-    dbfiller = DatabaseFiller(max_telemetries_in_req=15)
+def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], locations, n_days):
+    dbfiller = DatabaseFiller(max_telemetries_in_req=25)
 
     for device_id in dynamic_guards:
         dbfiller.upload_dynamic_guard_data(
@@ -540,7 +540,7 @@ if __name__ == '__main__':
         }
     ]
 
-    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=30)
+    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=100)
 
 
     # dbfetcher = DatabaseFetcher()
