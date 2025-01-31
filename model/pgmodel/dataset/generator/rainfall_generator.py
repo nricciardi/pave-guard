@@ -74,7 +74,7 @@ class RainfallGenerator(Generator, ABC):
         )
         return prob
 
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, df = None, **kwargs) -> pd.DataFrame:
 
         timestamps = self.timestamp_callback(day, self.rain_probability(day), np.random.uniform(0.01, 1.))
         values = []

@@ -3,6 +3,7 @@ from datetime import date, datetime
 import pandas as pd
 import numpy as np
 
+from pgmodel.constants import DataframeKey
 from pgmodel.dataset.generator.ind_generator import IndependentGenerator
 from typing import Callable
 
@@ -41,10 +42,16 @@ class CrackGenerator(IndependentGenerator):
         detected = np.random.choice(self.cracks)
         return int(max(0, min(100, detected + np.random.uniform(-self.max_change, self.max_change))))
 
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, df = None, **kwargs) -> pd.DataFrame:
         timestamps = random_timespace(day, int(np.random.standard_normal() * 100 * self.num_cracks * self.probability_detection))
         values = []
         for timestamp in timestamps:
             values.append(self.generate_next_value(0, timestamp))
-        self.cracks = [crack + np.random.uniform(0, 0.2) for crack in self.cracks]
+        to_increase = 0.05
+        if df is not None:
+            if DataframeKey.RAINFALL.value in df:
+                part = df[DataframeKey.RAINFALL.value]
+                part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
+                to_increase += part.size / 10000
+        self.cracks = [crack + np.random.uniform(0, to_increase) for crack in self.cracks]
         return pd.DataFrame({'timestamp': timestamps, self.var_name: values})

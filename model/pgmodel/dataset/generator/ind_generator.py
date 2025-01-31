@@ -21,10 +21,10 @@ class IndependentGenerator(Generator, ABC):
         self.max_change = max_change
 
     @abstractmethod
-    def generate_next_value(self, previous_value, timestamp: date, **kwargs):
+    def generate_next_value(self, previous_value, timestamp: date, df=None, **kwargs):
         raise NotImplemented
 
-    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, **kwargs) -> pd.DataFrame:
+    def generate_day_data(self, day: date, previous_day_data: np.ndarray | None = None, df = None, **kwargs) -> pd.DataFrame:
 
         timestamps = self.timestamp_callback(day, self.values_in_a_day)
 

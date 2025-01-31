@@ -471,16 +471,18 @@ class DatabaseFetcher:
 def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], locations, n_days):
     dbfiller = DatabaseFiller(max_telemetries_in_req=25)
 
+    dfs = DatasetGenerator.generate_static_guard_telemetries_data(n_days=n_days, to_date=date.today())
+
     for device_id in dynamic_guards:
         dbfiller.upload_dynamic_guard_data(
             device_id,
-            DatasetGenerator.generate_dynamic_guard_telemetries_data(locations, n_days=n_days, to_date=date.today())
+            DatasetGenerator.generate_dynamic_guard_telemetries_data(locations, n_days=n_days, to_date=date.today(), df_to_use=dfs)
         )
 
     for device_id in static_guards_ids:
         dbfiller.upload_static_guard_data(
             device_id,
-            DatasetGenerator.generate_static_guard_telemetries_data(n_days=n_days, to_date=date.today())
+            dfs,
         )
 
 
