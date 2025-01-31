@@ -131,7 +131,7 @@ class Preprocessor:
         return ids_to_ret
 
     def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], maintenances: list[dict],
-                consecutive_measures_only: bool = True) -> pd.DataFrame:
+                consecutive_measures_only: bool = False) -> pd.DataFrame:
 
         index_list_crack = []
         index_list_pothole = []
@@ -172,6 +172,10 @@ class Preprocessor:
                 ) else 0, axis=1
             )
         )
+        rainfall_indices = raw_dataset.loc[~raw_dataset[RawFeatureName.RAINFALL.value].isna()].index
+        raw_dataset.loc[:, FeatureName.IS_RAINING.value] = raw_dataset.index.to_series().apply(
+            lambda timestamp: int(self.is_raining_at_time(rainfall_indices, pd.to_datetime(timestamp)))
+        )
 
         return self.partition_and_process(raw_dataset, index_list_crack, index_list_pothole, consecutive_measures_only=consecutive_measures_only)
 
@@ -183,12 +187,17 @@ class Preprocessor:
 
         for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
             for i in range(0, len(index_list) - 1):
+                if i % 10 != 0 and not consecutive_measures_only:
+                    continue
                 index = index_list[i]
                 row = raw_dataset.loc[index]
                 if not self.is_row_to_process(row, feature_name):
                     continue
                 # Set the first row, I look for another one
                 for j in range(i+1, i+2 if consecutive_measures_only else len(index_list)):
+                    if not consecutive_measures_only:
+                        if j % 10 != 0:
+                            continue
                     last_index = index_list[j]
                     last_row = raw_dataset.loc[last_index]
                     if last_row['maintenance'] == 1:
@@ -238,18 +247,7 @@ class Preprocessor:
         if RawFeatureName.RAINFALL.value in raw_dataset:
             dataset[FeatureName.RAINFALL_QUANTITY] = self.array_sum(raw_dataset[RawFeatureName.RAINFALL.value], weights)
             dataset[FeatureName.STORM_TOTAL] = self.get_storms(raw_dataset[RawFeatureName.RAINFALL.value])
-            raw_dataset = raw_dataset.copy()
 
-            rainfall_indices = raw_dataset.loc[~raw_dataset[RawFeatureName.RAINFALL.value].isna()].index
-
-            raw_dataset.loc[:, FeatureName.IS_RAINING.value] = raw_dataset.index.to_series().apply(
-                lambda timestamp: int(self.is_raining_at_time(rainfall_indices, pd.to_datetime(timestamp)))
-            )
-
-            # Belzebù:
-            # raw_dataset.loc[:, FeatureName.IS_RAINING.value] = np.array(
-            #     [1 if self.is_raining_at_time(raw_dataset[~np.isnan(raw_dataset[RawFeatureName.RAINFALL.value])].index, pd.to_datetime(timestamp)) else 0 for timestamp in raw_dataset.index]
-            # )
         else:
             dataset[FeatureName.RAINFALL_QUANTITY] = 0
             dataset[FeatureName.STORM_TOTAL] = 0
