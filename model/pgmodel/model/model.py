@@ -198,7 +198,7 @@ class PaveGuardModel:
 
         self.performances = {
             "crack_model_performance": self.__eval_crack_model(X_test_crack, y_test_crack),
-            "pothole_model_performance": self.__eval_crack_model(X_test_pothole, y_test_pothole),
+            "pothole_model_performance": self.__eval_pothole_model(X_test_pothole, y_test_pothole),
         }
 
         return self.performances
@@ -447,31 +447,31 @@ if __name__ == '__main__':
 
     model = PaveGuardModel(
         crack_model=Pipeline(steps=[
-            ("preprocessing", RobustScaler()),
-            ("kbest", SelectKBest()),
-            ("model", RandomForestRegressor())
+            # ("preprocessing", RobustScaler()),
+            # ("kbest", SelectKBest()),
+            ("model", LinearRegression())
         ]),
         crack_param_grid={
-            # "model__positive": [True, False],
-            "kbest__k": range(3, 10),
-            "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
-            "model__max_depth": (None, 2, 3, 4, 5, 6, 7),
-            "model__max_leaf_nodes": (None, 2, 3, 4, 5, 6, 7),
-            "model__n_estimators": (10, 50, 100)
+            "model__positive": [True, False],
+            # "kbest__k": range(3, 10),
+            # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
+            # "model__max_depth": (None, 2, 3, 4, 5, 6, 7),
+            # "model__max_leaf_nodes": (None, 2, 3, 4, 5, 6, 7),
+            # "model__n_estimators": (10, 50, 100)
 
         },
         pothole_model=Pipeline(steps=[
-            ("preprocessing", RobustScaler()),
-            ("kbest", SelectKBest()),
-            ("model", RandomForestRegressor())
+            # ("preprocessing", RobustScaler()),
+            # ("kbest", SelectKBest()),
+            ("model", LinearRegression())
         ]),
         pothole_param_grid={
-            # "model__positive": [True, False],
-            "kbest__k": range(3, 10),
-            "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
-            "model__max_depth": (None, 2, 3, 4, 5, 6, 7),
-            "model__max_leaf_nodes": (None, 2, 3, 4, 5, 6, 7),
-            "model__n_estimators": (10, 50, 100)
+            "model__positive": [True, False],
+            # "kbest__k": range(3, 10),
+            # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
+            # "model__max_depth": (None, 2, 3, 4, 5, 6, 7),
+            # "model__max_leaf_nodes": (None, 2, 3, 4, 5, 6, 7),
+            # "model__n_estimators": (10, 50, 100)
         }
     )
 
@@ -484,18 +484,18 @@ if __name__ == '__main__':
     print("Performance:")
     print(model.performances)
 
-    crack_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.SUBZERO_TEMPERATURE_MEAN: 'subzero_temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>, <FeatureName.TARGET: 'crack_final_severity'>".split(","))
-    pothole_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.SUBZERO_TEMPERATURE_MEAN: 'subzero_temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>, <FeatureName.TARGET: 'crack_final_severity'>".split(","))
+    crack_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
+    pothole_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
 
 
-    # crack_weights = model.crack_model_random_forest.best_estimator_[-1].coef_
-    # pothole_weights = model.pothole_model.best_estimator_[-1].coef_
-    #
-    # print("crack model:")
-    # print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
-    #
-    # print("pothole model:")
-    # print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
+    crack_weights = model.crack_model.best_estimator_[-1].coef_
+    pothole_weights = model.pothole_model.best_estimator_[-1].coef_
+
+    print("crack model:")
+    print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
+
+    print("pothole model:")
+    print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
 
 
     # make_and_upload_daily_predictions(model)
