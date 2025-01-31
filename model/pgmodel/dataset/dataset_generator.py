@@ -22,9 +22,9 @@ class DatasetGenerator:
         generators = {}
         generators[DataframeKey.TEMPERATURE.value] = SeasonalGenerator(magnitude=20, min_value=-20, max_value=40,
                                                                          mean_value=18, seed_value=10,
-                                                                         max_change=0.1,
+                                                                         max_change=5,
                                                                          var_name=RawFeatureName.TEMPERATURE.value)
-        generators[DataframeKey.HUMIDITY.value] = SeasonalGenerator(mean_value=50, magnitude=50, max_change=0.1,
+        generators[DataframeKey.HUMIDITY.value] = SeasonalGenerator(mean_value=50, magnitude=20, max_change=5,
                                                                       var_name=RawFeatureName.HUMIDITY.value)
 
         humidities = []
@@ -52,8 +52,8 @@ class DatasetGenerator:
 
         generators = {}
 
-        generators[DataframeKey.CRACK.value] = CrackGenerator(var_name=RawFeatureName.CRACK.value)
-        generators[DataframeKey.POTHOLE.value] = CrackGenerator(max_cracks=5, cracks_gravity_average=40,
+        generators[DataframeKey.CRACK.value] = CrackGenerator(max_change=5, var_name=RawFeatureName.CRACK.value)
+        generators[DataframeKey.POTHOLE.value] = CrackGenerator(max_cracks=5, cracks_gravity_average=40, max_change=5,
                                                                   probability_detection=0.2,
                                                                   var_name=RawFeatureName.POTHOLE.value)
 
