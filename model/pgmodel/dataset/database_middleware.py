@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 from pgmodel.preprocess.preprocessor import Preprocessor
 from pgmodel.constants import RawFeatureName, DataframeKey, GRAPHQL_ENDPOINT
 from pgmodel.dataset.dataset_generator import DatasetGenerator
+from pgmodel.dataset.generator.seasonal_generator import SeasonalGenerator
 
 
 class DatabaseFiller:
@@ -538,8 +539,17 @@ if __name__ == '__main__':
             "variation": 50
         }
     ]
+    
+    seasonal = SeasonalGenerator(magnitude=20, min_value=-20, max_value=40,
+                                                                         mean_value=18, seed_value=10,
+                                                                         max_change=0.1,
+                                                                         var_name=RawFeatureName.TEMPERATURE.value)
+    previous_value = 0
+    for i in range(0, 20000):
+        previous_value = seasonal.generate_next_value(previous_value, date.today() + timedelta(minutes=30 * i))
+        print(previous_value)
 
-    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=30)
+    # upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=30)
 
 
     # dbfetcher = DatabaseFetcher()
