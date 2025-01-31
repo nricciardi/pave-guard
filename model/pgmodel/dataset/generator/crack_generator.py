@@ -53,5 +53,9 @@ class CrackGenerator(IndependentGenerator):
                 part = df[DataframeKey.RAINFALL.value]
                 part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
                 to_increase += part.size / 10000
+            if DataframeKey.TRANSIT.value in df:
+                part = df[DataframeKey.TRANSIT.value]
+                part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
+                to_increase += part.size / 10000
         self.cracks = [crack + np.random.uniform(0, to_increase) for crack in self.cracks]
         return pd.DataFrame({'timestamp': timestamps, self.var_name: values})
