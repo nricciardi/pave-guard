@@ -544,6 +544,7 @@ if __name__ == '__main__':
             "variation": 50
         }
     ]
+    
 
     upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=100)
 

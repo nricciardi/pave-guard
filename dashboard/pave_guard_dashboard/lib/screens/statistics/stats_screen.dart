@@ -31,125 +31,200 @@ class SeverityData {
 
 }
 
-Widget getLineChart(MapEntry<String, SeverityData?> entry) {
-  if (entry.value == null) {
+Widget getLineChart(MapEntry<LocationData, SeverityData?> entry1, MapEntry<LocationData, SeverityData?> entry2) {
+  if (entry1.value == null || entry2.value == null) {
     return Center(
       child: Text(
         'No data available',
         style: TextStyle(color: Colors.red, fontSize: 16),
       ),
     );
-  }
-  return LineChart(
+    }
+    return LineChart(
     LineChartData(
-      gridData: FlGridData(
-          show: true,
-          drawVerticalLine: true,
-          drawHorizontalLine: true,
-          getDrawingHorizontalLine: (value) {
-            return FlLine(
-              color: Colors.grey,
-              strokeWidth: 1,
-            );
-          },
-          getDrawingVerticalLine: (value) {
-            return FlLine(
-              color: Colors.grey,
-              strokeWidth: 1,
-            );
-          },
-          horizontalInterval: 20.0,
-          verticalInterval: 1.0),
       titlesData: FlTitlesData(
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            interval: 20,
-            getTitlesWidget: (value, meta) {
-              return Text(
-                value.toInt().toString(),
-                style: TextStyle(fontSize: 12),
-              );
-            },
-          ),
+      show: true,
+      bottomTitles: AxisTitles(sideTitles: SideTitles(
+        showTitles: true,
+        getTitlesWidget: (value, meta) {
+        int index = value.toInt();
+        if (index >= 0 && index < entry2.value!.dates.length) {
+          DateTime date = entry2.value!.dates[index];
+          return Text('${date.day}/${date.month}', style: TextStyle(color: Colors.white, fontSize: 12));
+            } else {
+              return Text('');
+            }
+          },)),
+        leftTitles: AxisTitles(sideTitles: SideTitles(
+          showTitles: true,
+          getTitlesWidget: (value, meta) {
+            return Text(value.toInt().toString(), style: TextStyle(color: Colors.white, fontSize: 12));
+          },
         ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            getTitlesWidget: (value, meta) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(
-                  "${entry.value!.dates[value.toInt()].day}/${entry.value!.dates[value.toInt()].month}",
-                  style: TextStyle(fontSize: 10),
-                ),
-              );
-            },
-          ),
         ),
         rightTitles: AxisTitles(),
         topTitles: AxisTitles(),
       ),
-      borderData: FlBorderData(
-        show: true,
-        border: Border(
-          left: BorderSide(color: Colors.grey),
-          bottom: BorderSide(color: Colors.grey),
-          right: BorderSide.none,
-          top: BorderSide.none,
-        ),
-      ),
       minY: 0,
       maxY: 100,
       lineBarsData: [
-        LineChartBarData(
-          spots: entry.value!.severities.asMap().entries.map((e) {
-            return FlSpot(e.key.toDouble(), e.value.toDouble());
-          }).toList(),
-          isCurved: true,
-          color: Colors.blue,
-          barWidth: 4,
-          isStrokeCapRound: true,
-          dotData: FlDotData(
-            show: true,
-            getDotPainter: (spot, percent, bar, index) {
-              double value = spot.y;
-              Color color;
-              if (value <= 50) {
-                color = Color.lerp(Colors.blue, Colors.red, value / 50)!;
-              } else {
-                color = Color.lerp(Colors.red, Colors.red, (value - 50) / 50)!;
-              }
-              return FlDotCirclePainter(
-                radius: 4,
-                color: color,
-                strokeColor: Colors.black87,
-                strokeWidth: 1.3,
-              );
-            },
-          ),
-          belowBarData: BarAreaData(show: false),
-          aboveBarData: BarAreaData(show: false),
-        ),
-      ],
-      lineTouchData: LineTouchData(
-        touchTooltipData: LineTouchTooltipData(
-          getTooltipItems: (List<LineBarSpot> touchedSpots) {
-            return touchedSpots.map((spot) {
-              return LineTooltipItem(
-                '${spot.y}',
-                TextStyle(color: Colors.white),
-              );
-            }).toList();
-          },
-        ),
-      ),
-    ),
-  );
+LineChartBarData(
+  spots: entry1.value!.severities.asMap().entries.map((e) {
+    return FlSpot(e.key.toDouble(), e.value.toDouble());
+  }).toList(),
+  isCurved: true,
+  color: Colors.lightBlueAccent,
+  barWidth: 4,
+  isStrokeCapRound: true,
+  dotData: FlDotData(
+    show: true,
+    getDotPainter: (spot, percent, bar, index) {
+      double value = spot.y;
+      Color color;
+      if (value <= 50) {
+        color = Color.lerp(Colors.blue, Colors.red, value / 50)!;
+      } else {
+        color = Color.lerp(Colors.red, Colors.red, (value - 50) / 50)!;
+      }
+      return FlDotCirclePainter(
+        radius: 4,
+        color: color,
+        strokeColor: Colors.black87,
+        strokeWidth: 1.3,
+      );
+    },
+  ),
+  belowBarData: BarAreaData(show: false),
+  aboveBarData: BarAreaData(show: false),
+),
+LineChartBarData(
+  spots: entry2.value!.severities.asMap().entries.map((e) {
+    return FlSpot(e.key.toDouble(), e.value.toDouble());
+  }).toList(),
+  isCurved: true,
+  color: Colors.green,
+  barWidth: 4,
+  isStrokeCapRound: true,
+  dotData: FlDotData(
+    show: true,
+    getDotPainter: (spot, percent, bar, index) {
+      double value = spot.y;
+      Color color;
+      if (value <= 50) {
+        color = Color.lerp(Colors.green, Colors.yellow, value / 50)!;
+      } else {
+        color = Color.lerp(Colors.yellow, Colors.red, (value - 50) / 50)!;
+      }
+      return FlDotCirclePainter(
+        radius: 4,
+        color: color,
+        strokeColor: Colors.black87,
+        strokeWidth: 1.3,
+      );
+    },
+  ),
+  belowBarData: BarAreaData(show: false),
+  aboveBarData: BarAreaData(show: false),
+)],));
 }
 
-Column getCharts(MapEntry<String, SeverityData?> sev_entry,
-    MapEntry<String, SeverityData?> poth_entry) {
+Widget getLineTelemetryChart(MapEntry<LocationData, List<Temperature>?> temperatures, MapEntry<LocationData, List<Humidity>?> humidities){
+  if (temperatures.value == null && humidities.value == null) {
+    return Center(
+      child: Text(
+        'No data available',
+        style: TextStyle(color: Colors.red, fontSize: 16),
+      ),
+    );
+  } else {
+    return LineChart(
+      LineChartData(
+        minY: -20,
+        titlesData: FlTitlesData(
+          show: true,
+          bottomTitles: AxisTitles(sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: (value, meta) {
+              int index = value.toInt();
+              if (index >= 0 && index < humidities.value!.length) {
+                DateTime date = humidities.value![index].date;
+                return Text('${date.day}/${date.month}', style: TextStyle(color: Colors.white, fontSize: 12));
+              } else {
+                return Text('');
+              }
+            },)),
+          leftTitles: AxisTitles(sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: (value, meta) {
+              return Text(value.toInt().toString(), style: TextStyle(color: Colors.white, fontSize: 12));
+            },
+          ),
+          ),
+          rightTitles: AxisTitles(),
+          topTitles: AxisTitles(),
+        ),
+        maxY: 100,
+        lineBarsData: [
+          LineChartBarData(
+            spots: temperatures.value!.asMap().entries.map((e) {
+              return FlSpot(e.key.toDouble(), e.value.temperature);
+            }).toList(),
+            isCurved: true,
+            color: Colors.lightBlueAccent,
+            barWidth: 4,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, bar, index) {
+                double value = spot.y;
+                Color color;
+                if (value <= 50) {
+                  color = Color.lerp(Colors.blue, Colors.red, value / 50)!;
+                } else {
+                  color = Color.lerp(Colors.red, Colors.red, (value - 50) / 50)!;
+                }
+                return FlDotCirclePainter(
+                  radius: 4,
+                  color: color,
+                  strokeColor: Colors.black87,
+                  strokeWidth: 1.3,
+                );
+              },
+            ),
+            belowBarData: BarAreaData(show: false),
+            aboveBarData: BarAreaData(show: false),
+          ),
+          LineChartBarData(
+            spots: humidities.value!.asMap().entries.map((e) {
+              return FlSpot(e.key.toDouble(), e.value.humidity);
+            }).toList(),
+            isCurved: true,
+            color: Colors.green,
+            barWidth: 4,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, bar, index) {
+                double value = spot.y;
+                Color color;
+                if (value <= 50) {
+                  color = Color.lerp(Colors.green, Colors.yellow, value / 50)!;
+                } else {
+                  color = Color.lerp(Colors.yellow, Colors.red, (value - 50) / 50)!;
+                }
+                return FlDotCirclePainter(
+                  radius: 4,
+                  color: color,
+                  strokeColor: Colors.black87,
+                  strokeWidth: 1.3,
+                );
+              },
+            ),)]));}
+          }
+
+Column getCharts(MapEntry<LocationData, SeverityData?> sev_entry,
+    MapEntry<LocationData, SeverityData?> poth_entry,
+    MapEntry<LocationData, Telemetries?> telemetries) {
   return Column(
     children: [
       Row(
@@ -158,27 +233,39 @@ Column getCharts(MapEntry<String, SeverityData?> sev_entry,
           Container(
             alignment: Alignment.centerLeft,
             width: 150,
-            child: Text(
-              "${sev_entry.key}:",
-              style: TextStyle(
-                fontSize: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+              Text(
+                "${sev_entry.key.road}",
+                style: TextStyle(
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.lightBlueAccent,
+                ),
               ),
+              Text(
+                "${sev_entry.key.city}",
+                style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+                ),
+              ),
+              ],
             ),
+            ),
+          SizedBox(width: defaultPadding * 3),
+          Container(
+            height: 200,
+            width: lineChartWidth,
+            child: getLineChart(sev_entry, poth_entry),
           ),
           SizedBox(width: defaultPadding * 3),
           Container(
             height: 200,
             width: lineChartWidth,
-            child: getLineChart(sev_entry),
+            child: getLineTelemetryChart(MapEntry(sev_entry.key, telemetries.value!.temperatures), MapEntry(sev_entry.key, telemetries.value!.humidities)),
           ),
-          SizedBox(width: defaultPadding * 3),
-          Container(
-            height: 200,
-            width: lineChartWidth,
-            child: getLineChart(poth_entry),
-          )
         ],
       ),
       SizedBox(height: defaultPadding * 1.7),
@@ -244,6 +331,7 @@ class _StatsScreenState extends State<StatsScreen> {
   final List<LocationData> locations = [];
   final Map<LocationData, SeverityData> streets_sev = {};
   final Map<LocationData, SeverityData> streets_poth = {};
+  final Map<LocationData, Telemetries> telemetries = {};
   late final Header header;
   String searched_text = "";
 
@@ -255,8 +343,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
     QueryLocationManager queryManager = QueryLocationManager();
     SeverityCrackQueryManager sev_queryManager = SeverityCrackQueryManager();
-    SeverityPotholeQueryManager poth_queryManager =
-        SeverityPotholeQueryManager();
+    SeverityPotholeQueryManager poth_queryManager = SeverityPotholeQueryManager();
 
     queryManager.sendQuery("", token: widget.token).then((qr) {
       locations.addAll(queryManager.getLocationData(qr));
@@ -274,9 +361,12 @@ class _StatsScreenState extends State<StatsScreen> {
           streets_poth.addAll(poth);
         });
       });
-      setState(() {
-
+      TelemetryQueryManager.getTelemetriesForLocations(locations, widget.token).then((telemetries) {
+        setState(() {
+          this.telemetries.addAll(telemetries);
+        });
       });
+      setState(() {});
     });
   }
 
@@ -288,7 +378,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (locations.isEmpty || streets_sev.isEmpty || streets_poth.isEmpty) {
+    if (locations.isEmpty || streets_sev.isEmpty || streets_poth.isEmpty || telemetries.isEmpty) {
       return Center(
         child: CircularProgressIndicator(),
       );
@@ -320,8 +410,8 @@ class _StatsScreenState extends State<StatsScreen> {
                     ? true
                     : loc.contains(searched_text.toLowerCase());
               }).map((loc) {
-                return getCharts(MapEntry(loc.toString(), streets_sev[loc]?.getRecentData(granularity)),
-                    MapEntry(loc.toString(), streets_poth[loc]?.getRecentData(granularity)));
+                return getCharts(MapEntry(loc, streets_sev[loc]?.getRecentData(granularity)),
+                    MapEntry(loc, streets_poth[loc]?.getRecentData(granularity)), MapEntry(loc, telemetries[loc]?.getRecentData(granularity)));
               }).toList(),
             ),
           ],
