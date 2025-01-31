@@ -424,7 +424,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 
 def train(model: PaveGuardModel, output_path: str):
-    crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=False)
+    crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=True)
 
     crack_dataset = crack_dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])
     pothole_dataset = pothole_dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])
@@ -451,7 +451,7 @@ if __name__ == '__main__':
         crack_model=Pipeline(steps=[
             # ("preprocessing", Normalizer()),
             # ("kbest", SelectKBest()),
-            ("model", LinearRegression())
+            ("model", DecisionTreeRegressor())
         ]),
         crack_param_grid={
             # "model__positive": [True, False],
@@ -476,7 +476,7 @@ if __name__ == '__main__':
         pothole_model=Pipeline(steps=[
             # ("preprocessing", Normalizer()),
             # ("kbest", SelectKBest()),
-            ("model", LinearRegression())
+            ("model", DecisionTreeRegressor())
         ]),
         pothole_param_grid={
             # "model__positive": [True, False],
@@ -514,14 +514,14 @@ if __name__ == '__main__':
     print(model.crack_model.best_params_)
     print(model.pothole_model.best_params_)
 
-    # crack_weights = model.crack_model.best_estimator_[-1].coef_
-    # pothole_weights = model.pothole_model.best_estimator_[-1].coef_
-    #
-    # print("crack model:")
-    # print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
-    #
-    # print("pothole model:")
-    # print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
+    crack_weights = model.crack_model.best_estimator_[-1].coef_
+    pothole_weights = model.pothole_model.best_estimator_[-1].coef_
+
+    print("crack model:")
+    print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
+
+    print("pothole model:")
+    print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
 
 
     # make_and_upload_daily_predictions(model)
