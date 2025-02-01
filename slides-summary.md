@@ -2,7 +2,9 @@
 
 [formal greetings]
 
-## Road maintenance as of now…
+## First part
+
+### Road maintenance as of now…
 
 Now, road maintenance has two main problems that we must handle:
 
@@ -18,7 +20,7 @@ Additionally, prolonged maintenance periods result in dissatisfaction and inconv
 Difficulties in management and planning cause that 20% of interventions are *emergency interventions*, 
 which have 190% extra cost.
 
-## Our solution
+### Our solution
 
 We offer PaveGuard, which is a completely automatized, plug-and-play, cost-efficient, road maintenance planning system.
 
@@ -26,8 +28,31 @@ It continuously monitors road conditions, detects early signs of damage, and opt
 
 By leveraging smart sensors and predictive analytics, PaveGuard helps to prioritize interventions efficiently, ensuring safer roads and minimizing unnecessary expenses.
 
+### Advantages of PaveGuard
 
-## Resources
+The advantages of PaveGuard are, first of all, very low production and installation costs.
+
+In addiction, we must consider that PaveGuard system performs a fully-automated track of road conditions, reducing number of needed humans supervisors. 
+
+Therefore, adopting PaveGuard we can save a lot of moneys also reducing emergency maintenances thanks to preventive maintenance.
+
+Obviously, more maintenances imply safer roads, decreasing road accident risks. 
+
+### Process timeline
+
+Here, you can see an overview of the entire process.
+
+First of all, data are collected from environment using a set of devices, which have special sensors to capture road conditions.
+
+Then, data are elaborated by our system. In particular, we have trained a specific AI model is able to predict future state of the roads.
+
+Thanks to predictions, we are able to provide information to make more conscious planning of maintenance interventions.
+
+In the end, directly from our dashboard, interventions can be planned and nextly intervention can be executed.
+
+
+
+### Resources
 
 PaveGuard is composed by different components.
 
@@ -38,25 +63,17 @@ PaveGuard is composed by different components.
 **Dashboard** allows managers to analyze future road status and to plan maintenances beforehand. 
 
 
-## Advantages of PaveGuard
 
-The advantages of PaveGuard are, first of all, very low production and installation costs.
-
-In addiction, we must consider that PaveGuard system performs a fully-automated track of road conditions, reducing number of needed humans supervisors. 
-
-Therefore, adopting PaveGuard we can save a lot of moneys also reducing emergency maintenances thanks to preventive maintenance.
-
-Obviously, more maintenances imply safer roads, decreasing road accident risks. 
-
-
-## Future plans
+### Future plans
 
 To improve capabilities of our system, we have planed to include a solar panel to make our devices energy-independent.
 
 In addiction, given that currently we already track vehicles transits, we want to improve traffic analysis, in order to help maintenances scheduling.
 
 
-## PaveGuard system: Overview
+## Second part
+
+### PaveGuard system: Overview
 
 PaveGuard system, as already mentioned, is composed by many components.
 
@@ -67,7 +84,7 @@ Backend mainly performs two actions: receives telemetries from devices, storing 
 Thanks to backend's API, the model and dashboard can get data. Model use data to perform predictions, dashboard visualizes them.
 
 
-## StaticGuard
+### StaticGuard
 
 StaticGuard device is placed on a road lamp, in order to capture traffic telemetries from above. 
 
@@ -85,11 +102,11 @@ Bridge is integrated into micro-controller and it allows to establish a Wi-Fi co
 Information about environment will be used to provide some historical data for all nearby streets.
 
 
-## DynamicGuard
+### DynamicGuard
 
 TODO
 
-## Backend
+### Backend
 
 Backend is the component that stores and manages information of the entire system.
 It is composed by more remote modules.
@@ -108,11 +125,11 @@ In addiction, it manages data produced by devices and provides their telemetries
 
 
 
-## Dashboard
+### Dashboard
 
 TODO
 
-## Model
+### The Model
 
 The Model is the game-changer component of our system.
 It exploits information about environment and actual road conditions, acquired by devices, to make predictions about future state of the roads.
@@ -120,6 +137,52 @@ It exploits information about environment and actual road conditions, acquired b
 The model is able to improve its performances, processing new data incoming from devices continuously.
 
 The model provides predictions about future state of the roads, in order to allow administrators to plan targeted interventions.
+
+
+
+
+## Third part
+
+### Backend
+
+Backend is wrote using NestJS and stores data using MongoDB database. It allows us to model entities of our system like devices and roads. We can obtain information about resources using GraphQL APIs. 
+
+MongoDB, a NoSQL database, is picked to allow a more flexible management of different kind of telemetries.
+Telemetries are encoded as time series, in order to improve efficiency of operations.
+MongoDB cluster is used to ensure scalability and fault tolerance. It is deployed separately and remotely in cloud.
+
+NestJS is a TypeScript framework used to build backend.
+It allows to build a solid and scalable APIs, which are used by every components in PaveGuard system
+to put new resources into database (e.g. telemetries) and retrieve information about entire system.
+Mongoose is used to handle MongoDB drivers and manage database operations.
+
+GraphQL is a query language for APIs.
+The query language is a more user-friendly and descriptive alternative to RESTful APIs.
+We can easily development new APIs thanks to resolvers and test them using the built-in APIs dashboard called Apollo sandbox.
+
+
+### StaticGuard
+
+StaticGuard device is composed by a microcontroller which manages sensors. Firmware of StaticGuard was developed using Arduino libraries. Telemetries are sent to remote server using integrated bridge. 
+StaticGuard is place above the road, in order to capture transits of vehicles of different shapes.
+
+StaticGuard’s firmware is executed on Arduino R4 Wi-Fi. 
+This microcontroller allows us to manage sensors and build the device’s bridge in an all-in-one board.
+
+
+StaticGuard includes 3 types of sensors:
+
+- DHT22 for temperature and humidity
+- Rain Gauge to handle rainfall
+- A pair of laser reflective sensors to obtain traffic data
+
+
+Bridge is integrated into device thanks to ESP32-S3 module of the Arduino board.
+ESP32 provides Wi-Fi connectivity, which is used to connect device to Internet.
+
+
+
+
 
 
 
