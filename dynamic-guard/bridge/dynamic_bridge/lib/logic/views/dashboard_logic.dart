@@ -271,7 +271,7 @@ class DashboardLogic {
               Icon(Icons.check_circle, color: Colors.green, size: 28),
               SizedBox(width: 10),
               Text(
-                'Built-in camera loaded and working.',
+                'Camera loaded and working.',
                 style: TextStyle(
                   fontSize: 17,
                   color: Colors.green,
@@ -308,9 +308,9 @@ class DashboardLogic {
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(10),
                   child: AspectRatio(
-                    aspectRatio: cameraController.value.aspectRatio,
+                    aspectRatio: 1.1 / cameraController.value.aspectRatio,
                     child: CameraPreview(cameraController),
                   ),
                 ),
