@@ -26,8 +26,8 @@ class CrackGenerator(IndependentGenerator):
 
     def __init__(self, timespace_callback: Callable[[date, int], np.ndarray] = random_timespace,
                  min_cracks: int = 1, max_cracks: int = 20, cracks_gravity_average: int = 30,
-                 probability_detection: float = 0.5, max_change: float = 5,
-                 cracks_gravity_deviation=20, **kwargs):
+                 probability_detection: float = 0.5, max_change: float = 7,
+                 cracks_gravity_deviation=10, **kwargs):
 
         super().__init__(timestamp_callback=timespace_callback, max_change=max_change, **kwargs)
 
@@ -47,7 +47,7 @@ class CrackGenerator(IndependentGenerator):
         values = []
         for timestamp in timestamps:
             values.append(self.generate_next_value(0, timestamp))
-        to_increase = 0.05
+        to_increase = 0.06
         if df is not None:
             if DataframeKey.RAINFALL.value in df:
                 part = df[DataframeKey.RAINFALL.value]

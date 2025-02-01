@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 from pgmodel.preprocess.preprocessor import Preprocessor
 from pgmodel.constants import RawFeatureName, DataframeKey, GRAPHQL_ENDPOINT
 from pgmodel.dataset.dataset_generator import DatasetGenerator
-from pgmodel.dataset.generator.seasonal_generator import SeasonalGenerator
+from pgmodel.dataset.generator.crack_generator import CrackGenerator
 
 
 class DatabaseFiller:
@@ -544,9 +544,8 @@ if __name__ == '__main__':
             "variation": 50
         }
     ]
-    
 
-    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=100)
+    #upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=100)
 
 
     # dbfetcher = DatabaseFetcher()

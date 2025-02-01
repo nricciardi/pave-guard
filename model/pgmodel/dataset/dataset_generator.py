@@ -52,9 +52,9 @@ class DatasetGenerator:
 
         generators = {}
 
-        generators[DataframeKey.CRACK.value] = CrackGenerator(max_change=5, max_cracks=1, probability_detection=0.9, var_name=RawFeatureName.CRACK.value)
-        generators[DataframeKey.POTHOLE.value] = CrackGenerator(max_cracks=1, cracks_gravity_average=40, max_change=5,
-                                                                  probability_detection=0.7,
+        generators[DataframeKey.CRACK.value] = CrackGenerator(max_change=5, max_cracks=2, min_cracks=2, probability_detection=0.9, var_name=RawFeatureName.CRACK.value)
+        generators[DataframeKey.POTHOLE.value] = CrackGenerator(max_cracks=2, cracks_gravity_average=40, max_change=5,
+                                                                  probability_detection=0.7, min_cracks=2,
                                                                   var_name=RawFeatureName.POTHOLE.value)
 
         dfs = DatasetGenerator.generate_dfs(from_date, to_date, generators, df_to_use=df_to_use)
