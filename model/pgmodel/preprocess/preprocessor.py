@@ -200,7 +200,10 @@ class Preprocessor:
                             continue
                     last_index = index_list[j]
                     last_row = raw_dataset.loc[last_index]
-                    if last_row['maintenance'] == 1:
+                    if last_row['maintenance'] is pd.Series:
+                        if last_row["maintenance"].iloc[0] == 1:
+                            break
+                    elif last_row['maintenance'] == 1:
                         break
                     if not self.is_row_to_process(last_row, feature_name):
                         continue
