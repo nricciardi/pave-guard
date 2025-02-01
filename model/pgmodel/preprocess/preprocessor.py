@@ -248,7 +248,7 @@ class Preprocessor:
         dataset[FeatureName.DAYS] = self.get_days(raw_dataset.index)
         
         if RawFeatureName.RAINFALL.value in raw_dataset:
-            dataset[FeatureName.RAINFALL_QUANTITY] = self.array_sum(raw_dataset[RawFeatureName.RAINFALL.value], weights)
+            dataset[FeatureName.RAINFALL_QUANTITY] = self.array_count(raw_dataset[RawFeatureName.RAINFALL.value]) * 0.3
             dataset[FeatureName.STORM_TOTAL] = self.get_storms(raw_dataset[RawFeatureName.RAINFALL.value])
 
         else:
