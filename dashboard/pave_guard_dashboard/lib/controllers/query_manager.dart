@@ -568,12 +568,14 @@ class PredictionQueryManager extends QueryAbstractManager {
           state: prediction["state"]
         );
       List<Prediction> local_preds = [];
-      for(int i = 0; i < 3; i++){
+      int i = 0;
+      for(int _ in prediction["crackSeverityPredictions"]){
         local_preds.add(Prediction(
-          i >= 2 ? 12 : 3*i + 3,
+          i + 1,
           prediction["crackSeverityPredictions"][i],
           prediction["potholeSeverityPredictions"][i]
         ));
+        i += 1;
       }
       preds[location] = local_preds;
     }

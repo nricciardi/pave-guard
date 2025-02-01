@@ -224,9 +224,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     predictions = Predictions({
       LocationData(
           road: "Luigi", city: "Tenco", county: "Camaiore", state: "Lodi"): [
-        Prediction(3, 30, 40),
-        Prediction(6, 60, 70),
-        Prediction(12, 100, 100),
+            Prediction(1, 30, 30),
+            Prediction(2, 30, 35),
+            Prediction(3, 30, 40),
+            Prediction(6, 60, 70),
+            Prediction(12, 100, 100),
       ],
       LocationData(
           road: "Mario", city: "Bros", county: "Mushroom", state: "Kingdom"): [
@@ -243,7 +245,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       });
       /*
       PredictionQueryManager predictionQueryManager = PredictionQueryManager();
-      predictionQueryManager.sendQuery("", token: widget.token);
+      QueryResult qr = predictionQueryManager.sendQuery("", token: widget.token);
+      predictions = predictionQueryManager.getPredictions(qr);
       */
       predictions = Predictions({
         for (var entry in predictions!.predictions.entries)

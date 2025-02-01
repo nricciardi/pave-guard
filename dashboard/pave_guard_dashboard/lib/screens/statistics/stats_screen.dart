@@ -290,23 +290,23 @@ class StateHeader extends StatelessWidget {
         children: [
           SizedBox(width: 150 + lineChartWidth / 2),
           Text(
-            "Cracks",
+            "Road Status",
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.lightBlueAccent,
             ),
           ),
-          SizedBox(width: lineChartWidth),
+          SizedBox(width: lineChartWidth / 1.15),
           Text(
-            "Pothole",
+            "Telemetries",
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.lightBlueAccent,
             ),
           ),
-          SizedBox(width: lineChartWidth / 2.5),
+          SizedBox(width: lineChartWidth / 2.6),
           Row(
             children: [slider],
           ),
