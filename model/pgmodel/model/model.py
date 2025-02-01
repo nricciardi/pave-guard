@@ -499,7 +499,7 @@ if __name__ == '__main__':
         }
     )
 
-    train(model, output_path_nic)
+    train(model, output_path_fil)
 
     updated_at = model.restore_model(models_info_file_path_nic)
 

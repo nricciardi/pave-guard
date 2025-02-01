@@ -187,7 +187,7 @@ class Preprocessor:
 
         for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
             for i in range(0, len(index_list) - 1):
-                if i % 10 != 0 and not consecutive_measures_only:
+                if i % 2 != 0 and not consecutive_measures_only:
                     continue
                 index = index_list[i]
                 row = raw_dataset.loc[index]
@@ -196,7 +196,7 @@ class Preprocessor:
                 # Set the first row, I look for another one
                 for j in range(i+1, i+2 if consecutive_measures_only else len(index_list)):
                     if not consecutive_measures_only:
-                        if j % 10 != 0:
+                        if j % 2 != 0:
                             continue
                     last_index = index_list[j]
                     last_row = raw_dataset.loc[last_index]
@@ -273,7 +273,7 @@ class Preprocessor:
                 candidate = 0
             dataset[FeatureName.CRACK_SEVERITY] = candidate
         if RawFeatureName.POTHOLE.value in raw_dataset:
-            candidate = self.array_sum(raw_dataset[RawFeatureName.POTHOLE.value], weights) if raw_dataset[RawFeatureName.POTHOLE.value].size > 0 else 0
+            candidate = self.array_mean(raw_dataset[RawFeatureName.POTHOLE.value], weights) if raw_dataset[RawFeatureName.POTHOLE.value].size > 0 else 0
             if candidate is np.nan:
                 candidate = 0
             dataset[FeatureName.POTHOLE_SEVERITY] = candidate
