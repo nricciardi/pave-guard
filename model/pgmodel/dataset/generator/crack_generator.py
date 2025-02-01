@@ -57,5 +57,12 @@ class CrackGenerator(IndependentGenerator):
                 part = df[DataframeKey.TRANSIT.value]
                 part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
                 to_increase += part.size / 10000
+            if DataframeKey.CRACK.value in df:
+                part = df[DataframeKey.CRACK.value]
+                part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
+                if not part.empty:
+                    oldest_timestamp = part['timestamp'].min()
+                    part = part[pd.to_datetime(part['timestamp']) == oldest_timestamp]
+                to_increase += part["crack"] / 2000
         self.cracks = [crack + np.random.uniform(0, to_increase) for crack in self.cracks]
         return pd.DataFrame({'timestamp': timestamps, self.var_name: values})
