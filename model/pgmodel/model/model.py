@@ -424,7 +424,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 
 def train(model: PaveGuardModel, output_path: str):
-    crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=False)
+    crack_dataset, pothole_dataset = final_dataset(dump=False, output_path=output_path, plot=False)
 
     crack_dataset = crack_dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])
     pothole_dataset = pothole_dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])
@@ -499,7 +499,7 @@ if __name__ == '__main__':
         }
     )
 
-    train(model, output_path_fil)
+    train(model, output_path_nic)
 
     updated_at = model.restore_model(models_info_file_path_nic)
 
