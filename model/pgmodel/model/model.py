@@ -424,7 +424,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 
 def train(model: PaveGuardModel, output_path: str):
-    crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=True)
+    crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=False)
 
     crack_dataset = crack_dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])
     pothole_dataset = pothole_dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])
@@ -450,13 +450,13 @@ if __name__ == '__main__':
     model = PaveGuardModel(
         crack_model=Pipeline(steps=[
             # ("preprocessing", Normalizer()),
-            ("kbest", SelectKBest()),
+            # ("kbest", SelectKBest()),
             ("model", LinearRegression())
         ]),
         crack_param_grid={
             # "model__positive": [True, False],
 
-            "kbest__k": range(3, 10),
+            # "kbest__k": range(3, 10),
 
             # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
             # "model__max_depth": (None, 2, 3, 4, 5, 6, 7),
@@ -475,13 +475,13 @@ if __name__ == '__main__':
         },
         pothole_model=Pipeline(steps=[
             # ("preprocessing", Normalizer()),
-            ("kbest", SelectKBest()),
+            # ("kbest", SelectKBest()),
             ("model", LinearRegression())
         ]),
         pothole_param_grid={
             # "model__positive": [True, False],
 
-            "kbest__k": range(3, 10),
+            # "kbest__k": range(3, 10),
 
             # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
             # "model__max_depth": (None, 2, 3, 4, 5, 6, 7),

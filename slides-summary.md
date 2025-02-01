@@ -156,7 +156,7 @@ It allows to build a solid and scalable APIs, which are used by every components
 to put new resources into database (e.g. telemetries) and retrieve information about entire system.
 Mongoose is used to handle MongoDB drivers and manage database operations.
 
-GraphQL is a query language for APIs.
+GraphQL is a query language for APIs, we use it for all HTTP requests.
 The query language is a more user-friendly and descriptive alternative to RESTful APIs.
 We can easily development new APIs thanks to resolvers and test them using the built-in APIs dashboard called Apollo sandbox.
 
@@ -180,6 +180,16 @@ StaticGuard includes 3 types of sensors:
 Bridge is integrated into device thanks to ESP32-S3 module of the Arduino board.
 ESP32 provides Wi-Fi connectivity, which is used to connect device to Internet.
 
+
+### StaticGuard 2
+
+StaticGuard collects telemetries about temperature and humidity every 30 minutes checking a timer in each loop iteration. Instead, Rainfall and transits are handled through interrupt.
+
+Data from DHT22 are sampled thanks to DHT library provided by Adafruit. Instead, Rain gauge and laser reflective sensors have dry contacts which are directly connected to interruptable pins.
+
+Rain gauge trigs a magnetic contact when approximately 0.3mm of water is stored into the bin.
+
+StaticGuard detects a transit when both laser sensors are triggered in the right order. 
 
 
 
