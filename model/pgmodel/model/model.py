@@ -208,6 +208,9 @@ class PaveGuardModel:
 
         return self.performances
 
+    def clear_cache(self):
+        self.prophet_predictions_cache = {}
+
     def _single_predict(self, latitude: float, longitude: float, crack: float, pothole: float, n_months: int = 12):
 
         day_in_a_month = 30
@@ -219,9 +222,10 @@ class PaveGuardModel:
 
         modulations = Preprocessor.get_modulated_ids(static_guards, latitude, longitude)
 
-        for static_guard_id, modulation in modulations.items():
+        for static_guard_id in modulations.keys():
 
             if static_guard_id in self.prophet_predictions_cache:
+                print(f"data of SG:{static_guard_id} are already in cache")
                 continue
 
             prophets_datasets = build_prophets_datasets(static_guard_id)
@@ -459,16 +463,16 @@ if __name__ == '__main__':
         crack_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
             # ("kbest", SelectKBest()),
-            ("model", DecisionTreeRegressor())      # criterion="poisson"
+            ("model", DecisionTreeRegressor())      # criterion=""
         ]),
         crack_param_grid={
             # "model__positive": [True, False],
 
             # "kbest__k": range(3, 10),
 
-            "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
-            "model__max_depth": (None, 2, 5, 7),
-            "model__max_leaf_nodes": (None, 2, 5, 7),
+            # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
+            # "model__max_depth": (None, 2, 5, 7),
+            # "model__max_leaf_nodes": (None, 2, 5, 7),
 
             # "model__n_estimators": (10, 50, 100),
 
@@ -484,16 +488,16 @@ if __name__ == '__main__':
         pothole_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
             # ("kbest", SelectKBest()),
-            ("model", DecisionTreeRegressor())  # criterion="friedman_mse"
+            ("model", DecisionTreeRegressor())  # criterion=""
         ]),
         pothole_param_grid={
             # "model__positive": [True, False],
 
             # "kbest__k": range(3, 10),
 
-            "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
-            "model__max_depth": (None, 2, 5, 7),
-            "model__max_leaf_nodes": (None, 2, 5, 7),
+            # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
+            # "model__max_depth": (None, 2, 5, 7),
+            # "model__max_leaf_nodes": (None, 2, 5, 7),
 
             # "model__n_estimators": (10, 50, 100),
 
@@ -511,6 +515,7 @@ if __name__ == '__main__':
     train(model, output_path_nic, csvs=True)
 
     updated_at = model.restore_model(models_info_file_path_nic)
+    model.clear_cache()
 
     print("last updated:", updated_at)
 
