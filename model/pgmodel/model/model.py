@@ -163,11 +163,11 @@ def build_eval_data(crack: float, pothole: float, data: Dict[str, Dict[str, pd.D
 
     crack_record, pothole_record = process_whole_telemetries(data, ids_modulated, n_days)
 
-    crack_record[FeatureName.CRACK_SEVERITY] = crack
-    crack_record[FeatureName.POTHOLE_SEVERITY] = pothole
+    crack_record[FeatureName.CRACK_SEVERITY.value] = crack
+    crack_record[FeatureName.POTHOLE_SEVERITY.value] = pothole
 
-    pothole_record[FeatureName.CRACK_SEVERITY] = crack
-    pothole_record[FeatureName.POTHOLE_SEVERITY] = pothole
+    pothole_record[FeatureName.CRACK_SEVERITY.value] = crack
+    pothole_record[FeatureName.POTHOLE_SEVERITY.value] = pothole
 
     return crack_record, pothole_record
 

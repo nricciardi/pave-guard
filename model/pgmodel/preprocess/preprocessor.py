@@ -253,7 +253,7 @@ class Preprocessor:
             dataset[FeatureName.DELTA_TEMPERATURE.value] = self.get_delta_temperatures(raw_dataset[RawFeatureName.TEMPERATURE.value])
         else:
             dataset[FeatureName.TEMPERATURE_MEAN.value] = 0
-            dataset[FeatureName.SUBZERO_TEMPERATURE_MEAN].value = 0
+            dataset[FeatureName.SUBZERO_TEMPERATURE_MEAN.value] = 0
             dataset[FeatureName.DELTA_TEMPERATURE.value] = 0
             
         if RawFeatureName.HUMIDITY.value in raw_dataset:
