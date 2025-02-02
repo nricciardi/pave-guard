@@ -292,4 +292,7 @@ class Preprocessor:
             if candidate is np.nan:
                 candidate = 0
             dataset[FeatureName.POTHOLE_SEVERITY] = candidate
+
+        dataset = dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])      # TODO
+
         return dataset

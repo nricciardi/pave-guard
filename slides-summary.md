@@ -51,13 +51,13 @@ Obviously, more maintenances imply safer roads, decreasing road accident risks.
 
 Here, you can see an overview of the entire process.
 
-First of all, data are collected from environment using a set of devices, which have special sensors to capture road conditions.
+First of all, data are collected from environment using a set of devices, which have special sensors to capture roads conditions.
 
-Then, data are elaborated by our system. In particular, we have trained a specific AI model is able to predict future state of the roads.
+Then, data are elaborated by our system. In particular, we have trained a specific AI model that is able to predict future state of the roads.
 
-Thanks to predictions, we are able to provide information to make more conscious planning of maintenance interventions.
+Thanks to predictions, we are able to provide useful information to make more conscious planning of maintenance interventions.
 
-In the end, directly from our dashboard, interventions can be planned and nextly intervention can be executed.
+In the end, directly from our dashboard, interventions can be planned and nextly they can be executed.
 
 
 
@@ -65,11 +65,12 @@ In the end, directly from our dashboard, interventions can be planned and nextly
 
 [NIC]
 
-PaveGuard is composed by different components.
+To make that possible, PaveGuard is composed by several components.
 
 **StaticGuards** are fixed monitoring devices designed to continuously measure atmospheric conditions and traffic volume.
 
-**DynamicGuards** are deployed monitoring devices able to capture the road status for assessing the pavement quality.
+**DynamicGuards** are deployed monitoring devices able to capture the road status for assessing the pavement quality. 
+They are installed directly on citizens vehicles.
 
 **Dashboard** allows managers to analyze future road status and to plan maintenances beforehand. 
 
@@ -79,9 +80,17 @@ PaveGuard is composed by different components.
 
 [NIC]
 
-To improve capabilities of our system, we have planed to include a solar panel to make our devices energy-independent.
+Our main four future plans for PaveGuard are:
 
-In addiction, given that currently we already track vehicles transits, we want to improve traffic analysis, in order to help maintenances scheduling.
+Introduce a **rewards system** to encourage citizens adoption of DynamicGuards, we would collaborate to local institutions to implement a rewards system, such as taxes reduction.
+
+Collecting traffic data, PaveGuard could also provide insight for traffic patterns.
+The system may help optimize maintenance scheduling, prioritizing high-traffic areas to minimize disruptions. 
+
+In addiction to that, we think to make PaveGuard devices completely independent from external power sources thanks to solar panels
+and introduce air quality sensors on StaticGuards, in order to obtain relevant information about city air quality.
+
+
 
 
 ## Second part
@@ -136,17 +145,18 @@ TODO
 
 [NIC]
 
-Backend is the component that stores and manages information of the entire system.
-It is composed by more remote modules.
+Backend is the component that stores and manages information about entire system.
+It is composed by more remote modules that share data among them.
 
 It stores information about users. There are two types of accounts:
 
-- Administrators
+- Administrators, who can analyze data and plan interventions
 - Citizens, that are common accounts
 
-It creates digital representation of devices, acquiring and storing information about devices.
-Each DynamicGuard is associated to citizen’s account.
-StaticGuards don’t have a owner and administrators can see their information using the dashboard.
+Backend allows us to create digital representation of devices, acquiring and storing information about devices.
+
+Each DynamicGuard is associated to citizen's account.
+StaticGuards don't have a owner and administrators can see their information using the dashboard.
 
 In addiction, it manages data produced by devices and provides their telemetries through API, in order to allow other components (e.g. the model) to use them.
 
@@ -157,9 +167,9 @@ In addiction, it manages data produced by devices and provides their telemetries
 [NIC]
 
 The Model is the game-changer component of our system.
-It exploits information about environment and actual road conditions, acquired by devices, to make predictions about future state of the roads.
+It exploits information about environment and actual pavements conditions, acquired by devices, to make predictions about future state of the roads.
 
-The model is able to improve its performances, processing new data incoming from devices continuously.
+The model is able to improve its performances, processing new data incoming from devices continuously, therefore it is able to operate in a dynamic environment.
 
 The model provides predictions about future state of the roads, in order to allow administrators to plan targeted interventions.
 
@@ -168,26 +178,30 @@ The model provides predictions about future state of the roads, in order to allo
 
 ## Third part
 
+In this next section we show more details about our system.
+
 ### Development and Deployment
 
 [NIC]
 
 Every component of PaveGuard system was developed in an isolated environment thanks to Docker.
-Docker allows to create isolated environments without the overhead of traditional virtual machines.
+Docker allows us to create isolated environments without the overhead of traditional virtual machines.
 
 PaveGuard is an open source software, it is available on GitHub.
 Thanks to CI/CD, every time that a new version of a component is released, new code is deployed on remote servers automatically.
 
-This ensure that users use the last version of our softwares.
+This ensure that users always use the last version of our softwares.
 
 
 ### Backend
 
 [NIC]
 
-Backend is wrote using NestJS and stores data using MongoDB database. It allows us to model entities of our system like devices and roads. We can obtain information about resources using GraphQL APIs. 
+Backend is wrote using NestJS and stores data in a MongoDB database.
+It allows us to model entities of our system like devices and roads in a flexible way.
+We can obtain information about resources using its GraphQL APIs. 
 
-MongoDB, a NoSQL database, is picked to allow a more flexible management of different kind of telemetries.
+MongoDB is a NoSQL database picked to allow a more flexible management of different kind of telemetries.
 Telemetries are encoded as time series, in order to improve efficiency of operations.
 MongoDB cluster is used to ensure scalability and fault tolerance. It is deployed separately and remotely in cloud.
 
@@ -198,14 +212,15 @@ Mongoose is used to handle MongoDB drivers and manage database operations.
 
 GraphQL is a query language for APIs, we use it for all HTTP requests.
 The query language is a more user-friendly and descriptive alternative to RESTful APIs.
-We can easily development new APIs thanks to resolvers and test them using the built-in APIs dashboard called Apollo sandbox.
+We can easily develop new APIs thanks to resolvers and test them using the built-in APIs dashboard called Apollo sandbox.
 
 
 ### StaticGuard
 
 [NIC]
 
-StaticGuard device is composed by a microcontroller which manages sensors. Firmware of StaticGuard was developed using Arduino libraries. Telemetries are sent to remote server using integrated bridge. 
+StaticGuard device is composed by a microcontroller which manages sensors. Firmware of StaticGuard was developed using Arduino libraries.
+Telemetries are sent to remote server using integrated bridge. 
 StaticGuard is place above the road, in order to capture transits of vehicles of different shapes.
 
 StaticGuard's firmware is executed on Arduino R4 Wi-Fi. 
@@ -216,7 +231,7 @@ StaticGuard includes 3 types of sensors:
 
 - DHT22 for temperature and humidity
 - Rain Gauge to handle rainfall
-- A pair of laser reflective sensors to obtain traffic data
+- A pair of laser reflective sensors to obtain traffic data, in particular they are triggered when a vehicles transits below them
 
 
 Bridge is integrated into device thanks to ESP32-S3 module of the Arduino board.
@@ -227,13 +242,21 @@ ESP32 provides Wi-Fi connectivity, which is used to connect device to Internet.
 
 [NIC]
 
-StaticGuard collects telemetries about temperature and humidity every 30 minutes checking a timer in each loop iteration. Instead, Rainfall and transits are handled through interrupt.
+StaticGuard collects telemetries about temperature and humidity every 30 minutes checking a timer in each loop iteration.
+Instead, Rainfall and transits are handled through interrupt.
 
-Data from DHT22 are sampled thanks to DHT library provided by Adafruit. Instead, Rain gauge and laser reflective sensors have dry contacts which are directly connected to interruptable pins.
+Temperature and humidity data from DHT22 are sampled thanks to DHT library provided by Adafruit.
+Instead, Rain gauge and laser reflective sensors have dry contacts which are directly connected to interruptable pins.
 
 Rain gauge trigs a magnetic contact when approximately 0.3mm of water is stored into the bin.
 
-StaticGuard detects a transit when both laser sensors are triggered in the right order. 
+StaticGuard detects a vehicle when it transits below it and both laser sensors are triggered in the right order. 
+
+Every measure generates a new telemetry. They are not sent instantaneously, but StaticBridge keeps in memory a bucket of telemetries, 
+in order to optimize information sharing. When the bucket is too full, telemetries are encoded in GraphQL mutations and sent to backend.
+
+In particular, telemetries are sent thanks to an HTTP POST request.
+
 
 
 ### DynamicGuard
@@ -260,21 +283,23 @@ TODO
 
 [NIC]
 
-The Model is internally composed by two regressor: the road crack model and road pothole model.
-Each model predicts respectively future crack and pothole severities.
+The Model is internally composed by two regressor: the road cracks model and road potholes model.
+Each model predicts respectively future cracks and potholes severities.
 
-The Model is re-trained periodically on processed data, in order to adapt predictions to dynamic environment.
+The Model is re-trained periodically on processed data, in order to adapt predictions on dynamic environment.
 
 We train the model aggregating all stored telemetries in process phase, in order to obtain enough records. 
-Internal road crack and pothole models are trained on respectively datasets, using a GridSearch of scikit-learn to find more suitable model type and hyper-parameters. 
+Internal road cracks and potholes models are trained on respectively datasets, using a GridSearch of scikit-learn to find more suitable model type and hyper-parameters. 
 
-Surprisingly, we have noticed that linear models like LinearRegressor or SVM obtain good performances.
+Surprisingly, we have noticed that linear models also obtain good performances.
 
 To make predictions, every day we scrape roads in which there was a DynamicGuard transit. StaticGuards don't need to be present on those roads.
 
 For each scraped road, thanks to Prophet we generate temperature, humidity and so on data of next 12 months of the nearby StaticGuards, in order to obtain
 processed data modulated by distance. Data preprocessing produces 2 features vectors which are used to predict road crack and pothole severities of next 
-12 months using pre-trained regressors.  
+12 months using pre-trained regressors.
+
+Predictions are stored in remote database thanks to backend APIs, in order to provide them on dashboard and support interventions planning. 
 
 
 ### Dashboard
