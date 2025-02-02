@@ -8,3 +8,4 @@ model/dataset/output.csv
 dynamic-guard/bridge/dynamic_bridge/.env
 *.pyc
 *.jpeg
+model/pgmodel/model/saved_model/models_info.json

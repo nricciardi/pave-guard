@@ -31,6 +31,9 @@ class DashboardLogic {
   bool cameraWorking = false;
   Timer? _timer;
 
+  bool holeRecentlyFound = false;
+  int seenHoles = 0;
+
   SerialInterface? serialInterface;
   HoleDetector? holeDetector;
 
@@ -64,6 +67,9 @@ class DashboardLogic {
   }
 
   bool shouldReload(){
+    if(holeRecentlyFound){
+      return true;
+    }
     if(cameraController is CameraController){
       return false;
     } else {
@@ -109,6 +115,9 @@ class DashboardLogic {
       return;
     }
     _timer = Timer.periodic(Duration(seconds: interval), (timer) async {
+      if(holeRecentlyFound){
+        return;
+      }
       // The photo collection
       XFile? file = await takePicture();
       if (file == null) {
@@ -118,6 +127,12 @@ class DashboardLogic {
       final File fileToDelete = File(file.path);
       fileToDelete.delete();
       if (holeSeverity > 0) {
+        holeRecentlyFound = true;
+        seenHoles++;
+        Timer(const Duration(seconds: 10), () {
+          holeRecentlyFound = false;
+          _timer?.cancel();
+        });
         RoadPotholeTelemetryQuery telemetryQuery = RoadPotholeTelemetryQuery();
         GPSData? gpsData;
         try {
@@ -286,15 +301,24 @@ class DashboardLogic {
         children.add(
           Column(
             children: [
-              const Text(
+                const Text(
                 'Live Camera View',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.blueGrey,
                 ),
-              ),
-              const SizedBox(height: 10),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Holes seen: $seenHoles',
+                  style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black38,
+                  ),
+                ),
+                const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.black,

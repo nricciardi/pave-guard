@@ -439,10 +439,10 @@ def train(model: PaveGuardModel, output_path: str, csvs = False):
     else:
         crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=False)
 
-        X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
-        X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET])
-        y_crack = crack_dataset[FeatureName.TARGET]
-        y_pothole = pothole_dataset[FeatureName.TARGET]
+        X_crack = crack_dataset.drop(columns=[FeatureName.TARGET.value])
+        X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET.value])
+        y_crack = crack_dataset[FeatureName.TARGET.value]
+        y_pothole = pothole_dataset[FeatureName.TARGET.value]
 
     model.train(X_crack, y_crack, X_pothole, y_pothole)
 
@@ -509,7 +509,7 @@ if __name__ == '__main__':
         }
     )
 
-    train(model, output_path_nic, csvs=True)
+    train(model, output_path_fil, csvs=False)
 
     # updated_at = model.restore_model(models_info_file_path_nic)
 
