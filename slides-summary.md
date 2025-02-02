@@ -291,7 +291,7 @@ The Model is re-trained periodically on processed data, in order to adapt predic
 We train the model aggregating all stored telemetries in process phase, in order to obtain enough records. 
 Internal road cracks and potholes models are trained on respectively datasets, using a GridSearch of scikit-learn to find more suitable model type and hyper-parameters. 
 
-Surprisingly, we have noticed that linear models also obtain good performances.
+Surprisingly, we have noticed that linear models also obtain good performances, but currently we are using a decision tree.
 
 To make predictions, every day we scrape roads in which there was a DynamicGuard transit. StaticGuards don't need to be present on those roads.
 

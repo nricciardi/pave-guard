@@ -461,16 +461,16 @@ if __name__ == '__main__':
         crack_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
             # ("kbest", SelectKBest()),
-            ("model", DecisionTreeRegressor())
+            ("model", DecisionTreeRegressor(criterion="poisson"))
         ]),
         crack_param_grid={
             # "model__positive": [True, False],
 
             # "kbest__k": range(3, 10),
 
-            "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
-            "model__max_depth": (None, 2, 5, 7),
-            "model__max_leaf_nodes": (None, 2, 5, 7),
+            # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
+            # "model__max_depth": (None, 2, 5, 7),
+            # "model__max_leaf_nodes": (None, 2, 5, 7),
 
             # "model__n_estimators": (10, 50, 100),
 
@@ -486,16 +486,16 @@ if __name__ == '__main__':
         pothole_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
             # ("kbest", SelectKBest()),
-            ("model", DecisionTreeRegressor())
+            ("model", DecisionTreeRegressor(criterion="friedman_mse"))
         ]),
         pothole_param_grid={
             # "model__positive": [True, False],
 
             # "kbest__k": range(3, 10),
 
-            "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
-            "model__max_depth": (None, 2, 5, 7),
-            "model__max_leaf_nodes": (None, 2, 5, 7),
+            # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
+            # "model__max_depth": (None, 2, 5, 7),
+            # "model__max_leaf_nodes": (None, 2, 5, 7),
 
             # "model__n_estimators": (10, 50, 100),
 
@@ -509,7 +509,7 @@ if __name__ == '__main__':
         }
     )
 
-    # train(model, output_path_nic, csvs=True)
+    train(model, output_path_nic, csvs=True)
 
     # updated_at = model.restore_model(models_info_file_path_nic)
 

@@ -2,8 +2,8 @@
     "crack_model_path": "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model/crack_model",
     "pothole_model_path": "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model/pothole_model",
     "performances": {
-        "crack_model_performance": 0.1882594202138657,
-        "pothole_model_performance": 0.2493078815689026
+        "crack_model_performance": 0.1940912268454479,
+        "pothole_model_performance": 0.1464685365235026
     },
-    "updated_at": "2025-02-02 12:59:27.862232+00:00"
+    "updated_at": "2025-02-02 13:28:26.577267+00:00"
 }
