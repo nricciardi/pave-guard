@@ -6,6 +6,8 @@
 
 ### Road maintenance as of now…
 
+[FIL]
+
 Now, road maintenance has two main problems that we must handle:
 
 **Management**: It is not known in advance which roads will require maintenance in the near future. 
@@ -22,6 +24,8 @@ which have 190% extra cost.
 
 ### Our solution
 
+[FIL]
+
 We offer PaveGuard, which is a completely automatized, plug-and-play, cost-efficient, road maintenance planning system.
 
 It continuously monitors road conditions, detects early signs of damage, and optimizes maintenance scheduling, reducing repair costs and delays.
@@ -29,6 +33,8 @@ It continuously monitors road conditions, detects early signs of damage, and opt
 By leveraging smart sensors and predictive analytics, PaveGuard helps to prioritize interventions efficiently, ensuring safer roads and minimizing unnecessary expenses.
 
 ### Advantages of PaveGuard
+
+[FIL]
 
 The advantages of PaveGuard are, first of all, very low production and installation costs.
 
@@ -38,7 +44,10 @@ Therefore, adopting PaveGuard we can save a lot of moneys also reducing emergenc
 
 Obviously, more maintenances imply safer roads, decreasing road accident risks. 
 
+
 ### Process timeline
+
+[NIC]
 
 Here, you can see an overview of the entire process.
 
@@ -54,6 +63,8 @@ In the end, directly from our dashboard, interventions can be planned and nextly
 
 ### Resources
 
+[NIC]
+
 PaveGuard is composed by different components.
 
 **StaticGuards** are fixed monitoring devices designed to continuously measure atmospheric conditions and traffic volume.
@@ -66,6 +77,8 @@ PaveGuard is composed by different components.
 
 ### Future plans
 
+[NIC]
+
 To improve capabilities of our system, we have planed to include a solar panel to make our devices energy-independent.
 
 In addiction, given that currently we already track vehicles transits, we want to improve traffic analysis, in order to help maintenances scheduling.
@@ -74,6 +87,8 @@ In addiction, given that currently we already track vehicles transits, we want t
 ## Second part
 
 ### PaveGuard system: Overview
+
+[FIL]
 
 PaveGuard system, as already mentioned, is composed by many components.
 
@@ -85,6 +100,8 @@ Thanks to backend's API, the model and dashboard can get data. Model use data to
 
 
 ### StaticGuard
+
+[FIL]
 
 StaticGuard device is placed on a road lamp, in order to capture traffic telemetries from above. 
 
@@ -104,9 +121,20 @@ Information about environment will be used to provide some historical data for a
 
 ### DynamicGuard
 
+[FIL]
+
+TODO
+
+
+### Dashboard
+
+[FIL]
+
 TODO
 
 ### Backend
+
+[NIC]
 
 Backend is the component that stores and manages information of the entire system.
 It is composed by more remote modules.
@@ -124,12 +152,9 @@ In addiction, it manages data produced by devices and provides their telemetries
 
 
 
-
-### Dashboard
-
-TODO
-
 ### The Model
+
+[NIC]
 
 The Model is the game-changer component of our system.
 It exploits information about environment and actual road conditions, acquired by devices, to make predictions about future state of the roads.
@@ -143,7 +168,22 @@ The model provides predictions about future state of the roads, in order to allo
 
 ## Third part
 
+### Development and Deployment
+
+[NIC]
+
+Every component of PaveGuard system was developed in an isolated environment thanks to Docker.
+Docker allows to create isolated environments without the overhead of traditional virtual machines.
+
+PaveGuard is an open source software, it is available on GitHub.
+Thanks to CI/CD, every time that a new version of a component is released, new code is deployed on remote servers automatically.
+
+This ensure that users use the last version of our softwares.
+
+
 ### Backend
+
+[NIC]
 
 Backend is wrote using NestJS and stores data using MongoDB database. It allows us to model entities of our system like devices and roads. We can obtain information about resources using GraphQL APIs. 
 
@@ -163,11 +203,13 @@ We can easily development new APIs thanks to resolvers and test them using the b
 
 ### StaticGuard
 
+[NIC]
+
 StaticGuard device is composed by a microcontroller which manages sensors. Firmware of StaticGuard was developed using Arduino libraries. Telemetries are sent to remote server using integrated bridge. 
 StaticGuard is place above the road, in order to capture transits of vehicles of different shapes.
 
-StaticGuard’s firmware is executed on Arduino R4 Wi-Fi. 
-This microcontroller allows us to manage sensors and build the device’s bridge in an all-in-one board.
+StaticGuard's firmware is executed on Arduino R4 Wi-Fi. 
+This microcontroller allows us to manage sensors and build the device's bridge in an all-in-one board.
 
 
 StaticGuard includes 3 types of sensors:
@@ -183,6 +225,8 @@ ESP32 provides Wi-Fi connectivity, which is used to connect device to Internet.
 
 ### StaticGuard 2
 
+[NIC]
+
 StaticGuard collects telemetries about temperature and humidity every 30 minutes checking a timer in each loop iteration. Instead, Rainfall and transits are handled through interrupt.
 
 Data from DHT22 are sampled thanks to DHT library provided by Adafruit. Instead, Rain gauge and laser reflective sensors have dry contacts which are directly connected to interruptable pins.
@@ -190,6 +234,56 @@ Data from DHT22 are sampled thanks to DHT library provided by Adafruit. Instead,
 Rain gauge trigs a magnetic contact when approximately 0.3mm of water is stored into the bin.
 
 StaticGuard detects a transit when both laser sensors are triggered in the right order. 
+
+
+### DynamicGuard
+
+[FIL]
+
+TODO
+
+
+### DynamicBridge
+
+[FIL]
+
+TODO
+
+
+### Data processing
+
+[FIL]
+
+TODO
+
+### The Model
+
+[NIC]
+
+The Model is internally composed by two regressor: the road crack model and road pothole model.
+Each model predicts respectively future crack and pothole severities.
+
+The Model is re-trained periodically on processed data, in order to adapt predictions to dynamic environment.
+
+We train the model aggregating all stored telemetries in process phase, in order to obtain enough records. 
+Internal road crack and pothole models are trained on respectively datasets, using a GridSearch of scikit-learn to find more suitable model type and hyper-parameters. 
+
+Surprisingly, we have noticed that linear models like LinearRegressor or SVM obtain good performances.
+
+To make predictions, every day we scrape roads in which there was a DynamicGuard transit. StaticGuards don't need to be present on those roads.
+
+For each scraped road, thanks to Prophet we generate temperature, humidity and so on data of next 12 months of the nearby StaticGuards, in order to obtain
+processed data modulated by distance. Data preprocessing produces 2 features vectors which are used to predict road crack and pothole severities of next 
+12 months using pre-trained regressors.  
+
+
+### Dashboard
+
+[FIL]
+
+TODO
+
+
 
 
 

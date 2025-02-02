@@ -200,18 +200,30 @@ class Preprocessor:
                             continue
                     last_index = index_list[j]
                     last_row = raw_dataset.loc[last_index]
-                    if last_row['maintenance'] is pd.Series:
-                        if last_row["maintenance"].iloc[0] == 1:
+
+                    try:
+                        if isinstance(last_row['maintenance'], pd.Series):
+                            if last_row["maintenance"].iloc[0] == 1:
+                                break
+                        elif last_row['maintenance'] == 1:
                             break
-                    elif last_row['maintenance'] == 1:
-                        break
-                    if not self.is_row_to_process(last_row, feature_name):
-                        continue
+                        if not self.is_row_to_process(last_row, feature_name):
+                            continue
+
+                    except Exception as e:
+                        print(last_row)
+                        print(last_row['maintenance'])
+                        print(feature_name)
+
+                        raise e
+
                     processed_row = self.process_single_row(raw_dataset.loc[index:last_index])
+
                     if feature_name == RawFeatureName.CRACK.value:
                         processed_row[FeatureName.CRACK_SEVERITY] = row[RawFeatureName.CRACK.value]
                         processed_row[FeatureName.TARGET] = last_row[RawFeatureName.CRACK.value]
                         crack_rows.append(processed_row.iloc[0])
+
                     else:
                         processed_row[FeatureName.POTHOLE_SEVERITY] = row[RawFeatureName.POTHOLE.value]
                         processed_row[FeatureName.TARGET] = last_row[RawFeatureName.POTHOLE.value]
