@@ -297,6 +297,6 @@ class Preprocessor:
                 candidate = 0
             dataset[FeatureName.POTHOLE_SEVERITY.value] = candidate
 
-        dataset = dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])      # TODO
+        dataset = dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN.value])      # TODO
 
         return dataset
