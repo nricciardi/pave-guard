@@ -67,6 +67,22 @@ Widget getLineChart(MapEntry<LocationData, SeverityData?> entry1, MapEntry<Locat
       ),
       minY: 0,
       maxY: 100,
+      lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (spot) => Colors.blueGrey.withOpacity(0.8),
+            getTooltipItems: (List<LineBarSpot> spots) {
+              return spots.map((spot) {
+                return LineTooltipItem(
+                    spot.bar.color == Colors.lightBlueAccent
+                      ? 'Crack: ${spot.y.toStringAsFixed(1)}'
+                      : 'Pothole: ${spot.y.toStringAsFixed(1)}',
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                );
+              }).toList();
+            },
+          ),
+          handleBuiltInTouches: true,
+        ),
       lineBarsData: [
 LineChartBarData(
   spots: entry1.value!.severities.asMap().entries.map((e) {
@@ -129,11 +145,18 @@ LineChartBarData(
 }
 
 Widget getLineTelemetryChart(MapEntry<LocationData, List<Temperature>?> temperatures, MapEntry<LocationData, List<Humidity>?> humidities){
-  if (temperatures.value == null && humidities.value == null) {
+  if (temperatures.value == null || humidities.value == null) {
     return Center(
       child: Text(
         'No data available',
         style: TextStyle(color: Colors.red, fontSize: 16),
+      ),
+    );
+  } else if(temperatures.value!.isEmpty || humidities.value!.isEmpty) {
+    return Center(
+      child: Text(
+        'No data available',
+        style: TextStyle(color: Colors.grey, fontSize: 16),
       ),
     );
   } else {
@@ -164,6 +187,22 @@ Widget getLineTelemetryChart(MapEntry<LocationData, List<Temperature>?> temperat
           topTitles: AxisTitles(),
         ),
         maxY: 100,
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (spot) => Colors.blueGrey.withOpacity(0.8),
+            getTooltipItems: (List<LineBarSpot> spots) {
+              return spots.map((spot) {
+                return LineTooltipItem(
+                    spot.bar.color == Colors.lightBlueAccent
+                      ? 'Temperature: ${spot.y.toStringAsFixed(1)}'
+                      : 'Humidity: ${spot.y.toStringAsFixed(1)}',
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                );
+              }).toList();
+            },
+          ),
+          handleBuiltInTouches: true,
+        ),
         lineBarsData: [
           LineChartBarData(
             spots: temperatures.value!.asMap().entries.map((e) {
@@ -198,6 +237,7 @@ Widget getLineTelemetryChart(MapEntry<LocationData, List<Temperature>?> temperat
             spots: humidities.value!.asMap().entries.map((e) {
               return FlSpot(e.key.toDouble(), e.value.humidity);
             }).toList(),
+            show: true,
             isCurved: true,
             color: Colors.green,
             barWidth: 4,

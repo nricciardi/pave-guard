@@ -63,6 +63,13 @@ class LoginScreen extends StatelessWidget {
             }}),
         ));
       },
+      theme: LoginTheme(
+        titleStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 2,
+        ),
+      ),
       // NOTE: The following line must be done because the package requires it, but the function does nothing
       onRecoverPassword: (_) => Future.delayed(loginTime).then((_) {return null;}),
       hideForgotPasswordButton: true,
