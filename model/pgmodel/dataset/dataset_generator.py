@@ -98,7 +98,7 @@ class DatasetGenerator:
         
         # Merges all dataframes
         for df in telemetries:
-            result_df = result_df.merge(df, on='timestamp', how='left')
+            result_df = result_df.merge(df, on='timestamp', how='left').drop_duplicates(subset='timestamp')
             if "latitude_x" in result_df.columns:
                 result_df["latitude"] = result_df["latitude_x"].fillna(result_df["latitude_y"])
                 result_df = result_df.drop(columns=["latitude_x", "latitude_y"])
