@@ -39,7 +39,7 @@ class FeatureName(Enum):
     POTHOLE_SEVERITY = "pothole_severity"
     CRACK_SEVERITY = "crack_severity"
     IS_RAINING = "is_raining"
-    TARGET = "crack_final_severity"
+    TARGET = "target"
 
 
 class TargetName(Enum):

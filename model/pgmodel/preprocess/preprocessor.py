@@ -224,13 +224,13 @@ class Preprocessor:
                     processed_row = self.process_single_row(raw_dataset.loc[index:last_index])
 
                     if feature_name == RawFeatureName.CRACK.value:
-                        processed_row[FeatureName.CRACK_SEVERITY] = row[RawFeatureName.CRACK.value]
-                        processed_row[FeatureName.TARGET] = last_row[RawFeatureName.CRACK.value]
+                        processed_row[FeatureName.CRACK_SEVERITY.value] = row[RawFeatureName.CRACK.value]
+                        processed_row[FeatureName.TARGET.value] = last_row[RawFeatureName.CRACK.value]
                         crack_rows.append(processed_row.iloc[0])
 
                     else:
-                        processed_row[FeatureName.POTHOLE_SEVERITY] = row[RawFeatureName.POTHOLE.value]
-                        processed_row[FeatureName.TARGET] = last_row[RawFeatureName.POTHOLE.value]
+                        processed_row[FeatureName.POTHOLE_SEVERITY.value] = row[RawFeatureName.POTHOLE.value]
+                        processed_row[FeatureName.TARGET.value] = last_row[RawFeatureName.POTHOLE.value]
                         pothole_rows.append(processed_row.iloc[0])
 
         crack_df = pd.DataFrame(crack_rows)
