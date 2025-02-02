@@ -81,6 +81,8 @@ class Preprocessor:
                               length_name: str = RawFeatureName.TRANSIT_LENGTH.value) -> int:
 
         df = df[pd.notna(df[length_name])]
+        if is_raining not in df.columns:
+            return 0
         df = df[df[is_raining] == 1]
         return self.array_count(
             df[is_raining]

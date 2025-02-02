@@ -427,7 +427,9 @@ def train(model: PaveGuardModel, output_path: str):
     crack_dataset, pothole_dataset = final_dataset(dump=False, output_path=output_path, plot=False)
 
     crack_dataset = crack_dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])
+    crack_dataset = crack_dataset.dropna()
     pothole_dataset = pothole_dataset.drop(columns=[FeatureName.SUBZERO_TEMPERATURE_MEAN])
+    pothole_dataset = pothole_dataset.dropna()
 
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET])
     X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET])
@@ -499,11 +501,11 @@ if __name__ == '__main__':
         }
     )
 
-    train(model, output_path_nic)
+    train(model, output_path_fil)
 
-    updated_at = model.restore_model(models_info_file_path_nic)
+    # updated_at = model.restore_model(models_info_file_path_nic)
 
-    print("last updated:", updated_at)
+    # print("last updated:", updated_at)
 
     print("Performance:")
     print(model.performances)
@@ -524,4 +526,4 @@ if __name__ == '__main__':
     print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
 
 
-    # make_and_upload_daily_predictions(model)
+    make_and_upload_daily_predictions(model)
