@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -135,7 +136,7 @@ class Preprocessor:
         return ids_to_ret
 
     def process(self, raw_dataset: pd.DataFrame, location: dict[str, float], maintenances: list[dict],
-                consecutive_measures_only: bool = False) -> pd.DataFrame:
+                consecutive_measures_only: bool = False, num_final_rows: int = 0) -> pd.DataFrame:
 
         index_list_crack = []
         index_list_pothole = []
@@ -181,17 +182,28 @@ class Preprocessor:
             lambda timestamp: int(self.is_raining_at_time(rainfall_indices, pd.to_datetime(timestamp)))
         )
 
-        return self.partition_and_process(raw_dataset, index_list_crack, index_list_pothole, consecutive_measures_only=consecutive_measures_only)
+        return self.partition_and_process(raw_dataset, index_list_crack, index_list_pothole, consecutive_measures_only=consecutive_measures_only, num_final_rows=num_final_rows)
 
 
-    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list_crack: list, index_list_pothole: list, consecutive_measures_only: bool = True) -> pd.DataFrame:
+    def partition_and_process(self, raw_dataset: pd.DataFrame, index_list_crack: list, index_list_pothole: list,
+                              consecutive_measures_only: bool = True, num_final_rows: int = 0) -> pd.DataFrame:
 
         crack_rows = []
-        pothole_rows = []    
+        pothole_rows = []
+
+        m_i = 2
+        m_j = 2
+        if num_final_rows > 0:
+            df_len = (len(index_list_crack) + len(index_list_pothole)) / 2
+            val = math.sqrt(
+                df_len*(df_len - 1) / (2*num_final_rows)
+            )
+            m_i = int(val)
+            m_j = int(val)
 
         for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
             for i in range(0, len(index_list) - 1):
-                if i % 2 != 0 and not consecutive_measures_only:
+                if i % m_i != 0 and not consecutive_measures_only:
                     continue
                 index = index_list[i]
                 row = raw_dataset.loc[index]
@@ -200,7 +212,7 @@ class Preprocessor:
                 # Set the first row, I look for another one
                 for j in range(i+1, i+2 if consecutive_measures_only else len(index_list)):
                     if not consecutive_measures_only:
-                        if j % 2 != 0:
+                        if j % m_j != 0:
                             continue
                     last_index = index_list[j]
                     last_row = raw_dataset.loc[last_index]

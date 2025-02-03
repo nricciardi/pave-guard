@@ -30,14 +30,17 @@ def is_maintenance_for_road(maintenance, location) -> bool:
     return maintenance["road"] == location["road"] and maintenance["city"] == location["city"] and maintenance["county"] == location["county"] and maintenance["state"] == location["state"]
 
 
-def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
+def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool = False, num_final_rows: int = 0) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     print("generating final dataset (train dataset)...")
+    if(num_final_rows < 0):
+        raise ValueError("num_final_rows must be >= 0")
 
     dbfetcher = DatabaseFetcher()
 
     static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
     locations, crack_telemetries, pothole_telemetries = dbfetcher.dynamic_guard_telemetries_data()
+    num_final_rows = int(num_final_rows / locations.size)
     maintenance_operations = dbfetcher.maintenance_operations()
     for maintenance in maintenance_operations:
         maintenance["date"] = pd.to_datetime(maintenance["date"])
@@ -66,7 +69,7 @@ def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool
                             is_maintenance_for_road(maintenance, location)]
 
             telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
-            crack, pothole = Preprocessor().process(telemetries, location, maintenances)
+            crack, pothole = Preprocessor().process(telemetries, location, maintenances, num_final_rows=num_final_rows)
             db_total_crack.append(crack)
             db_total_pothole.append(pothole)
 
