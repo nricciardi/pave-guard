@@ -545,7 +545,7 @@ if __name__ == '__main__':
         }
     ]
 
-    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=1)
+    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=365)
 
 
     # dbfetcher = DatabaseFetcher()
