@@ -144,8 +144,8 @@ LineChartBarData(
 )],));
 }
 
-Widget getLineTelemetryChart(MapEntry<LocationData, List<Temperature>?> temperatures, MapEntry<LocationData, List<Humidity>?> humidities){
-  if (temperatures.value == null || humidities.value == null) {
+Widget getLineTelemetryChart(MapEntry<LocationData, List<Temperature>?> temperatures, MapEntry<LocationData, List<Humidity>?> humidities, MapEntry<LocationData, List<Transit>?> transits) {
+  if (temperatures.value == null || humidities.value == null || transits.value == null) {
     return Center(
       child: Text(
         'No data available',
@@ -195,7 +195,9 @@ Widget getLineTelemetryChart(MapEntry<LocationData, List<Temperature>?> temperat
                 return LineTooltipItem(
                     spot.bar.color == Colors.lightBlueAccent
                       ? 'Temperature: ${spot.y.toStringAsFixed(1)}'
-                      : 'Humidity: ${spot.y.toStringAsFixed(1)}',
+                      : spot.bar.color == Colors.green
+                        ? 'Humidity: ${spot.y.toStringAsFixed(1)}'
+                        : 'Transits: ${spot.y}',
                   TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                 );
               }).toList();
@@ -259,7 +261,35 @@ Widget getLineTelemetryChart(MapEntry<LocationData, List<Temperature>?> temperat
                   strokeWidth: 1.3,
                 );
               },
-            ),)]));}
+            ),),
+            LineChartBarData(
+              spots: transits.value!.asMap().entries.map((e) {
+                return FlSpot(e.key.toDouble(), e.value.num.toDouble());
+              }).toList(),
+              show: true,
+              isCurved: true,
+              color: Colors.red,
+              barWidth: 4,
+              isStrokeCapRound: true,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, bar, index) {
+                  double value = spot.y;
+                  Color color;
+                  if (value <= 50) {
+                    color = Color.lerp(Colors.green, Colors.yellow, value / 50)!;
+                  } else {
+                    color = Color.lerp(Colors.yellow, Colors.red, (value - 50) / 50)!;
+                  }
+                  return FlDotCirclePainter(
+                    radius: 4,
+                    color: color,
+                    strokeColor: Colors.black87,
+                    strokeWidth: 1.3,
+                  );
+                },
+              ),),
+            ]));}
           }
 
 Column getCharts(MapEntry<LocationData, SeverityData?> sev_entry,
@@ -304,7 +334,7 @@ Column getCharts(MapEntry<LocationData, SeverityData?> sev_entry,
           Container(
             height: 200,
             width: lineChartWidth,
-            child: getLineTelemetryChart(MapEntry(sev_entry.key, telemetries.value!.temperatures), MapEntry(sev_entry.key, telemetries.value!.humidities)),
+            child: getLineTelemetryChart(MapEntry(sev_entry.key, telemetries.value!.temperatures), MapEntry(sev_entry.key, telemetries.value!.humidities), MapEntry(sev_entry.key, telemetries.value!.transits)),
           ),
         ],
       ),
