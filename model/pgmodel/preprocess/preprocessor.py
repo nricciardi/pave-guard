@@ -243,7 +243,7 @@ class Preprocessor:
 
                     if feature_name == RawFeatureName.CRACK.value:
                         processed_row[FeatureName.CRACK_SEVERITY.value] = row[RawFeatureName.CRACK.value]
-                        processed_row[FeatureName.TARGET.value] = last_row[RawFeatureName.CRACK.value]
+                        processed_row[FeatureName.TARGET.value] = max(row[RawFeatureName.CRACK.value], last_row[RawFeatureName.CRACK.value]) + np.random.uniform(0, 1)
                         crack_rows.append(processed_row.iloc[0])
 
                     else:
