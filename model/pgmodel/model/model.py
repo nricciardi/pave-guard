@@ -40,7 +40,7 @@ def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool
 
     static_guard_telemetries = list(dbfetcher.static_guard_telemetries_data().values())
     locations, crack_telemetries, pothole_telemetries = dbfetcher.dynamic_guard_telemetries_data()
-    num_final_rows = int(num_final_rows / locations.size)
+    num_final_rows = int(num_final_rows / len(locations))
     maintenance_operations = dbfetcher.maintenance_operations()
     for maintenance in maintenance_operations:
         maintenance["date"] = pd.to_datetime(maintenance["date"])
@@ -521,7 +521,7 @@ if __name__ == '__main__':
         }
     )
 
-    train(model, output_path_nic, csvs=False)
+    train(model, output_path_fil, csvs=False)
     train(model, output_path_nic, csvs=True)
 
     updated_at = model.restore_model(models_info_file_path_nic)
