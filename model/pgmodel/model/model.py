@@ -251,8 +251,8 @@ class PaveGuardModel:
 
         n_days = 0
 
-        final_crack_predictions: list[float] = []
-        final_pothole_predictions: list[float] = []
+        final_crack_predictions: list[int] = []
+        final_pothole_predictions: list[int] = []
 
         for m in range(n_months):
 
@@ -262,14 +262,19 @@ class PaveGuardModel:
             print(f"predict {m + 1} month using:")
             # print("crack_features:")
             # print(crack_features.columns)
-            # print(crack_features.iloc[0].to_list())
+            print(crack_features.iloc[0].to_list())
 
 
             crack_pred = self.crack_model.predict(crack_features)
             pothole_pred = self.pothole_model.predict(pothole_features)
 
-            final_crack_predictions.append(float(crack_pred[0]))
-            final_pothole_predictions.append(float(pothole_pred[0]))
+            crack_pred = int(float(crack_pred[0]))
+            pothole_pred = int(float(pothole_pred[0]))
+
+            print(f"prediction:\ncrack: {crack_pred}\npothole: {pothole_pred}")
+
+            final_crack_predictions.append(min(0, max(100, crack_pred)))
+            final_pothole_predictions.append(min(0, max(100, pothole_pred)))
 
 
         assert len(final_crack_predictions), n_months
@@ -286,7 +291,8 @@ class PaveGuardModel:
 
         for dynamic_guard_transit in dynamic_guard_transits.to_dict(orient="records"):
 
-            print(f"predict using: {dynamic_guard_transit}")
+            print("predict using:")
+            print(dynamic_guard_transit)
 
             final_crack_predictions, final_pothole_predictions = self._single_predict(
                 latitude=dynamic_guard_transit["latitude"],
@@ -512,10 +518,10 @@ if __name__ == '__main__':
         }
     )
 
-    # train(model, output_path_nic, csvs=False)
-    train(model, output_path_fil, csvs=True)
+    train(model, output_path_nic, csvs=False)
+    train(model, output_path_nic, csvs=True)
 
-    updated_at = model.restore_model(models_info_file_path_fil)
+    updated_at = model.restore_model(models_info_file_path_nic)
     model.clear_cache()
 
     print("last updated:", updated_at)
