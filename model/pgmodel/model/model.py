@@ -573,9 +573,9 @@ if __name__ == '__main__':
     )
 
     # train(model, output_path_nic, csvs=False)
-    train(model, output_path_fil, csvs=False)
+    train(model, output_path_nic, csvs=True)
 
-    updated_at = model.restore_model(models_info_file_path_fil)
+    updated_at = model.restore_model(models_info_file_path_nic)
     model.clear_cache()
 
     print("last updated:", updated_at)
