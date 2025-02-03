@@ -103,7 +103,12 @@ def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool
             if result is not None:
                 crack, pothole = result
 
+                crack = crack.drop(columns=[FeatureName.POTHOLE_SEVERITY.value])
+                crack = crack.rename({FeatureName.CRACK_SEVERITY.value: "initial_severity"})
                 db_total_crack.append(crack)
+
+                pothole = pothole.drop(columns=[FeatureName.CRACK_SEVERITY.value])
+                pothole = pothole.rename({FeatureName.POTHOLE_SEVERITY.value: "initial_severity"})
                 db_total_pothole.append(pothole)
 
 
@@ -193,8 +198,14 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
         if(group[RawFeatureName.RAINFALL.value].sum() > 10.):
             df.loc[first_occurrence_index, "storm"] = 1
     single_row = Preprocessor().process_single_row(df)
-    
-    return single_row, single_row
+
+    crack_row = single_row.drop(columns=[FeatureName.POTHOLE_SEVERITY.value]).copy()
+    crack_row = crack_row.rename({FeatureName.CRACK_SEVERITY.value: "initial_severity"})
+
+    pothole_row = single_row.drop(columns=[FeatureName.CRACK_SEVERITY.value]).copy()
+    pothole_row = pothole_row.rename({FeatureName.POTHOLE_SEVERITY.value: "initial_severity"})
+
+    return crack_row, pothole_row
 
 def build_eval_data(crack: float, pothole: float, data: Dict[str, Dict[str, pd.DataFrame]], ids_modulated: Dict[str, float], n_days: int) -> tuple[
     pd.DataFrame, pd.DataFrame]:
@@ -562,9 +573,9 @@ if __name__ == '__main__':
     )
 
     # train(model, output_path_nic, csvs=False)
-    train(model, output_path_nic, csvs=True)
+    train(model, output_path_fil, csvs=False)
 
-    updated_at = model.restore_model(models_info_file_path_nic)
+    updated_at = model.restore_model(models_info_file_path_fil)
     model.clear_cache()
 
     print("last updated:", updated_at)
