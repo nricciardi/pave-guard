@@ -156,6 +156,12 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
     df.loc[:, FeatureName.IS_RAINING.value] = df.index.to_series().apply(
             lambda timestamp: int(Preprocessor().is_raining_at_time(rainfall_indices, pd.to_datetime(timestamp)))
         )
+    df["storm"] = 0
+    grouped_by_day = df[[FeatureName.IS_RAINING.value, RawFeatureName.RAINFALL.value]].groupby(df.index.date)
+    for day, group in grouped_by_day:
+        first_occurrence_index = group.index[0]
+        if(group[RawFeatureName.RAINFALL.value].sum() > 10.):
+            df.loc[first_occurrence_index, "storm"] = 1
     single_row = Preprocessor().process_single_row(df)
     
     return single_row, single_row
