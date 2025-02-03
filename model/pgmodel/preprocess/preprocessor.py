@@ -53,7 +53,7 @@ class Preprocessor:
 
     def get_storms(self, rainfall_timestamps: pd.DataFrame,
                   rain_name: str = RawFeatureName.RAINFALL.value,
-                  storm_lower_bound: float = 30.) -> int:
+                  storm_lower_bound: float = 10.) -> int:
 
         df = pd.DataFrame(rainfall_timestamps, index=pd.to_datetime(rainfall_timestamps.index))
         grouped_day = self.get_groups(rainfall_timestamps)
@@ -181,6 +181,12 @@ class Preprocessor:
         raw_dataset.loc[:, FeatureName.IS_RAINING.value] = raw_dataset.index.to_series().apply(
             lambda timestamp: int(self.is_raining_at_time(rainfall_indices, pd.to_datetime(timestamp)))
         )
+        raw_dataset["storm"] = 0
+        grouped_by_day = raw_dataset[[FeatureName.IS_RAINING.value]].groupby(raw_dataset.index.date)
+        for day, group in grouped_by_day:
+            first_occurrence_index = group.index[0]
+            if(group[RawFeatureName.RAINFALL.value].sum() > 10.):
+                raw_dataset.loc[first_occurrence_index, "storm"] = 1
 
         return self.partition_and_process(raw_dataset, index_list_crack, index_list_pothole, consecutive_measures_only=consecutive_measures_only, num_final_rows=num_final_rows)
 
@@ -277,7 +283,7 @@ class Preprocessor:
         
         if RawFeatureName.RAINFALL.value in raw_dataset:
             dataset[FeatureName.RAINFALL_QUANTITY.value] = self.array_count(raw_dataset[RawFeatureName.RAINFALL.value]) * 0.3
-            dataset[FeatureName.STORM_TOTAL.value] = self.get_storms(raw_dataset[RawFeatureName.RAINFALL.value])
+            dataset[FeatureName.STORM_TOTAL.value] = self.array_count(raw_dataset[raw_dataset["storm"] == 1])
 
         else:
             dataset[FeatureName.RAINFALL_QUANTITY.value] = 0
