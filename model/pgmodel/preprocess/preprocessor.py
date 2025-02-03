@@ -182,7 +182,7 @@ class Preprocessor:
             lambda timestamp: int(self.is_raining_at_time(rainfall_indices, pd.to_datetime(timestamp)))
         )
         raw_dataset["storm"] = 0
-        grouped_by_day = raw_dataset[[FeatureName.IS_RAINING.value]].groupby(raw_dataset.index.date)
+        grouped_by_day = raw_dataset[[FeatureName.IS_RAINING.value, RawFeatureName.RAINFALL.value]].groupby(raw_dataset.index.date)
         for day, group in grouped_by_day:
             first_occurrence_index = group.index[0]
             if(group[RawFeatureName.RAINFALL.value].sum() > 10.):
