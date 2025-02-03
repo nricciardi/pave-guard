@@ -155,14 +155,7 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
         )
     single_row = Preprocessor().process_single_row(df)
     
-    first_non_nan_crack_severity = df[FeatureName.CRACK_SEVERITY.value].dropna().iloc[0] if not df[FeatureName.CRACK_SEVERITY.value].dropna().empty else 0
-    first_non_nan_pothole_severity = df[FeatureName.POTHOLE_SEVERITY.value].dropna().iloc[0] if not df[FeatureName.POTHOLE_SEVERITY.value].dropna().empty else 0
-    
-    crack_row, poth_row = single_row.copy(), single_row.copy()
-    crack_row[FeatureName.CRACK_SEVERITY.value] = first_non_nan_crack_severity
-    poth_row[FeatureName.POTHOLE_SEVERITY.value] = first_non_nan_pothole_severity
-    
-    return crack_row, poth_row
+    return single_row, single_row
 
 def build_eval_data(crack: float, pothole: float, data: Dict[str, Dict[str, pd.DataFrame]], ids_modulated: Dict[str, float], n_days: int) -> tuple[
     pd.DataFrame, pd.DataFrame]:
@@ -520,9 +513,9 @@ if __name__ == '__main__':
     )
 
     # train(model, output_path_nic, csvs=False)
-    train(model, output_path_nic, csvs=True)
+    train(model, output_path_fil, csvs=True)
 
-    updated_at = model.restore_model(models_info_file_path_nic)
+    updated_at = model.restore_model(models_info_file_path_fil)
     model.clear_cache()
 
     print("last updated:", updated_at)

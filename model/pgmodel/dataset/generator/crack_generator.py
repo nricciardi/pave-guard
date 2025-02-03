@@ -51,12 +51,14 @@ class CrackGenerator(IndependentGenerator):
         if df is not None:
             if DataframeKey.RAINFALL.value in df:
                 part = df[DataframeKey.RAINFALL.value]
-                part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
-                to_increase += part.size / 10000
+                if not part.empty:
+                    part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
+                    to_increase += part.size / 10000
             if DataframeKey.TRANSIT.value in df:
                 part = df[DataframeKey.TRANSIT.value]
-                part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
-                to_increase += part.size / 10000
+                if not part.empty:
+                    part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
+                    to_increase += part.size / 10000
             if DataframeKey.CRACK.value in df:
                 part = df[DataframeKey.CRACK.value]
                 part = part[pd.to_datetime(part['timestamp']) <= pd.to_datetime(day)]
