@@ -26,10 +26,6 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 from prophet import Prophet
 
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
-
 def is_maintenance_for_road(maintenance, location) -> bool:
     return maintenance["road"] == location["road"] and maintenance["city"] == location["city"] and maintenance["county"] == location["county"] and maintenance["state"] == location["state"]
 
@@ -152,9 +148,21 @@ def process_whole_telemetries(data: Dict[str, Dict[str, pd.DataFrame]], ids_modu
     ]
 
     df = DatasetGenerator.telemetries_to_dataframe(dfs, n_days=n_days)
+    df["maintenance"] = 0
+    rainfall_indices = df.loc[~df[RawFeatureName.RAINFALL.value].isna()].index
+    df.loc[:, FeatureName.IS_RAINING.value] = df.index.to_series().apply(
+            lambda timestamp: int(Preprocessor().is_raining_at_time(rainfall_indices, pd.to_datetime(timestamp)))
+        )
     single_row = Preprocessor().process_single_row(df)
-
-    return single_row, single_row
+    
+    first_non_nan_crack_severity = df[FeatureName.CRACK_SEVERITY.value].dropna().iloc[0] if not df[FeatureName.CRACK_SEVERITY.value].dropna().empty else 0
+    first_non_nan_pothole_severity = df[FeatureName.POTHOLE_SEVERITY.value].dropna().iloc[0] if not df[FeatureName.POTHOLE_SEVERITY.value].dropna().empty else 0
+    
+    crack_row, poth_row = single_row.copy(), single_row.copy()
+    crack_row[FeatureName.CRACK_SEVERITY.value] = first_non_nan_crack_severity
+    poth_row[FeatureName.POTHOLE_SEVERITY.value] = first_non_nan_pothole_severity
+    
+    return crack_row, poth_row
 
 def build_eval_data(crack: float, pothole: float, data: Dict[str, Dict[str, pd.DataFrame]], ids_modulated: Dict[str, float], n_days: int) -> tuple[
     pd.DataFrame, pd.DataFrame]:
