@@ -1,6 +1,7 @@
 import json
 import sys
 import os
+from concurrent.futures import ProcessPoolExecutor
 from typing import Dict
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -30,6 +31,38 @@ def is_maintenance_for_road(maintenance, location) -> bool:
     return maintenance["road"] == location["road"] and maintenance["city"] == location["city"] and maintenance["county"] == location["county"] and maintenance["state"] == location["state"]
 
 
+def generate_final_dataset_by_location(location: dict, crack_telemetries_of_loc, pothole_telemetries_of_loc, static_guard_telemetries: list, maintenance_operations: list, num_final_rows: int):       #
+
+    # location, crack_telemetries_of_loc, pothole_telemetries_of_loc, static_guard_telemetries, maintenance_operations, num_final_rows = data
+
+    print(f"processing: {location}")
+
+    if crack_telemetries_of_loc.empty or pothole_telemetries_of_loc.empty:
+        return None
+
+    try:
+        crack_severity = crack_telemetries_of_loc.rename(columns={"severity": "crack"})
+        pothole_severity = pothole_telemetries_of_loc.rename(columns={"severity": "pothole"})
+        telemetries = [df for df in static_guard_telemetries if not df.empty]
+        telemetries.append(crack_severity)
+        telemetries.append(pothole_severity)
+
+        location["latitude"] = (crack_severity["latitude"].mean() + pothole_severity["latitude"].mean()) / 2
+        location["longitude"] = (crack_severity["longitude"].mean() + pothole_severity["longitude"].mean()) / 2
+
+        maintenances = [maintenance for maintenance in maintenance_operations if
+                        is_maintenance_for_road(maintenance, location)]
+
+        telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
+        crack, pothole = Preprocessor().process(telemetries, location, maintenances, num_final_rows=num_final_rows)
+
+        return crack, pothole
+
+    except KeyError as key_error:
+        print("KEY ERROR:", key_error)
+        print(location)
+        raise key_error
+
 def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool = False, num_final_rows: int = 0) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     print("generating final dataset (train dataset)...")
@@ -45,65 +78,62 @@ def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool
     for maintenance in maintenance_operations:
         maintenance["date"] = pd.to_datetime(maintenance["date"])
 
-    db_total_crack: list[pd.DataFrame] = []
-    db_total_pothole: list[pd.DataFrame] = []
+    with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
 
-    for location, crack_telemetries_of_loc, pothole_telemetries_of_loc in zip(locations, crack_telemetries, pothole_telemetries):
+        db_total_crack: list[pd.DataFrame] = []
+        db_total_pothole: list[pd.DataFrame] = []
+        futures = []
 
-        print(f"processing: {location}")
+        for location, crack_telemetries_of_loc, pothole_telemetries_of_loc in zip(locations, crack_telemetries, pothole_telemetries):
+            futures.append(
+                executor.submit(
+                    generate_final_dataset_by_location,
+                    location,
+                    crack_telemetries_of_loc,
+                    pothole_telemetries_of_loc,
+                    static_guard_telemetries,
+                    maintenance_operations,
+                    num_final_rows
+                )
+            )
 
-        if crack_telemetries_of_loc.empty or pothole_telemetries_of_loc.empty:
-            continue
+        for future in futures:
+            result = future.result()
 
-        try:
-            crack_severity = crack_telemetries_of_loc.rename(columns={"severity": "crack"})
-            pothole_severity = pothole_telemetries_of_loc.rename(columns={"severity": "pothole"})
-            telemetries = [df for df in static_guard_telemetries if not df.empty]
-            telemetries.append(crack_severity)
-            telemetries.append(pothole_severity)
+            if result is not None:
+                crack, pothole = result
 
-            location["latitude"] = (crack_severity["latitude"].mean() + pothole_severity["latitude"].mean()) / 2
-            location["longitude"] = (crack_severity["longitude"].mean() + pothole_severity["longitude"].mean()) / 2
-
-            maintenances = [maintenance for maintenance in maintenance_operations if
-                            is_maintenance_for_road(maintenance, location)]
-
-            telemetries = DatasetGenerator.telemetries_to_dataframe(telemetries)
-            crack, pothole = Preprocessor().process(telemetries, location, maintenances, num_final_rows=num_final_rows)
-            db_total_crack.append(crack)
-            db_total_pothole.append(pothole)
-
-        except KeyError as key_error:
-            print("error:", key_error)
-            print(location)
-
-    if db_total_crack:
-        db_total_crack = pd.concat(db_total_crack, ignore_index=True)
-    else:
-        db_total_crack = pd.DataFrame()
-
-    if db_total_pothole:
-        db_total_pothole = pd.concat(db_total_pothole, ignore_index=True)
-    else:
-        db_total_pothole = pd.DataFrame()
-
-    if dump:
-        print("dump csv")
-        db_total_crack.to_csv(os.path.join(output_path, "crack_train_dataset.csv"), index=False)
-        db_total_pothole.to_csv(os.path.join(output_path, "pothole_train_dataset.csv"), index=False)
-
-    if plot:
-        import seaborn as sns
-        import matplotlib.pyplot as plt
-
-        sns.heatmap(db_total_crack.corr(), annot=True)
-        plt.show()
-
-        sns.heatmap(db_total_pothole.corr(), annot=True)
-        plt.show()
+                db_total_crack.append(crack)
+                db_total_pothole.append(pothole)
 
 
-    return db_total_crack, db_total_pothole
+        if db_total_crack:
+            db_total_crack = pd.concat(db_total_crack, ignore_index=True)
+        else:
+            db_total_crack = pd.DataFrame()
+
+        if db_total_pothole:
+            db_total_pothole = pd.concat(db_total_pothole, ignore_index=True)
+        else:
+            db_total_pothole = pd.DataFrame()
+
+        if dump:
+            print("dump csv")
+            db_total_crack.to_csv(os.path.join(output_path, "crack_train_dataset.csv"), index=False)
+            db_total_pothole.to_csv(os.path.join(output_path, "pothole_train_dataset.csv"), index=False)
+
+        if plot:
+            import seaborn as sns
+            import matplotlib.pyplot as plt
+
+            sns.heatmap(db_total_crack.corr(), annot=True)
+            plt.show()
+
+            sns.heatmap(db_total_pothole.corr(), annot=True)
+            plt.show()
+
+
+        return db_total_crack, db_total_pothole
 
 def build_prophets_datasets(static_guard_id: str):
     dbfetcher = DatabaseFetcher()
@@ -221,7 +251,7 @@ class PaveGuardModel:
     def clear_cache(self):
         self.prophet_predictions_cache = {}
 
-    def _single_predict(self, latitude: float, longitude: float, crack: float, pothole: float, n_months: int = 12):
+    def _single_predict(self, latitude: float, longitude: float, crack: int, pothole: int, n_months):
 
         day_in_a_month = 30
         n_days = day_in_a_month * n_months
@@ -260,8 +290,8 @@ class PaveGuardModel:
 
         n_days = 0
 
-        final_crack_predictions: list[int] = []
-        final_pothole_predictions: list[int] = []
+        final_crack_predictions: list[float] = []
+        final_pothole_predictions: list[float] = []
 
         for m in range(n_months):
 
@@ -271,19 +301,18 @@ class PaveGuardModel:
             print(f"predict {m + 1} month using:")
             # print("crack_features:")
             # print(crack_features.columns)
-            print(crack_features.iloc[0].to_list())
-
+            # print(crack_features.iloc[0].to_list())
 
             crack_pred = self.crack_model.predict(crack_features)
             pothole_pred = self.pothole_model.predict(pothole_features)
 
-            crack_pred = int(float(crack_pred[0]))
-            pothole_pred = int(float(pothole_pred[0]))
-
             print(f"prediction:\ncrack: {crack_pred}\npothole: {pothole_pred}")
 
-            final_crack_predictions.append(min(0, max(100, crack_pred)))
-            final_pothole_predictions.append(min(0, max(100, pothole_pred)))
+            crack_pred = float(crack_pred[0])
+            pothole_pred = float(pothole_pred[0])
+
+            final_crack_predictions.append(max(0, min(100, crack_pred)))
+            final_pothole_predictions.append(max(0, min(100, pothole_pred)))
 
 
         assert len(final_crack_predictions), n_months
@@ -292,7 +321,7 @@ class PaveGuardModel:
         return final_crack_predictions, final_pothole_predictions
 
 
-    def predict(self, dynamic_guard_transits: pd.DataFrame) -> list[dict]:
+    def predict(self, dynamic_guard_transits: pd.DataFrame, n_months: int = 12) -> list[dict]:
 
         self.prophet_predictions_cache = {}
 
@@ -308,6 +337,7 @@ class PaveGuardModel:
                 longitude=dynamic_guard_transit["longitude"],
                 crack=dynamic_guard_transit["crack"],
                 pothole=dynamic_guard_transit["pothole"],
+                n_months=n_months
             )
 
             predictions.append({
@@ -432,7 +462,7 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
     if data.empty:
         print("no data")
 
-    predictions = model.predict(data)
+    predictions = model.predict(data, n_months=12)
 
     for prediction in predictions:
 
@@ -446,6 +476,10 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
         dbfiller = DatabaseFiller()
         dbfiller.upload_prediction(prediction)
 
+    print("=== REPORT ===")
+    for start, prediction in zip(data.to_dict(orient="records"), predictions):
+        print(f"{start['crack']} -> {prediction['crackSeverityPredictions']}")
+        print(f"{start['pothole']} -> {prediction['potholeSeverityPredictions']}")
 
 
 
@@ -455,7 +489,7 @@ def train(model: PaveGuardModel, output_path: str, csvs = False):
         crack_dataset, pothole_dataset = pd.read_csv(f"{output_path}/crack_train_dataset.csv"), pd.read_csv(f"{output_path}/pothole_train_dataset.csv")
 
     else:
-        crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=False)
+        crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=False, num_final_rows=3000)
 
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET.value])
     X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET.value])
@@ -479,7 +513,7 @@ if __name__ == '__main__':
         crack_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
             # ("kbest", SelectKBest()),
-            ("model", DecisionTreeRegressor())      # criterion=""
+            ("model", LinearRegression())      # criterion=""
         ]),
         crack_param_grid={
             # "model__positive": [True, False],
@@ -504,7 +538,7 @@ if __name__ == '__main__':
         pothole_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
             # ("kbest", SelectKBest()),
-            ("model", DecisionTreeRegressor())  # criterion=""
+            ("model", LinearRegression())  # criterion=""
         ]),
         pothole_param_grid={
             # "model__positive": [True, False],
@@ -527,7 +561,7 @@ if __name__ == '__main__':
         }
     )
 
-    train(model, output_path_fil, csvs=False)
+    # train(model, output_path_nic, csvs=False)
     train(model, output_path_nic, csvs=True)
 
     updated_at = model.restore_model(models_info_file_path_nic)
@@ -541,19 +575,17 @@ if __name__ == '__main__':
     print("Performance:")
     print(model.performances)
 
-    # crack_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
-    # pothole_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
-    #
+    crack_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
+    pothole_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
 
-    #
-    # crack_weights = model.crack_model.best_estimator_[-1].coef_
-    # pothole_weights = model.pothole_model.best_estimator_[-1].coef_
-    #
-    # print("crack model:")
-    # print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
-    #
-    # print("pothole model:")
-    # print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
+    crack_weights = model.crack_model.best_estimator_[-1].coef_
+    pothole_weights = model.pothole_model.best_estimator_[-1].coef_
+
+    print("crack model:")
+    print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
+
+    print("pothole model:")
+    print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
 
 
     make_and_upload_daily_predictions(model)
