@@ -722,14 +722,90 @@ class HumidityTelemetryQueryManager extends QueryAbstractManager{
 
 }
 
+class Transit{
+  DateTime date;
+  double transitTime;
+  double length;
+  double speed;
+  int num;
+  Transit(this.date, this.transitTime, this.length, this.speed, {this.num = 1});
+}
+
+class TransitTelemetryQueryManager extends QueryAbstractManager{
+  
+  @override
+  bool checkData(data, {String token = ""}) {
+    if(data is! LocationData) return false;
+    return token != "";
+  }
+
+  @override
+  bool checkResults(QueryResult<Object?> queryResult) {
+    try {
+      if (queryResult.data!["transitTelemetries"] == null) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  String getQuery(data, {String token = ""}) {
+    return """query {
+  	            transitTelemetries(
+                county: "${data.county}",
+                state: "${data.state}",
+                city: "${data.city}",
+                road: "${data.road}"
+              ){
+            timestamp,length,velocity,transitTime
+              }
+            }
+          """;
+  }
+
+  List<Transit> getTransits(QueryResult qr){
+    List<dynamic> data = qr.data!["transitTelemetries"];
+    List<Transit> transits = [];
+    for (var telemetry in data) {
+      transits.add(Transit(DateTime.parse(telemetry["timestamp"]), telemetry["transitTime"].toDouble(), telemetry["length"].toDouble(), telemetry["velocity"].toDouble()));
+    }
+
+    Map<DateTime, List<Transit>> dailyTransits = {};
+    for (var transit in transits) {
+      DateTime date = DateTime(transit.date.year, transit.date.month, transit.date.day);
+      if (!dailyTransits.containsKey(date)) {
+      dailyTransits[date] = [];
+      }
+      dailyTransits[date]!.add(transit);
+    }
+
+    List<Transit> averagedTransits = [];
+    dailyTransits.forEach((date, transits) {
+      double totalTransitTime = transits.map((t) => t.transitTime).reduce((a, b) => a + b);
+      double totalLength = transits.map((t) => t.length).reduce((a, b) => a + b);
+      double totalSpeed = transits.map((t) => t.speed).reduce((a, b) => a + b);
+      int totalNum = transits.map((t) => t.num).reduce((a, b) => a + b);
+      averagedTransits.add(Transit(date, totalTransitTime / transits.length, totalLength / transits.length, totalSpeed / transits.length, num: totalNum));
+    });
+
+    return averagedTransits;
+  }
+
+}
+
 class Telemetries {
   List<Temperature> temperatures;
   List<Humidity> humidities;
-  Telemetries(this.temperatures, this.humidities);
+  List<Transit> transits;
+  Telemetries(this.temperatures, this.humidities, this.transits);
 
   Telemetries getRecentData(int n_days){
     List<Temperature> temps = [];
     List<Humidity> hums = [];
+    List<Transit> trans = [];
     DateTime now = DateTime.now();
     for(Temperature temp in temperatures){
       if(now.difference(temp.date).inDays <= n_days){
@@ -741,7 +817,12 @@ class Telemetries {
         hums.add(hum);
       }
     }
-    return Telemetries(temps, hums);
+    for(Transit tran in transits){
+      if(now.difference(tran.date).inDays <= n_days){
+        trans.add(tran);
+      }
+    }
+    return Telemetries(temps, hums, trans);
   }
 }
 
@@ -750,13 +831,17 @@ class TelemetryQueryManager {
   static Future<Telemetries> getTelemetries(LocationData location, String token) async {
     TemperatureTelemetryQueryManager tempManager = TemperatureTelemetryQueryManager();
     HumidityTelemetryQueryManager humManager = HumidityTelemetryQueryManager();
+    TransitTelemetryQueryManager tranManager = TransitTelemetryQueryManager();
     List<Temperature> temps = [];
     List<Humidity> hums = [];
+    List<Transit> trans = [];
     QueryResult tempQr = await tempManager.sendQuery(location, token: token);
     temps = tempManager.getTemperatures(tempQr);
     QueryResult humQr = await humManager.sendQuery(location, token: token);
     hums = humManager.getHumidity(humQr);
-    return Telemetries(temps, hums);
+    QueryResult tranQr = await tranManager.sendQuery(location, token: token);
+    trans = tranManager.getTransits(tranQr);
+    return Telemetries(temps, hums, trans);
   }
 
   static Future<Map<LocationData, Telemetries>> getTelemetriesForLocations(List<LocationData> locations, String token) async {
