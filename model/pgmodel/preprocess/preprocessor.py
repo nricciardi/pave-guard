@@ -223,9 +223,9 @@ class Preprocessor:
                     last_index = index_list[j]
                     last_row = raw_dataset.loc[last_index]
 
-                    if feature_name == RawFeatureName.CRACK.value and row[RawFeatureName.CRACK.value] < last_row[RawFeatureName.CRACK.value]:
+                    if feature_name == RawFeatureName.CRACK.value and row[RawFeatureName.CRACK.value] >= last_row[RawFeatureName.CRACK.value]:
                         continue
-                    if feature_name == RawFeatureName.POTHOLE.value and row[RawFeatureName.POTHOLE.value] < last_row[RawFeatureName.POTHOLE.value]:
+                    if feature_name == RawFeatureName.POTHOLE.value and row[RawFeatureName.POTHOLE.value] >= last_row[RawFeatureName.POTHOLE.value]:
                         continue
                     
                     try:
