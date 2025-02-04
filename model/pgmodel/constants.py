@@ -1,6 +1,7 @@
 from enum import Enum
 
-GRAPHQL_ENDPOINT = "http://localhost:3000/graphql"
+LOCAL_GRAPHQL_ENDPOINT = "http://localhost:3000/graphql"
+REMOTE_GRAPHQL_ENDPOINT = "https://pave-guard.onrender.com/graphql"
 DATABASE_NAME = "paveguard"
 
 

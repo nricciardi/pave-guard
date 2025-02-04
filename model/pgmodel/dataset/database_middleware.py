@@ -1,3 +1,5 @@
+from time import sleep
+
 import pandas as pd
 from typing import Dict, List, Tuple
 import requests
@@ -7,14 +9,14 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from pgmodel.preprocess.preprocessor import Preprocessor
-from pgmodel.constants import RawFeatureName, DataframeKey, GRAPHQL_ENDPOINT
+from pgmodel.constants import RawFeatureName, DataframeKey, LOCAL_GRAPHQL_ENDPOINT, REMOTE_GRAPHQL_ENDPOINT
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.dataset.generator.crack_generator import CrackGenerator
 
 
 class DatabaseFiller:
 
-    def __init__(self, graphql_endpoint: str = GRAPHQL_ENDPOINT, max_telemetries_in_req: int = 25):
+    def __init__(self, graphql_endpoint: str = LOCAL_GRAPHQL_ENDPOINT, max_telemetries_in_req: int = 25):
         self.graphql_endpoint = graphql_endpoint
         self.max_telemetries_in_req = max_telemetries_in_req
 
@@ -56,14 +58,19 @@ class DatabaseFiller:
 
             return response
 
-        with ThreadPoolExecutor(max_workers=8) as executor:
-            futures = [
-                executor.submit(send_request, mutations[i:i + self.max_telemetries_in_req])
-                for i in range(0, len(mutations), self.max_telemetries_in_req)
-            ]
+        # with ThreadPoolExecutor(max_workers=8) as executor:
+        #     futures = [
+        #         executor.submit(send_request, mutations[i:i + self.max_telemetries_in_req])
+        #         for i in range(0, len(mutations), self.max_telemetries_in_req)
+        #     ]
+        #
+        #     for future in as_completed(futures):
+        #         print(future.result())  # Process completed requests
 
-            for future in as_completed(futures):
-                print(future.result())  # Process completed requests
+        for i in range(0, len(mutations), self.max_telemetries_in_req):
+            response = send_request(mutations[i:i + self.max_telemetries_in_req])
+            print(response)
+            sleep(2)
 
 
     def build_temperature_mutations(self, device_id: str, dataframe: pd.DataFrame):
@@ -216,7 +223,7 @@ class DatabaseFiller:
 
 class DatabaseFetcher:
 
-    def __init__(self, graphql_endpoint: str = GRAPHQL_ENDPOINT):
+    def __init__(self, graphql_endpoint: str = LOCAL_GRAPHQL_ENDPOINT):
         self.graphql_endpoint = graphql_endpoint
 
     def locations(self) -> List[Dict]:
@@ -472,7 +479,7 @@ class DatabaseFetcher:
 
 
 def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], locations, n_days):
-    dbfiller = DatabaseFiller(max_telemetries_in_req=25)
+    dbfiller = DatabaseFiller(max_telemetries_in_req=150, graphql_endpoint=REMOTE_GRAPHQL_ENDPOINT)
 
     dfs = DatasetGenerator.generate_static_guard_telemetries_data(n_days=n_days, to_date=date.today())
 
@@ -491,10 +498,11 @@ def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], 
 
 if __name__ == '__main__':
 
-    static_guards_ids = ["679b5aa1035483aacfcfe2ad"]
+    static_guards_ids = ["67940c2f92c425757127d916"]
 
-    dynamic_guards = [  
-        "67363b89abbf408669327a88",
+    dynamic_guards = [
+        # "6795478c9d7d3a6e9a46ada3"
+        "67a2368ba1ee6221d64641ee",
     ]
 
     locations: list[dict] = [
@@ -545,7 +553,7 @@ if __name__ == '__main__':
         }
     ]
 
-    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=50)
+    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=30)
 
 
     # dbfetcher = DatabaseFetcher()

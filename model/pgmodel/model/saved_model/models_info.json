@@ -1,9 +1,9 @@
 {
-    "crack_model_path": "C:\\Users\\filip\\Desktop\\Universita\\Anno IV - Semestre I\\IOT\\pave-guard\\model\\pgmodel\\model\\saved_model\\crack_model",
-    "pothole_model_path": "C:\\Users\\filip\\Desktop\\Universita\\Anno IV - Semestre I\\IOT\\pave-guard\\model\\pgmodel\\model\\saved_model\\pothole_model",
+    "crack_model_path": "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model/crack_model",
+    "pothole_model_path": "/home/nricciardi/Repositories/pave-guard/model/pgmodel/model/saved_model/pothole_model",
     "performances": {
-        "crack_model_performance": 3.379402050114193e+28,
-        "pothole_model_performance": 1.9737075759673774e+28
+        "crack_model_performance": 2.1242279745606867,
+        "pothole_model_performance": 2.2084556381475986
     },
-    "updated_at": "2025-02-04 10:37:25.723714+00:00"
+    "updated_at": "2025-02-04 15:26:54.096036+00:00"
 }

@@ -71,7 +71,7 @@ class DatasetGenerator:
         return dfs
     
     @classmethod
-    def generate_random_location_dynamic(day: date, min_value: float = 10, max_value: float = 100, probability_detection: float = 0.9):
+    def generate_random_location_dynamic(cls, day: date, min_value: float = 10, max_value: float = 100, probability_detection: float = 0.9):
         cracks_gravity_average = np.random.uniform(min_value, max_value)
         crack_gen = CrackGenerator(probability_detection=0.9, cracks_gravity_average=cracks_gravity_average, max_change=(max_value - min_value) / 20, cracks_gravity_deviation=(max_value - min_value) / 2)
         return crack_gen.generate_day_data(day)
