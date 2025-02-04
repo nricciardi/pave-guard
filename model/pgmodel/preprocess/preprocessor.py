@@ -204,8 +204,8 @@ class Preprocessor:
             val = math.sqrt(
                 df_len*(df_len - 1) / (2*num_final_rows)
             )
-            m_i = int(val)
-            m_j = int(val)
+            m_i = max(int(val), 1)
+            m_j = max(int(val), 1)
 
         for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
             for i in range(0, len(index_list) - 1):
