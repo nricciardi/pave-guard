@@ -569,11 +569,11 @@ class PredictionQueryManager extends QueryAbstractManager {
         );
       List<Prediction> local_preds = [];
       int i = 0;
-      for(int _ in prediction["crackSeverityPredictions"]){
+      for(double _ in prediction["crackSeverityPredictions"]){
         local_preds.add(Prediction(
           i + 1,
-          prediction["crackSeverityPredictions"][i],
-          prediction["potholeSeverityPredictions"][i]
+          prediction["crackSeverityPredictions"][i].toInt(),
+          prediction["potholeSeverityPredictions"][i].toInt()
         ));
         i += 1;
       }

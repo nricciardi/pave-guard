@@ -6,8 +6,6 @@ from typing import Dict
 
 from scipy.cluster.hierarchy import single
 
-from pgmodel.model.custom_score import custom_scorer_func
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from datetime import datetime, UTC
@@ -536,7 +534,7 @@ if __name__ == '__main__':
         crack_param_grid={
 
             # "pca__n_components": range(2, 10, 2),
-            "model__positive": [True, False],
+            # "model__positive": [True, False],
             #
             # "kbest__k": range(3, 12),
 
@@ -563,7 +561,7 @@ if __name__ == '__main__':
         ]),
         pothole_param_grid={
             # "pca__n_components": range(2, 12, 2),
-            "model__positive": [True, False],
+            # "model__positive": [True, False],
             #
             # "kbest__k": range(3, 12),
 
@@ -584,11 +582,11 @@ if __name__ == '__main__':
     )
 
     # train(model, output_path_nic, csvs=False)
-    train(model, output_path_nic, csvs=True)
+    train(model, output_path_fil, csvs=True)
 
     # train(model, output_path_fil, csvs=True)
 
-    updated_at = model.restore_model(models_info_file_path_nic)
+    updated_at = model.restore_model(models_info_file_path_fil)
     model.clear_cache()
 
     print("last updated:", updated_at)
