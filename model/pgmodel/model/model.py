@@ -15,16 +15,18 @@ from pgmodel.constants import RawFeatureName, FeatureName, DataframeKey
 from pgmodel.dataset.database_middleware import DatabaseFetcher, DatabaseFiller
 from pgmodel.dataset.dataset_generator import DatasetGenerator
 from pgmodel.preprocess.preprocessor import Preprocessor
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, SGDRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler, Normalizer, RobustScaler
+from sklearn.preprocessing import StandardScaler, Normalizer, RobustScaler, PolynomialFeatures, FunctionTransformer, \
+    MinMaxScaler
 from sklearn.feature_selection import SelectKBest
+import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 from prophet import Prophet
@@ -509,6 +511,21 @@ def train(model: PaveGuardModel, output_path: str, csvs = False):
 
     return model
 
+class SGDWithDirectionPenalty(SGDRegressor):
+    def __init__(self, penalty_factor=1.0, **kwargs):
+        super().__init__(**kwargs)
+        self.penalty_factor = penalty_factor
+
+    def fit(self, X, y):
+        # Assuming the first column is the initial value
+        X_init = X[:, 0] if isinstance(X, np.ndarray) else X.iloc[:, 0].values
+
+        # Compute sample weights (increase weight if direction is incorrect)
+        direction_mask = (y - X_init) >= 0  # True if target should increase
+        penalty = np.where(direction_mask & (y < X_init), self.penalty_factor, 1.0)
+
+        # Train with adjusted weights
+        return super().fit(X, y, sample_weight=penalty)
 
 if __name__ == '__main__':
     output_path_fil = "C:\\Users\\filip\\Desktop\\Universita\\Anno IV - Semestre I\\IOT\\pave-guard\\model\\pgmodel\\model\\saved_model"
@@ -520,7 +537,7 @@ if __name__ == '__main__':
         crack_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
             # ("kbest", SelectKBest()),
-            ("model", LinearRegression())      # criterion=""
+            ("model", SGDWithDirectionPenalty(penalty_factor=10.0, max_iter=10000, tol=1e-3))      # criterion=""
         ]),
         crack_param_grid={
             # "model__positive": [True, False],
@@ -545,7 +562,7 @@ if __name__ == '__main__':
         pothole_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
             # ("kbest", SelectKBest()),
-            ("model", LinearRegression())  # criterion=""
+            ("model", SGDWithDirectionPenalty(penalty_factor=10.0, max_iter=10000, tol=1e-3))  # criterion=""
         ]),
         pothole_param_grid={
             # "model__positive": [True, False],
@@ -593,6 +610,5 @@ if __name__ == '__main__':
 
     print("pothole model:")
     print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
-
 
     make_and_upload_daily_predictions(model)
