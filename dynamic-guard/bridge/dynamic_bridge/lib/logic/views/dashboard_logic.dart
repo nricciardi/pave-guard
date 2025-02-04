@@ -142,7 +142,7 @@ class DashboardLogic {
         holeRecentlyFound = true;
         seenHoles++;
         Timer? newTimer;
-        newTimer = Timer(const Duration(seconds: 10), () {
+        newTimer = Timer(const Duration(seconds: 2), () {
           holeRecentlyFound = false;
           newTimer?.cancel();
         });
@@ -219,7 +219,7 @@ class DashboardLogic {
                   color: Colors.blueGrey,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
                 Text(
                   'Potholes seen: $seenHoles',
                   style: const TextStyle(
@@ -228,7 +228,10 @@ class DashboardLogic {
                   color: Colors.black38,
                   ),
                 ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
+                Text("""
+                  Vibrations: ${serialInterface!.vibrationManager.accelerometerData != null ? serialInterface!.vibrationManager.accelerometerData!.x : 0} X, ${serialInterface!.vibrationManager.accelerometerData != null ? serialInterface!.vibrationManager.accelerometerData!.y : 0} Y, ${serialInterface!.vibrationManager.accelerometerData != null ? serialInterface!.vibrationManager.accelerometerData!.z : 0} Z
+                """),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -433,7 +436,7 @@ class DashboardLogic {
               Icon(Icons.check_circle, color: Colors.green, size: 28),
               SizedBox(width: 10),
               Text(
-                'Built-in GPS active.',
+                'GPS active.',
                 style: TextStyle(
                   fontSize: 17,
                   color: Colors.green,
