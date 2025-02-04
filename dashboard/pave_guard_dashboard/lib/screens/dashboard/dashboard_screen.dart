@@ -1,6 +1,7 @@
 import 'package:admin/controllers/query_manager.dart';
 
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../../constants.dart';
 import 'components/header.dart';
@@ -219,8 +220,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _fetchPredictions();
   }
 
-  void _fetchPredictions() {
-    // TODO: This is a placeholder
+  void _fetchPredictions() async {
+    /* TODO: This is a placeholder
     predictions = Predictions({
       LocationData(
           road: "Luigi", city: "Tenco", county: "Camaiore", state: "Lodi"): [
@@ -243,11 +244,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Prediction(12, 80, 90),
       ],
       });
-      /*
-      PredictionQueryManager predictionQueryManager = PredictionQueryManager();
-      QueryResult qr = predictionQueryManager.sendQuery("", token: widget.token);
-      predictions = predictionQueryManager.getPredictions(qr);
       */
+      PredictionQueryManager predictionQueryManager = PredictionQueryManager();
+      QueryResult qr = await predictionQueryManager.sendQuery("", token: widget.token);
+      predictions = predictionQueryManager.getPredictions(qr);
       predictions = Predictions({
         for (var entry in predictions!.predictions.entries)
         if (entry.key.contains(searched_text))
@@ -259,6 +259,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       .compareTo(a.value.fold(0, (sum, p) => sum + p.severity_crack + p.severity_pothole))))
       entry.key: entry.value
     });
+    setState(() {});
   }
 
   void _onSearchSubmitted(String search){
