@@ -200,17 +200,18 @@ class Preprocessor:
         m_i = 2
         m_j = 2
         if num_final_rows > 0:
-            df_len = (len(index_list_crack) + len(index_list_pothole)) / 2
             val = math.sqrt(
                 df_len*(df_len - 1) / (2*num_final_rows)
             )
             m_i = max(int(val), 1)
             m_j = max(int(val), 1)
+        processed = 0
 
         for index_list, feature_name in ([index_list_crack, RawFeatureName.CRACK.value], [index_list_pothole, RawFeatureName.POTHOLE.value]):
             for i in range(0, len(index_list) - 1):
                 if i % m_i != 0 and not consecutive_measures_only:
                     continue
+                print("Processing... {}%".format(processed * 100/num_final_rows))
                 index = index_list[i]
                 row = raw_dataset.loc[index]
                 if not self.is_row_to_process(row, feature_name):
@@ -220,6 +221,7 @@ class Preprocessor:
                     if not consecutive_measures_only:
                         if j % m_j != 0:
                             continue
+                    print("Processing... {}%".format(processed * 100 / num_final_rows))
                     last_index = index_list[j]
                     last_row = raw_dataset.loc[last_index]
 
@@ -245,6 +247,7 @@ class Preprocessor:
                         raise e
 
                     processed_row = self.process_single_row(raw_dataset.loc[index:last_index])
+                    processed += 1
 
                     if feature_name == RawFeatureName.CRACK.value:
                         processed_row[FeatureName.CRACK_SEVERITY.value] = row[RawFeatureName.CRACK.value]

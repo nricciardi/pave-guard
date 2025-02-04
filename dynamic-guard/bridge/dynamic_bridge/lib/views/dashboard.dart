@@ -23,6 +23,7 @@ class _DashboardPageState extends State<DashboardPage> {
   DashboardLogic? selfLogic;
   List<Widget>? children;
   Timer? _timer;
+  Timer? _otherTimer;
 
   @override
   void initState() {
@@ -45,11 +46,16 @@ class _DashboardPageState extends State<DashboardPage> {
         selfLogic!.collectAndSendTelemetries();
       }
     });
+    _otherTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      await initializeChildren();
+      setState(() {});
+    } );
   }
 
   void delete() {
     selfLogic!.dispose();
     _timer?.cancel();
+    _otherTimer?.cancel();
   }
 
   @override
@@ -61,12 +67,28 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         leading: Builder(
-            builder: (context) => IconButton(
+            builder: (context) => Row(children: [IconButton(
                   icon: const Icon(Icons.menu, color: Colors.white),
                   onPressed: () {
                     Scaffold.of(context).openDrawer();
                   },
-                )),
+                ), 
+                const SizedBox(width: 38),
+                IconButton(icon: const Icon(Icons.refresh, color: Colors.white), 
+                    onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) => DashboardPage(
+                        selfData: widget.selfData,
+                        selfDevice: widget.selfDevice,
+                      ),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                    }
+      )])),
         backgroundColor: Colors.blueAccent, // Set your desired color
         elevation: 4,
       ),

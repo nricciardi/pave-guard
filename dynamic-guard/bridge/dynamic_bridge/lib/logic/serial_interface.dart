@@ -73,10 +73,15 @@ class SerialInterface {
         GPSData data = parseGpsData(line);
         vibrationManager.addGpsData(data);
       } else {
-        Position currentPosition = await Geolocator.getCurrentPosition(timeLimit: const Duration(milliseconds: 20));
-        vibrationManager.addGpsData(
-          GPSData(currentPosition.latitude, currentPosition.longitude)
-        );
+        try{
+          Position currentPosition = await Geolocator.getCurrentPosition(timeLimit: const Duration(seconds: 1));
+          vibrationManager.addGpsData(
+            GPSData(currentPosition.latitude, currentPosition.longitude)
+          );
+        } catch(e){
+          vibrationManager.addGpsData(GPSData(0, 0));
+        }
+        
       }
 
     } else if (line[0] == 'G'){

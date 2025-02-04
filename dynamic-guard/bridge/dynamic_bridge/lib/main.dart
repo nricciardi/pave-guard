@@ -12,7 +12,7 @@ Future main() async {
   }
   status = await Permission.locationWhenInUse.status;
   if(!status.isGranted) {
-    await Permission.locationWhenInUse.request();
+    await Permission.locationWhenInUse.request(); 
   }
 
   runApp(const MyApp());

@@ -32,6 +32,7 @@ class DashboardLogic {
   Timer? _timer;
 
   bool holeRecentlyFound = false;
+  bool isTakingPicture = false;
   int seenHoles = 0;
 
   SerialInterface? serialInterface;
@@ -56,13 +57,24 @@ class DashboardLogic {
       if(uvcCameraView == null){
         return null;
       }
-      String? path = await uvcCameraView!.cameraController.takePicture();
-      // TODO: Rimuovere questa linea di debug
-      if(path != ''){
-        log("Magia!");
+      if(isTakingPicture){
+        return null;
       }
-      // TODO: ritorna davvero un percorso?
-      return path != '' ? XFile(path!) : null;
+      isTakingPicture = true;
+      try{
+        String? path = await uvcCameraView!.cameraController.takePicture();
+        // TODO: Rimuovere questa linea di debug
+        if(path != ''){
+          log("Magia!");
+        }
+        isTakingPicture = false;
+        // TODO: ritorna davvero un percorso?
+        return path != '' ? XFile(path!) : null;
+      } catch(e){
+        isTakingPicture = false;
+        log("Salvataggio in extremis");
+        return null;
+      }
     }
   }
 
@@ -129,9 +141,10 @@ class DashboardLogic {
       if (holeSeverity > 0) {
         holeRecentlyFound = true;
         seenHoles++;
-        Timer(const Duration(seconds: 10), () {
+        Timer? newTimer;
+        newTimer = Timer(const Duration(seconds: 10), () {
           holeRecentlyFound = false;
-          _timer?.cancel();
+          newTimer?.cancel();
         });
         RoadPotholeTelemetryQuery telemetryQuery = RoadPotholeTelemetryQuery();
         GPSData? gpsData;
@@ -159,10 +172,11 @@ class DashboardLogic {
     children.add(
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.shield,
               size: 30,
-              color: Colors.blueAccent), // A placeholder for a custom logo
+              color: Colors.blueAccent),
           const SizedBox(width: 10),
           Text(
             'PaveGuard Dashboard',
@@ -182,7 +196,7 @@ class DashboardLogic {
     if (await settingsLogic.isCameraExt()) {
       // The camera is external
       cameraController = PhotoCollector();
-      try {
+      try {/*
         if(uvcCameraView!.cameraController.getCameraState == UVCCameraState.closed){
           throw Exception("Error");
         }
@@ -191,10 +205,9 @@ class DashboardLogic {
           if(pathTest == null || pathTest == ' '){
             throw Exception("Camera not openable!");
           }
-        } else {
+        }*/
           uvcCameraView =
             await PhotoCollector.openExternalCamera();
-        }
         children.add(
           Column(
             children: [
@@ -206,6 +219,15 @@ class DashboardLogic {
                   color: Colors.blueGrey,
                 ),
               ),
+              const SizedBox(height: 10),
+                Text(
+                  'Potholes seen: $seenHoles',
+                  style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black38,
+                  ),
+                ),
               const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
@@ -311,7 +333,7 @@ class DashboardLogic {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Holes seen: $seenHoles',
+                  'Potholes seen: $seenHoles',
                   style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
