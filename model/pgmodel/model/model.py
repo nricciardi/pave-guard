@@ -6,6 +6,8 @@ from typing import Dict
 
 from scipy.cluster.hierarchy import single
 
+from pgmodel.model.custom_score import custom_scorer_func
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from datetime import datetime, UTC
@@ -25,11 +27,16 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, Normalizer, RobustScaler, PolynomialFeatures, FunctionTransformer, \
     MinMaxScaler
+from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 from prophet import Prophet
+
+
+
+
 
 def is_maintenance_for_road(maintenance, location) -> bool:
     return maintenance["road"] == location["road"] and maintenance["city"] == location["city"] and maintenance["county"] == location["county"] and maintenance["state"] == location["state"]
@@ -364,11 +371,11 @@ class PaveGuardModel:
 
 
     def __fit_crack_model(self, X: pd.DataFrame, y: pd.Series):
-        self.crack_model = GridSearchCV(estimator=self.raw_crack_model, param_grid=self.crack_param_grid, scoring="neg_mean_squared_error")
+        self.crack_model = GridSearchCV(estimator=self.raw_crack_model, param_grid=self.crack_param_grid, scoring=None)
         self.crack_model.fit(X, y)
 
     def __fit_pothole_model(self, X: pd.DataFrame, y: pd.Series):
-        self.pothole_model = GridSearchCV(estimator=self.raw_pothole_model, param_grid=self.pothole_param_grid, scoring="neg_mean_squared_error")
+        self.pothole_model = GridSearchCV(estimator=self.raw_pothole_model, param_grid=self.pothole_param_grid, scoring=None) # "neg_mean_squared_error"
         self.pothole_model.fit(X, y)
 
     def __eval_crack_model(self, X: pd.DataFrame, y: pd.Series) -> float:
@@ -511,21 +518,7 @@ def train(model: PaveGuardModel, output_path: str, csvs = False):
 
     return model
 
-class SGDWithDirectionPenalty(SGDRegressor):
-    def __init__(self, penalty_factor=1.0, **kwargs):
-        super().__init__(**kwargs)
-        self.penalty_factor = penalty_factor
 
-    def fit(self, X, y):
-        # Assuming the first column is the initial value
-        X_init = X[:, 0] if isinstance(X, np.ndarray) else X.iloc[:, 0].values
-
-        # Compute sample weights (increase weight if direction is incorrect)
-        direction_mask = (y - X_init) >= 0  # True if target should increase
-        penalty = np.where(direction_mask & (y < X_init), self.penalty_factor, 1.0)
-
-        # Train with adjusted weights
-        return super().fit(X, y, sample_weight=penalty)
 
 if __name__ == '__main__':
     output_path_fil = "C:\\Users\\filip\\Desktop\\Universita\\Anno IV - Semestre I\\IOT\\pave-guard\\model\\pgmodel\\model\\saved_model"
@@ -536,13 +529,16 @@ if __name__ == '__main__':
     model = PaveGuardModel(
         crack_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
+            # ("pca", PCA()),
             # ("kbest", SelectKBest()),
-            ("model", SGDWithDirectionPenalty(penalty_factor=10.0, max_iter=10000, tol=1e-3))      # criterion=""
+            ("model", LinearRegression())      # SGDWithDirectionPenalty(penalty_factor=10.0, max_iter=10000, tol=1e-5)
         ]),
         crack_param_grid={
-            # "model__positive": [True, False],
 
-            # "kbest__k": range(3, 10),
+            # "pca__n_components": range(2, 10, 2),
+            "model__positive": [True, False],
+            #
+            # "kbest__k": range(3, 12),
 
             # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
             # "model__max_depth": (None, 2, 5, 7),
@@ -554,20 +550,22 @@ if __name__ == '__main__':
             # "model__weights": ("uniform", "distance", None),
             # "model__algorithm": ("auto", "ball_tree", "kd_tree", "brute"),
 
-            # "model__C": (0.1, 0.4, 0.7, 1, 1.2, 1.5),
+            # "model__C": (0.1, 1, 1.5),
             # "model__kernel": ("linear", "rbf"),
-            # "model__epsilon": (0.05, 0.1, 0.15, 0.2),
+            # "model__epsilon": (0.05, 0.1, 0.2),
 
         },
         pothole_model=Pipeline(steps=[
             # ("preprocessing", StandardScaler()),
+            # ("pca", PCA()),
             # ("kbest", SelectKBest()),
-            ("model", SGDWithDirectionPenalty(penalty_factor=10.0, max_iter=10000, tol=1e-3))  # criterion=""
+            ("model", LinearRegression())  # SGDWithDirectionPenalty(penalty_factor=10.0, max_iter=10000, tol=1e-5)
         ]),
         pothole_param_grid={
-            # "model__positive": [True, False],
-
-            # "kbest__k": range(3, 10),
+            # "pca__n_components": range(2, 12, 2),
+            "model__positive": [True, False],
+            #
+            # "kbest__k": range(3, 12),
 
             # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
             # "model__max_depth": (None, 2, 5, 7),
@@ -579,16 +577,18 @@ if __name__ == '__main__':
             # "model__weights": ("uniform", "distance", None),
             # "model__algorithm": ("auto", "ball_tree", "kd_tree", "brute"),
 
-            # "model__C": (0.1, 0.4, 0.7, 1, 1.2, 1.5),
+            # "model__C": (0.1, 1, 1.5),
             # "model__kernel": ("linear", "rbf"),
-            # "model__epsilon": (0.05, 0.1, 0.15, 0.2),
+            # "model__epsilon": (0.05, 0.1, 0.2),
         }
     )
 
-    train(model, output_path_fil, csvs=False)
+    # train(model, output_path_nic, csvs=False)
+    train(model, output_path_nic, csvs=True)
+
     # train(model, output_path_fil, csvs=True)
 
-    updated_at = model.restore_model(models_info_file_path_fil)
+    updated_at = model.restore_model(models_info_file_path_nic)
     model.clear_cache()
 
     print("last updated:", updated_at)
