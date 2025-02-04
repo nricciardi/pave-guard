@@ -482,8 +482,8 @@ class DatabaseFetcher:
         return requests.post(self.graphql_endpoint, json={"query": query}, headers=headers)
 
 
-def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], locations, n_days):
-    dbfiller = DatabaseFiller(max_telemetries_in_req=150, graphql_endpoint=REMOTE_GRAPHQL_ENDPOINT)
+def upload_telemetries(static_guards_ids: list[str], dynamic_guards: list[str], locations, n_days, endpoint: str):
+    dbfiller = DatabaseFiller(max_telemetries_in_req=150, graphql_endpoint=endpoint)
 
     dfs = DatasetGenerator.generate_static_guard_telemetries_data(n_days=n_days, to_date=date.today())
 
@@ -557,7 +557,7 @@ if __name__ == '__main__':
         }
     ]
 
-    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=30)
+    upload_telemetries(static_guards_ids, dynamic_guards, locations, n_days=30, endpoint=LOCAL_GRAPHQL_ENDPOINT)
 
 
     # dbfetcher = DatabaseFetcher()
