@@ -48,7 +48,9 @@ class _DashboardPageState extends State<DashboardPage> {
     });
     _otherTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       await initializeChildren();
-      setState(() {});
+      setState(() {
+        
+      });
     } );
   }
 
@@ -72,23 +74,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   onPressed: () {
                     Scaffold.of(context).openDrawer();
                   },
-                ), 
-                const SizedBox(width: 38),
-                IconButton(icon: const Icon(Icons.refresh, color: Colors.white), 
-                    onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      PageRouteBuilder(
-                      pageBuilder: (context, animation1, animation2) => DashboardPage(
-                        selfData: widget.selfData,
-                        selfDevice: widget.selfDevice,
-                      ),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                      ),
-                    );
-                    }
-      )])),
+                )])),
         backgroundColor: Colors.blueAccent, // Set your desired color
         elevation: 4,
       ),
