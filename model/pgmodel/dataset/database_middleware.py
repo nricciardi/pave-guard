@@ -41,7 +41,7 @@ class DatabaseFiller:
 
         self.upload_data(mutations)
 
-    def upload_data(self, mutations: list[str]):
+    def upload_data(self, mutations: list[str], to_remote: bool = False):
 
         from concurrent.futures import ThreadPoolExecutor, as_completed
         from itertools import islice
@@ -58,19 +58,23 @@ class DatabaseFiller:
 
             return response
 
-        # with ThreadPoolExecutor(max_workers=8) as executor:
-        #     futures = [
-        #         executor.submit(send_request, mutations[i:i + self.max_telemetries_in_req])
-        #         for i in range(0, len(mutations), self.max_telemetries_in_req)
-        #     ]
-        #
-        #     for future in as_completed(futures):
-        #         print(future.result())  # Process completed requests
 
-        for i in range(0, len(mutations), self.max_telemetries_in_req):
-            response = send_request(mutations[i:i + self.max_telemetries_in_req])
-            print(response)
-            sleep(2)
+
+        if to_remote:
+            for i in range(0, len(mutations), self.max_telemetries_in_req):
+                response = send_request(mutations[i:i + self.max_telemetries_in_req])
+                print(response)
+                sleep(2)
+
+        else:
+            with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+                futures = [
+                    executor.submit(send_request, mutations[i:i + self.max_telemetries_in_req])
+                    for i in range(0, len(mutations), self.max_telemetries_in_req)
+                ]
+
+                for future in as_completed(futures):
+                    print(future.result())  # Process completed requests
 
 
     def build_temperature_mutations(self, device_id: str, dataframe: pd.DataFrame):
