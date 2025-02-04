@@ -244,11 +244,17 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
 
   interrupts();
 
+  Serial.println(abs(microsOfRightTrig1 - microsOfLeftTrig1));
+  Serial.println(abs(microsOfRightTrig2 - microsOfLeftTrig2));
+  Serial.println(configuration.transitResetTimeoutInMicros);
+
   if(
       microsOfRightTrig1 == microsOfLeftTrig1
       || microsOfRightTrig2 == microsOfLeftTrig2
-      || abs(microsOfRightTrig1 - microsOfLeftTrig1) > configuration.transitResetTimeoutInMicros
-      || abs(microsOfRightTrig2 - microsOfLeftTrig2) > configuration.transitResetTimeoutInMicros
+      || (microsOfRightTrig1 >= microsOfLeftTrig1 && microsOfRightTrig1 - microsOfLeftTrig1 > configuration.transitResetTimeoutInMicros)
+      || (microsOfRightTrig1 < microsOfLeftTrig1 && microsOfLeftTrig1 - microsOfRightTrig1 > configuration.transitResetTimeoutInMicros)
+      || (microsOfRightTrig2 >= microsOfLeftTrig2 && microsOfRightTrig2 - microsOfLeftTrig2 > configuration.transitResetTimeoutInMicros)
+      || (microsOfRightTrig2 < microsOfLeftTrig2 && microsOfLeftTrig2 - microsOfRightTrig2 > configuration.transitResetTimeoutInMicros)
     ) {
 
     Serial.println("ERROR: same time in transit samples or delta time greater than timeout");

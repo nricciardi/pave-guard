@@ -52,7 +52,7 @@ struct DeviceConfiguration {
 
 const DeviceConfiguration deviceConfiguration = {
 
-  .deviceId = "679251aa95e18aed7f6219ed",
+  .deviceId = "679b622834220629bc94425c",
 
   .delayBeforeSetupInMillis = 2 * 1000,
 

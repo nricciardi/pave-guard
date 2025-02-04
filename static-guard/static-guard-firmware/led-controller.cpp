@@ -4,7 +4,8 @@
 bool matrixBegun = false;     // DO NOT TOUCH THIS! (it is used by internal logic)
 
 ArduinoLEDMatrix matrix;
-bool enablePrint = false;      // set to false to prevent print on Led Matrix
+bool enablePrint = true;      // set to false to prevent print on Led Matrix
+float showTimeMultiplier = 1.2;
 
 void printOnLedMatrix(const char* text, unsigned long speed, bool print) {
 
@@ -16,6 +17,8 @@ void printOnLedMatrix(const char* text, unsigned long speed, bool print) {
     matrix.begin();
     matrixBegun = true;
   }
+
+  speed *= showTimeMultiplier;
 
   matrix.beginDraw();
 

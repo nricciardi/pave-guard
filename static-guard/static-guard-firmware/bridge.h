@@ -40,11 +40,11 @@ const BridgeConfiguration bridgeConfiguration = {
   .wifiConnectionNeeded = true,
 
   .bucketSize = 30,   // MAX 30
-  .bucketSendingThreshold = 10,
+  .bucketSendingThreshold = 3,
 
-  .wifiSsid = "Martin Router King 2.4GHz",
-  .wifiPassword = "",
-  .serverAddress = "192.168.0.128",
+  .wifiSsid = "Not eduroam",
+  .wifiPassword = "celestecarbone",
+  .serverAddress = "192.168.160.3",
   .serverPort = 3000,
   .serverRoute = "/graphql",
 

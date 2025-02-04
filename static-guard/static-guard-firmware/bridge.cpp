@@ -131,14 +131,14 @@ void Bridge::put(Telemetry* telemetry) {
     Serial.print(telemetriesInBucket);
     Serial.print("/");
     Serial.print(configuration.bucketSendingThreshold);
-    Serial.print("|");
+    Serial.print(" of ");
     Serial.print(configuration.bucketSize);
     Serial.println(")");
 
     char msg[24];
-    sprintf(msg, "%d/%d|%d", telemetriesInBucket, configuration.bucketSendingThreshold, configuration.bucketSize);
+    sprintf(msg, "%d/%d of %d", telemetriesInBucket, configuration.bucketSendingThreshold, configuration.bucketSize);
 
-    printOnLedMatrix(msg, 20, configuration.ledLogEnabled && configuration.debug);
+    printOnLedMatrix(msg, 40, configuration.ledLogEnabled && configuration.debug);
   }
 }
 
