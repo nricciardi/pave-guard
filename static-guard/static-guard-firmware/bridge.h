@@ -42,9 +42,9 @@ const BridgeConfiguration bridgeConfiguration = {
   .bucketSize = 30,   // MAX 30
   .bucketSendingThreshold = 3,
 
-  .wifiSsid = "Not eduroam",
-  .wifiPassword = "celestecarbone",
-  .serverAddress = "192.168.160.3",
+  .wifiSsid = "ncla",  // Not eduroam
+  .wifiPassword = "Asdf1234", // celestecarbone
+  .serverAddress = "192.168.13.178",
   .serverPort = 3000,
   .serverRoute = "/graphql",
 

@@ -15,7 +15,7 @@ void Device::onTransitTriggerRightTrig() {
 
 void Device::onRainGaugeTrig() {
 
-  if(abs(millis() - Device::instance->lastRainGaugeTrig) <= Device::instance->configuration.rainGaugeTrigThresholdInMillis)
+  if (abs(millis() - Device::instance->lastRainGaugeTrig) <= Device::instance->configuration.rainGaugeTrigThresholdInMillis)
     return;
 
   Device::instance->rainGaugeUnhandledTrigs += 1;
@@ -26,7 +26,7 @@ void Device::onRainGaugeTrig() {
 Device* Device::instance = nullptr;
 
 Device* Device::GetInstance() {
-  if(instance == nullptr) {
+  if (instance == nullptr) {
     instance = new Device();
   }
 
@@ -37,7 +37,7 @@ Device* Device::GetInstance() {
 // ========================== SETUP ==========================
 void Device::setup() {
 
-  if(configuration.delayBeforeSetupInMillis > 0) {
+  if (configuration.delayBeforeSetupInMillis > 0) {
     Serial.print("setup delayed of ");
     Serial.println(configuration.delayBeforeSetupInMillis);
     delay(configuration.delayBeforeSetupInMillis);
@@ -48,12 +48,13 @@ void Device::setup() {
   // === BRIDGE ===
   bool bridgeSetupOutcome = bridge->setup();
 
-  if(!bridgeSetupOutcome) {
+  if (!bridgeSetupOutcome) {
 
     Serial.println("CRITICAL: impossible to setup bridge, execution will be blocked");
 
     // don't continue
-    while(true);
+    while (true)
+      ;
   }
 
 
@@ -71,7 +72,7 @@ void Device::setup() {
   // === RAIN GAUGE ===
   pinMode(configuration.rainGaugeSensorPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(configuration.rainGaugeSensorPin), Device::onRainGaugeTrig, RISING);
-  
+
 
   Serial.print("device OK: ");
   Serial.println(configuration.deviceId);
@@ -83,9 +84,9 @@ void Device::setup() {
 void Device::work() {
 
   long currentMillis;
-  
+
   currentMillis = millis();
-  if(configuration.enableTemperatureSensor && (currentMillis - lastTemperatureSamplingMillis > configuration.temperatureSamplingRateInMillis)) {
+  if (configuration.enableTemperatureSensor && (currentMillis - lastTemperatureSamplingMillis > configuration.temperatureSamplingRateInMillis)) {
 
     handleTemperature();
 
@@ -93,7 +94,7 @@ void Device::work() {
   }
 
   currentMillis = millis();
-  if(configuration.enableHumiditySensor && (currentMillis - lastHumiditySamplingMillis > configuration.humiditySamplingRateInMillis)) {
+  if (configuration.enableHumiditySensor && (currentMillis - lastHumiditySamplingMillis > configuration.humiditySamplingRateInMillis)) {
 
     handleHumidity();
 
@@ -101,14 +102,14 @@ void Device::work() {
   }
 
   currentMillis = millis();
-  if(configuration.enableRainGaugeSensor && (currentMillis - lastRainGaugeSamplesElaborationMillis > configuration.rainSamplesElaborationRateInMillis)) {
+  if (configuration.enableRainGaugeSensor && (currentMillis - lastRainGaugeSamplesElaborationMillis > configuration.rainSamplesElaborationRateInMillis)) {
 
     elaborateRainGaugeUnhandledSamples();
 
     lastRainGaugeSamplesElaborationMillis = currentMillis;
   }
 
-  if(configuration.enableTransitTriggerSensor) {
+  if (configuration.enableTransitTriggerSensor) {
     elaborateTransitTriggersUnhandledSamples();
   }
 
@@ -116,14 +117,14 @@ void Device::work() {
 }
 
 void Device::handleHumidity() {
-  
+
   float humidity = dht->readHumidity() + configuration.humidityOffset;
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
-  if(!isnan(humidity)) {
+  if (!isnan(humidity)) {
 
-    if(configuration.debug) {
+    if (configuration.debug) {
       Serial.print("read humidity: ");
       Serial.print(humidity);
       Serial.print(" (offset: ");
@@ -138,7 +139,7 @@ void Device::handleHumidity() {
   } else {
 
     Serial.println("ERROR: fail to read humidity");
-    
+
     FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "HT001", "Fail to read humidity");
 
     bridge->put(failAlert);
@@ -146,22 +147,22 @@ void Device::handleHumidity() {
 }
 
 void Device::handleTemperature() {
-  
+
   // Read temperature as Celsius (the default)
   float temperature = dht->readTemperature() + configuration.temperatureOffset;
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
-  if(!isnan(temperature)) {
+  if (!isnan(temperature)) {
 
-    if(configuration.debug) {
+    if (configuration.debug) {
       Serial.print("read temperature: ");
       Serial.print(temperature);
       Serial.print(" (offset: ");
       Serial.print(configuration.temperatureOffset);
       Serial.println(")");
     }
-    
+
     Telemetry* temperatureTelemetry = new TemperatureTelemetry(configuration.deviceId, timestamp, temperature);
 
     bridge->put(temperatureTelemetry);
@@ -169,7 +170,7 @@ void Device::handleTemperature() {
   } else {
 
     Serial.println("ERROR: fail to read temperature");
-    
+
     FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "HT002", "Fail to read temperature");
 
     bridge->put(failAlert);
@@ -178,7 +179,7 @@ void Device::handleTemperature() {
 
 void Device::elaborateRainGaugeUnhandledSamples() {
 
-  if(rainGaugeUnhandledTrigs <= 0)
+  if (rainGaugeUnhandledTrigs <= 0)
     return;
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds() - ((millis() - lastRainGaugeTrig) / 1000);
@@ -190,15 +191,15 @@ void Device::elaborateRainGaugeUnhandledSamples() {
 
   interrupts();
 
-  float totalMm = (float) trigs * configuration.rainTriggerMultiplierInMm;
+  float totalMm = (float)trigs * configuration.rainTriggerMultiplierInMm;
 
-  if(configuration.debug) {
+  if (configuration.debug) {
     Serial.print("elaborate rain gauge unhandled samples: ");
     Serial.print(trigs);
     Serial.print(" => ");
     Serial.println(totalMm);
   }
-    
+
   Telemetry* rainTelemetry = new RainTelemetry(configuration.deviceId, timestamp, totalMm);
 
   bridge->put(rainTelemetry);
@@ -208,7 +209,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
 
   unsigned long timestamp = bridge->getEpochTimeFromNtpServerInSeconds();
 
-  if(abs(transitTriggerLeftQueue->nItems() - transitTriggerRightQueue->nItems()) > 1) {
+  if (abs(transitTriggerLeftQueue->nItems() - transitTriggerRightQueue->nItems()) > 1) {
 
     Serial.println("ERROR: inconsistent queues");
 
@@ -219,15 +220,15 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT003", "Inconsistent queues");
 
     bridge->put(failAlert);
-    
+
     return;
   }
 
-  if((transitTriggerLeftQueue->nItems() < 2) || (transitTriggerRightQueue->nItems() < 2))
+  if ((transitTriggerLeftQueue->nItems() < 2) || (transitTriggerRightQueue->nItems() < 2))
     return;
 
-  
-  if(configuration.debug) {
+
+  if (configuration.debug) {
     Serial.println("transit samples:");
     Serial.print("left: ");
     transitTriggerLeftQueue->print();
@@ -236,7 +237,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
   }
 
   noInterrupts();
-  
+
   unsigned long microsOfRightTrig1 = transitTriggerRightQueue->pop();
   unsigned long microsOfLeftTrig1 = transitTriggerLeftQueue->pop();
   unsigned long microsOfRightTrig2 = transitTriggerRightQueue->pop();
@@ -248,14 +249,13 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
   Serial.println(abs(microsOfRightTrig2 - microsOfLeftTrig2));
   Serial.println(configuration.transitResetTimeoutInMicros);
 
-  if(
-      microsOfRightTrig1 == microsOfLeftTrig1
-      || microsOfRightTrig2 == microsOfLeftTrig2
-      || (microsOfRightTrig1 >= microsOfLeftTrig1 && microsOfRightTrig1 - microsOfLeftTrig1 > configuration.transitResetTimeoutInMicros)
-      || (microsOfRightTrig1 < microsOfLeftTrig1 && microsOfLeftTrig1 - microsOfRightTrig1 > configuration.transitResetTimeoutInMicros)
-      || (microsOfRightTrig2 >= microsOfLeftTrig2 && microsOfRightTrig2 - microsOfLeftTrig2 > configuration.transitResetTimeoutInMicros)
-      || (microsOfRightTrig2 < microsOfLeftTrig2 && microsOfLeftTrig2 - microsOfRightTrig2 > configuration.transitResetTimeoutInMicros)
-    ) {
+  if (
+    microsOfRightTrig1 == microsOfLeftTrig1
+    || microsOfRightTrig2 == microsOfLeftTrig2
+    || (microsOfRightTrig1 >= microsOfLeftTrig1 && microsOfRightTrig1 - microsOfLeftTrig1 > configuration.transitResetTimeoutInMicros)
+    || (microsOfRightTrig1 < microsOfLeftTrig1 && microsOfLeftTrig1 - microsOfRightTrig1 > configuration.transitResetTimeoutInMicros)
+    || (microsOfRightTrig2 >= microsOfLeftTrig2 && microsOfRightTrig2 - microsOfLeftTrig2 > configuration.transitResetTimeoutInMicros)
+    || (microsOfRightTrig2 < microsOfLeftTrig2 && microsOfLeftTrig2 - microsOfRightTrig2 > configuration.transitResetTimeoutInMicros)) {
 
     Serial.println("ERROR: same time in transit samples or delta time greater than timeout");
 
@@ -266,44 +266,44 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT003", "Same time in transit samples or delta time greater than timeout");
 
     bridge->put(failAlert);
-    
+
     return;
   }
 
   unsigned long deltaTime1InMicros = configuration.transitTriggerInterruptOffsetInMicros;
 
-  if(microsOfRightTrig1 > microsOfLeftTrig1)
+  if (microsOfRightTrig1 > microsOfLeftTrig1)
     deltaTime1InMicros += microsOfRightTrig1 - microsOfLeftTrig1;
   else
     deltaTime1InMicros += microsOfLeftTrig1 - microsOfRightTrig1;
 
-  unsigned long deltaTime2InMicros = configuration.transitTriggerInterruptOffsetInMicros;   // 3 offset - 2 offset
+  unsigned long deltaTime2InMicros = configuration.transitTriggerInterruptOffsetInMicros;  // 3 offset - 2 offset
 
-  if(microsOfRightTrig2 > microsOfLeftTrig2)
+  if (microsOfRightTrig2 > microsOfLeftTrig2)
     deltaTime2InMicros += microsOfRightTrig2 - microsOfLeftTrig2;
   else
     deltaTime2InMicros += microsOfLeftTrig2 - microsOfRightTrig2;
 
-  double transitTimeInMicros = configuration.transitTriggerInterruptOffsetInMicros * 3; // us
+  double transitTimeInMicros = configuration.transitTriggerInterruptOffsetInMicros * 3;  // us
 
-  if(microsOfLeftTrig2 > microsOfRightTrig1)
+  if (microsOfLeftTrig2 > microsOfRightTrig1)
     transitTimeInMicros += microsOfLeftTrig2 - microsOfRightTrig1;
   else
     transitTimeInMicros += microsOfRightTrig2 - microsOfLeftTrig1;
 
-  double partialTransitTimeInMicros = configuration.transitTriggerInterruptOffsetInMicros * 2 + min(microsOfRightTrig2 - microsOfRightTrig1, microsOfLeftTrig2 - microsOfLeftTrig1); // us
+  double partialTransitTimeInMicros = configuration.transitTriggerInterruptOffsetInMicros * 2 + min(microsOfRightTrig2 - microsOfRightTrig1, microsOfLeftTrig2 - microsOfLeftTrig1);  // us
 
-  double transitTimeInSeconds = transitTimeInMicros / 1000000.0; // us -> s
-  double partialTransitTimeInSeconds = partialTransitTimeInMicros / 1000000.0; // us -> s
+  double transitTimeInSeconds = transitTimeInMicros / 1000000.0;                // us -> s
+  double partialTransitTimeInSeconds = partialTransitTimeInMicros / 1000000.0;  // us -> s
 
 
-  double velocity1 = configuration.transitTriggersdistanceInMeters / ((double) deltaTime1InMicros);   // m/us
-  double velocity2 = configuration.transitTriggersdistanceInMeters / ((double) deltaTime2InMicros);   // m/us
+  double velocity1 = configuration.transitTriggersdistanceInMeters / ((double)deltaTime1InMicros);  // m/us
+  double velocity2 = configuration.transitTriggersdistanceInMeters / ((double)deltaTime2InMicros);  // m/us
 
-  if(velocity1 <= 0 || isnan(velocity1) || velocity2 <= 0 || isnan(velocity2)) {
+  if (velocity1 <= 0 || isnan(velocity1) || velocity2 <= 0 || isnan(velocity2)) {
 
     Serial.println("ERROR: trouble during velocity computation, computed velocities is less or equal to zero");
-    
+
     Serial.println("WARNING: queues will be cleared");
     transitTriggerRightQueue->clear();
     transitTriggerLeftQueue->clear();
@@ -311,14 +311,14 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT002", "Computed velocities is less or equal to zero");
 
     bridge->put(failAlert);
-    
+
     return;
   }
 
-  double meanVelocity = (double) (velocity1 + velocity2) / 2.0;  // m/s
-  meanVelocity *= 1000000.0;  // m/us -> m/s
+  double meanVelocity = (double)(velocity1 + velocity2) / 2.0;  // m/s
+  meanVelocity *= 1000000.0;                                    // m/us -> m/s
 
-  if(transitTimeInSeconds <= 0 || isnan(transitTimeInSeconds) || partialTransitTimeInSeconds <= 0 || isnan(partialTransitTimeInSeconds) ) {
+  if (transitTimeInSeconds <= 0 || isnan(transitTimeInSeconds) || partialTransitTimeInSeconds <= 0 || isnan(partialTransitTimeInSeconds)) {
 
     Serial.println("ERROR: trouble during transit time computation");
 
@@ -329,14 +329,14 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT003", "Transit time is less or equal to zero");
 
     bridge->put(failAlert);
-    
+
     return;
   }
 
-  double vehicleLength = meanVelocity * partialTransitTimeInSeconds;   // m/s * s = m
-  meanVelocity *= 3.6;    // m/s * 3.6 = km/h
+  double vehicleLength = meanVelocity * partialTransitTimeInSeconds;  // m/s * s = m
+  meanVelocity *= 3.6;                                                // m/s * 3.6 = km/h
 
-  if(configuration.debug) {
+  if (configuration.debug) {
     Serial.print("transit: length -> ");
     Serial.print(vehicleLength, 3);
     Serial.print("m; velocity -> ");
@@ -346,7 +346,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     Serial.println("m/s)");
   }
 
-  if(vehicleLength <= 0 || isnan(vehicleLength) || meanVelocity <= 0 || isnan(meanVelocity)) {
+  if (vehicleLength <= 0 || isnan(vehicleLength) || meanVelocity <= 0 || isnan(meanVelocity)) {
 
     Serial.println("ERROR: vehicle length or velocity is less or equal to zero or inf");
 
@@ -357,7 +357,7 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
     FailAlert* failAlert = new FailAlert(configuration.deviceId, timestamp, "TT004", "Vehicle length or velocity is less or equal to zero or inf");
 
     bridge->put(failAlert);
-    
+
     return;
   }
 
@@ -365,38 +365,3 @@ void Device::elaborateTransitTriggersUnhandledSamples() {
 
   bridge->put(transitTelemetry);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

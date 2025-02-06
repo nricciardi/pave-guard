@@ -18,7 +18,7 @@ from pgmodel.preprocess.preprocessor import Preprocessor
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.linear_model import LinearRegression, SGDRegressor
+from sklearn.linear_model import LinearRegression, SGDRegressor, Ridge, Lasso
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
@@ -31,9 +31,40 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 from prophet import Prophet
+import pprint
 
 
+FEATURES_TO_USE = [
+    FeatureName.DAYS.value,
+    FeatureName.TRANSIT_DURING_RAINFALL.value,
+    FeatureName.TRANSIT_TOTAL.value,
+    FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL.value,
+    FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL.value,
+    FeatureName.RAINFALL_QUANTITY.value,
+    FeatureName.TEMPERATURE_MEAN.value,
+    FeatureName.HUMIDITY_MEAN.value,
+    FeatureName.DELTA_TEMPERATURE.value,
+    FeatureName.CRACK_SEVERITY.value,
+    FeatureName.POTHOLE_SEVERITY.value,
+    FeatureName.TARGET.value
+]
 
+def filter_columns(df: pd.DataFrame, columns_to_keep: list) -> pd.DataFrame:
+    """
+    Removes all columns from the DataFrame that are NOT in the specified list.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame.
+    columns_to_keep (list): List of column names to retain in the DataFrame.
+
+    Returns:
+    pd.DataFrame: A DataFrame containing only the specified columns.
+    """
+    # Filter the list to include only columns that exist in the DataFrame
+    existing_columns = [col for col in columns_to_keep if col in df.columns]
+
+    # Return a new DataFrame with only the existing columns
+    return df[existing_columns]
 
 
 def is_maintenance_for_road(maintenance, location) -> bool:
@@ -72,7 +103,7 @@ def generate_final_dataset_by_location(location: dict, crack_telemetries_of_loc,
         print(location)
         raise key_error
 
-def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool = False, num_final_rows: int = 0) -> tuple[pd.DataFrame, pd.DataFrame]:
+def final_dataset(dump: bool = False, output_path: str | None = None, num_final_rows: int = 0) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     print("generating final dataset (train dataset)...")
     if(num_final_rows < 0):
@@ -133,17 +164,6 @@ def final_dataset(dump: bool = False, output_path: str | None = None, plot: bool
             print("dump csv")
             db_total_crack.to_csv(os.path.join(output_path, "crack_train_dataset.csv"), index=False)
             db_total_pothole.to_csv(os.path.join(output_path, "pothole_train_dataset.csv"), index=False)
-
-        if plot:
-            import seaborn as sns
-            import matplotlib.pyplot as plt
-
-            sns.heatmap(db_total_crack.corr(), annot=True)
-            plt.show()
-
-            sns.heatmap(db_total_pothole.corr(), annot=True)
-            plt.show()
-
 
         return db_total_crack, db_total_pothole
 
@@ -218,6 +238,9 @@ def build_eval_data(crack: float, pothole: float, data: Dict[str, Dict[str, pd.D
 
     pothole_record[FeatureName.CRACK_SEVERITY.value] = crack
     pothole_record[FeatureName.POTHOLE_SEVERITY.value] = pothole
+
+    crack_record = filter_columns(crack_record, FEATURES_TO_USE)
+    pothole_record = filter_columns(pothole_record, FEATURES_TO_USE)
 
     return crack_record, pothole_record
 
@@ -497,13 +520,27 @@ def make_and_upload_daily_predictions(model: PaveGuardModel):
 
 
 
-def train(model: PaveGuardModel, output_path: str, csvs = False):
+def train(model: PaveGuardModel, output_path: str, csvs = False, plot: bool = False):
 
     if csvs:
         crack_dataset, pothole_dataset = pd.read_csv(f"{output_path}/crack_train_dataset.csv"), pd.read_csv(f"{output_path}/pothole_train_dataset.csv")
 
     else:
-        crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, plot=False, num_final_rows=3000)
+        crack_dataset, pothole_dataset = final_dataset(dump=True, output_path=output_path, num_final_rows=3000)
+
+
+    crack_dataset = filter_columns(crack_dataset, FEATURES_TO_USE)
+    pothole_dataset = filter_columns(pothole_dataset, FEATURES_TO_USE)
+
+    if plot:
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+
+        sns.heatmap(crack_dataset.corr(), annot=True)
+        plt.show()
+
+        sns.heatmap(pothole_dataset.corr(), annot=True)
+        plt.show()
 
     X_crack = crack_dataset.drop(columns=[FeatureName.TARGET.value])
     X_pothole = pothole_dataset.drop(columns=[FeatureName.TARGET.value])
@@ -516,6 +553,17 @@ def train(model: PaveGuardModel, output_path: str, csvs = False):
 
     return model
 
+
+def get_feature_coefficients_of_lr(model: LinearRegression) -> dict:
+    if not hasattr(model, 'coef_'):
+        raise ValueError("Model must be fitted before extracting coefficients.")
+
+    if hasattr(model, 'feature_names_in_'):
+        feature_names = model.feature_names_in_
+    else:
+        raise ValueError("Feature names not available. Provide them explicitly.")
+
+    return dict(zip(feature_names, model.coef_))
 
 
 if __name__ == '__main__':
@@ -536,7 +584,7 @@ if __name__ == '__main__':
             # "pca__n_components": range(2, 10, 2),
             # "model__positive": [True, False],
             #
-            # "kbest__k": range(3, 12),
+            # "kbest__k": range(3, len(FEATURES_TO_USE)),
 
             # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
             # "model__max_depth": (None, 2, 5, 7),
@@ -563,7 +611,7 @@ if __name__ == '__main__':
             # "pca__n_components": range(2, 12, 2),
             # "model__positive": [True, False],
             #
-            # "kbest__k": range(3, 12),
+            # "kbest__k": range(3, len(FEATURES_TO_USE)),
 
             # "model__criterion": ("squared_error", "friedman_mse", "absolute_error", "poisson"),
             # "model__max_depth": (None, 2, 5, 7),
@@ -582,11 +630,11 @@ if __name__ == '__main__':
     )
 
     # train(model, output_path_nic, csvs=False)
-    train(model, output_path_fil, csvs=True)
+    train(model, output_path_nic, csvs=True)
 
     # train(model, output_path_fil, csvs=True)
 
-    updated_at = model.restore_model(models_info_file_path_fil)
+    updated_at = model.restore_model(models_info_file_path_nic)
     model.clear_cache()
 
     print("last updated:", updated_at)
@@ -597,16 +645,16 @@ if __name__ == '__main__':
     print("Performance:")
     print(model.performances)
 
-    crack_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
-    pothole_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
+    # crack_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
+    # pothole_columns = list("<FeatureName.TEMPERATURE_MEAN: 'temperature_mean'>, <FeatureName.DELTA_TEMPERATURE: 'delta_temperature'>, <FeatureName.HUMIDITY_MEAN: 'humidity_mean'>, <FeatureName.DAYS: 'days'>, <FeatureName.RAINFALL_QUANTITY: 'rainfall_quantity'>, <FeatureName.STORM_TOTAL: 'storm_total'>, <FeatureName.TRANSIT_TOTAL: 'transit_total'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_TOTAL: 'heavy_vehicles_transit_total'>, <FeatureName.TRANSIT_DURING_RAINFALL: 'transit_during_rainfall'>, <FeatureName.HEAVY_VEHICLES_TRANSIT_DURING_RAINFALL: 'heavy_vehicles_transit_during_rainfall'>, <FeatureName.CRACK_SEVERITY: 'crack_severity'>, <FeatureName.POTHOLE_SEVERITY: 'pothole_severity'>".split(","))
 
-    crack_weights = model.crack_model.best_estimator_[-1].coef_
-    pothole_weights = model.pothole_model.best_estimator_[-1].coef_
+    crack_model = model.crack_model.best_estimator_[-1]
+    pothole_model = model.pothole_model.best_estimator_[-1]
 
-    print("crack model:")
-    print(json.dumps(dict(zip(crack_columns, crack_weights)), indent=4))
+    print("\nCrack model weights:")
+    pprint.pprint(get_feature_coefficients_of_lr(crack_model))
+    print("\nPothole model weights:")
+    pprint.pprint(get_feature_coefficients_of_lr(pothole_model))
 
-    print("pothole model:")
-    print(json.dumps(dict(zip(pothole_columns, pothole_weights)), indent=4))
 
-    make_and_upload_daily_predictions(model)
+    # make_and_upload_daily_predictions(model)
